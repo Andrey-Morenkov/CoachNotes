@@ -39,20 +39,22 @@ android
 dependencies
 {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    // Tests stuff
+    testImplementation "junit:junit:$junit_version"
+    androidTestImplementation "androidx.test.ext:junit:$junitImpl_version"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
 
     // Kotlin
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
-    // Easy runtime permissions
-    implementation "com.nabinbhandari.android:permissions:$easypermission_version"
 
     // AndroidX
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.core:core-ktx:$ktxcore_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
+
+    // Easy runtime permissions
+    implementation "com.nabinbhandari.android:permissions:$easypermission_version"
 
     // Moxy
     implementation "com.github.moxy-community:moxy:$moxy_version"

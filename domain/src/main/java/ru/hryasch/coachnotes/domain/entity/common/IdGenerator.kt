@@ -4,11 +4,11 @@ object IdGenerator
 {
     fun generatePersonId(): String
     {
-
+        return ""
     }
 
     fun generateGroupId(): String
     {
-
+        return ""
     }
 }
