@@ -4,53 +4,76 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="16dp"
     android:orientation="vertical"
     tools:context=".activity.MainActivity">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp">
+        android:layout_height="@dimen/home_screen_account_info_height">
 
         <com.mikhaellopez.circularimageview.CircularImageView
             android:id="@+id/circularImageView"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:foreground="@mipmap/ic_launcher_round"
+            android:layout_width="@dimen/home_screen_account_avatar_size"
+            android:layout_height="@dimen/home_screen_account_avatar_size"
+            app:civ_border="false"
             app:civ_border_color="#3f51b5"
-            app:civ_border_width="4dp"
+            app:civ_border_width="0dp"
             app:civ_shadow="true"
             app:civ_shadow_color="#3f51b5"
+            app:civ_shadow_radius="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.955"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/avatar_sample"
-            tools:srcCompat="@tools:sample/backgrounds/scenic[2]" />
+            app:layout_constraintVertical_bias="0.457"
+            app:srcCompat="@drawable/sample_avatar"
+            tools:srcCompat="@drawable/sample_avatar" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="20dp"
-            android:text="@string/sample_home_screen_name"
-            android:textSize="30sp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/home_screen_sample_name"
+            android:textColor="@color/colorText"
+            android:textSize="@dimen/home_screen_account_name_text_size"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/circularImageView"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.272" />
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sample_home_screen_position"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:fontFamily="@font/montserrat"
+            android:text="@string/home_screen_sample_position"
+            android:textColor="@color/colorPrimaryLight"
+            android:textSize="@dimen/home_screen_submenu_explanation_text_size"
             app:layout_constraintStart_toStartOf="@+id/textView"
-            app:layout_constraintTop_toBottomOf="@+id/textView"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        layout="@layout/card_today_schedule"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="16dp" />
+
+    <include
+        layout="@layout/element_home_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp" />
 
 </LinearLayout>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="home_screen_account_info_height">100dp</dimen>
+    <dimen name="home_screen_submenu_text_size">20sp</dimen>
+    <dimen name="home_screen_submenu_explanation_text_size">14sp</dimen>
+    <dimen name="home_screen_account_name_text_size">20sp</dimen>
+    <dimen name="home_screen_account_avatar_size">65dp</dimen>
+
+    <dimen name="card_corner_radius_size">20dp</dimen>
+</resources>
