@@ -28,8 +28,8 @@
         // Samples
         <string name="groups_screen_toolbar_subtitle_sample">5 шт</string>
         <string name="groups_screen_group_name_sample">Группа #1</string>
-        <string name="groups_screen_group_size_sample">24 человека</string>
-        <string name="groups_screen_group_age_sample">7–8 лет</string>
+        <string name="groups_screen_group_size_sample">24</string>
+        <string name="groups_screen_group_age_sample">7–8\nлет</string>
         <string name="groups_screen_group_age_year_sample">2013–2014 г.р</string>
 
 </resources>

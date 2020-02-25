@@ -7,4 +7,7 @@
     <dimen name="home_screen_account_avatar_size">65dp</dimen>
 
     <dimen name="card_corner_radius_size">20dp</dimen>
+
+    <dimen name="universal_toolbar_action_img_size">60dp</dimen>
+    <dimen name="universal_toolbar_action_img_margin_end">0dp</dimen>
 </resources>
