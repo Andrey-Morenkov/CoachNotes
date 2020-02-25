@@ -2,20 +2,47 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:theme="@style/AppThemeDarkStatusBar">
 
-    <include
-        android:id="@+id/toolbarGroupsScreen"
-        layout="@layout/toolbar_universal"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:subtitleTextColor="@color/colorPrimaryLight"
-        app:titleTextColor="@color/colorText" />
+        android:layout_height="wrap_content">
 
-    <androidx.recyclerview.widget.RecyclerView
+        <include
+            android:id="@+id/toolbarGroupsScreen"
+            layout="@layout/toolbar_universal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:subtitleTextColor="@color/colorPrimaryLight"
+            app:title="@string/groups_screen_toolbar_title"
+            app:titleTextColor="@color/colorText" />
+
+        <ImageButton
+            android:id="@+id/buttonGroupsScreenAddGroup"
+            style="@android:style/Widget.DeviceDefault.ImageButton"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_gravity="center|end"
+            android:layout_marginEnd="16dp"
+            android:background="#00FFFFFF"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_group_add" />
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp" />
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewGroupsScreenGroupsList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteY="735dp"
+            tools:listitem="@layout/card_group" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </LinearLayout>

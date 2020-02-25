@@ -9,6 +9,10 @@
     <string name="journal">Журнал</string>
     <string name="label_paid">Платная</string>
 
+    // Universal toolbar
+    <string name="universal_toolbar_title">Заголовок</string>
+    <string name="universal_toolbar_subtitle">Подзаголовок</string>
+
     // Home screen
     <string name="home_screen_sample_name">Кондратьев Александр</string>
     <string name="home_screen_sample_position">Тренер</string>
@@ -20,7 +24,9 @@
         <string name="home_screen_people_stats_sample">38 шт</string>
 
     // Groups screen
+    <string name="groups_screen_toolbar_title">Мои группы</string>
         // Samples
+        <string name="groups_screen_toolbar_subtitle_sample">5 шт</string>
         <string name="groups_screen_group_name_sample">Группа #1</string>
         <string name="groups_screen_group_size_sample">24 человека</string>
         <string name="groups_screen_group_age_sample">7–8 лет</string>

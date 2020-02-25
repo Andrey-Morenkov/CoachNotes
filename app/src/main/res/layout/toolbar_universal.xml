@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@color/colorBackground"
     app:navigationIcon="?attr/homeAsUpIndicator"
-    app:subtitle="подзаголовок"
-    app:title="Заголовок">
+    app:subtitle="@string/universal_toolbar_subtitle"
+    app:title="@string/universal_toolbar_title">
 
 </androidx.appcompat.widget.Toolbar>

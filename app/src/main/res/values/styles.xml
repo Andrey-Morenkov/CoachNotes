@@ -12,4 +12,14 @@
         <item name="android:textColor">@color/colorText</item>
     </style>
 
+    <style name="AppThemeDarkStatusBar" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryLight</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorTertiary">@color/colorText</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textColor">@color/colorText</item>
+    </style>
+
 </resources>
