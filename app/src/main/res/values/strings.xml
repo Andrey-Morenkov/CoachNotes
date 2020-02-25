@@ -1,18 +1,29 @@
 <resources>
     <string name="app_name">Coach Notes</string>
 
-    // Only for home screen
-    <string name="home_screen_sample_name">Кондратьев Александр</string>
-    <string name="home_screen_sample_position">Тренер</string>
-    <string name="home_screen_my_schedule">График занятий</string>
-    <string name="home_screen_today_date_sample">Сегодня: 01 января 2020</string>
-    <string name="home_screen_group_stats_sample">5 шт</string>
-    <string name="home_screen_people_stats_sample">38 шт</string>
-
     // Shared
-    <string name="available_soon">Еще не готово :с</string>
+    <string name="available_soon">Еще не готово</string>
     <string name="menu">Меню</string>
     <string name="groups">Группы</string>
     <string name="people">Ученики</string>
     <string name="journal">Журнал</string>
+    <string name="label_paid">Платная</string>
+
+    // Home screen
+    <string name="home_screen_sample_name">Кондратьев Александр</string>
+    <string name="home_screen_sample_position">Тренер</string>
+    <string name="home_screen_my_schedule">График занятий</string>
+
+        // Samples
+        <string name="home_screen_today_date_sample">Сегодня: 01 января 2020</string>
+        <string name="home_screen_group_stats_sample">5 шт</string>
+        <string name="home_screen_people_stats_sample">38 шт</string>
+
+    // Groups screen
+        // Samples
+        <string name="groups_screen_group_name_sample">Группа #1</string>
+        <string name="groups_screen_group_size_sample">24 человека</string>
+        <string name="groups_screen_group_age_sample">7–8 лет</string>
+        <string name="groups_screen_group_age_year_sample">2013–2014 г.р</string>
+
 </resources>
