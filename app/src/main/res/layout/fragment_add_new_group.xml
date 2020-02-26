@@ -1,28 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <include
+        layout="@layout/toolbar_only_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content" />
 
-        <include
-            layout="@layout/toolbar_only_title"
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/imageButton"
-            style="@style/ToolbarImageButton"
-            android:layout_gravity="center|end"
-            app:srcCompat="@drawable/ic_done" />
-    </FrameLayout>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imageView5"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                app:srcCompat="@drawable/ic_user_group"
+                tools:srcCompat="@drawable/ic_user_group" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+            <studio.carbonylgroup.textfieldboxes.TextFieldBoxes
+                android:id="@+id/text_field_boxes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                app:hasClearButton="true"
+                app:hasFocus="false"
+                app:labelText="@string/new_group_screen_group_name_label"
+                app:panelBackgroundColor="@color/colorBackground"
+                app:primaryColor="@color/colorPrimaryLight"
+                app:secondaryColor="@color/colorPrimaryLight">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <studio.carbonylgroup.textfieldboxes.ExtendedEditText
+                    android:id="@+id/extended_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:textColor="@color/colorText"
+                    android:textSize="@dimen/group_info_user_input_text_size" />
+
+            </studio.carbonylgroup.textfieldboxes.TextFieldBoxes>
+
+            <include
+                layout="@layout/card_group_params"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_indent"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="@dimen/default_indent" />
+
+            <include
+                layout="@layout/card_group_members"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_indent"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="@dimen/default_indent" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
 </LinearLayout>

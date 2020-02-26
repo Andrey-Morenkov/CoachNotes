@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/CardSettingElement"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="16dp">
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:text="@string/group_param_supported_age"
+            android:textSize="@dimen/group_info_subtitle_text_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView12">
+
+            <com.skydoves.powerspinner.PowerSpinnerView
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:hint="@string/group_param_age1_sample"
+                android:numeric="integer|decimal"
+                android:textSize="@dimen/group_info_user_input_text_size"
+                app:spinner_arrow_gravity="end"
+                app:spinner_arrow_padding="8dp"
+                app:spinner_arrow_show="false"
+                app:spinner_divider_color="@color/colorText"
+                app:spinner_divider_show="true"
+                app:spinner_divider_size="0.4dp"
+                app:spinner_popup_animation="normal"
+                app:spinner_popup_background="@color/colorPrimaryLight"
+                app:spinner_popup_elevation="14dp" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/imageButton2"
+                style="@style/TransparentBackgroundImageButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/ic_remove" />
+
+            <com.skydoves.powerspinner.PowerSpinnerView
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:hint="@string/group_param_age2_sample"
+                android:textColor="@color/colorText"
+                android:textSize="@dimen/group_info_user_input_text_size"
+                app:spinner_arrow_gravity="end"
+                app:spinner_arrow_padding="8dp"
+                app:spinner_arrow_show="false"
+                app:spinner_divider_color="@color/colorText"
+                app:spinner_divider_show="true"
+                app:spinner_divider_size="0.4dp"
+                app:spinner_popup_animation="normal"
+                app:spinner_popup_background="@color/colorPrimaryLight"
+                app:spinner_popup_elevation="14dp" />
+
+            <com.skydoves.powerspinner.PowerSpinnerView
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:hint="@string/age_type_absolute"
+                android:paddingStart="@dimen/default_indent"
+                android:soundEffectsEnabled="false"
+                android:textColor="@color/colorText"
+                android:textSize="@dimen/group_info_user_input_text_size"
+                app:spinner_arrow_animate="false"
+                app:spinner_arrow_gravity="end"
+                app:spinner_arrow_padding="8dp"
+                app:spinner_arrow_show="true"
+                app:spinner_divider_color="@color/colorText"
+                app:spinner_divider_show="false"
+                app:spinner_divider_size="0.4dp"
+                app:spinner_popup_animation="normal"
+                app:spinner_popup_background="@color/colorPrimaryLight"
+                app:spinner_popup_elevation="14dp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/group_param_payment_method"
+            android:textSize="@dimen/group_info_subtitle_text_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
+
+        <Button
+            android:id="@+id/button2"
+            style="@style/DefaultTextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:longClickable="false"
+            android:text="@string/group_param_payment_free"
+            android:textAllCaps="false"
+            android:textColor="@color/colorPrimaryLight"
+            android:textColorHighlight="@android:color/transparent"
+            android:textColorHint="@android:color/transparent"
+            android:textSize="@dimen/group_info_user_input_text_size"
+            app:icon="@drawable/ic_money_inactive"
+            app:iconSize="35dp"
+            app:iconTint="@color/colorPrimaryLight"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView13"
+            app:rippleColor="@android:color/transparent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

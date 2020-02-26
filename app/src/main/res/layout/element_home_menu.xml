@@ -43,7 +43,7 @@
                     android:layout_width="90dp"
                     android:layout_height="90dp"
                     app:cardBackgroundColor="@color/colorPrimary"
-                    app:cardCornerRadius="@dimen/card_corner_radius_size">
+                    app:cardCornerRadius="@dimen/card_round_type_corner_radius_size">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -106,7 +106,7 @@
                     android:layout_width="90dp"
                     android:layout_height="90dp"
                     app:cardBackgroundColor="@color/colorPrimary"
-                    app:cardCornerRadius="@dimen/card_corner_radius_size">
+                    app:cardCornerRadius="@dimen/card_round_type_corner_radius_size">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -132,7 +132,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginBottom="4dp"
-                            android:text="@string/home_screen_group_stats_sample"
+                            android:text="@string/home_screen_sample_group_stats"
                             android:textAlignment="center"
                             android:textColor="@color/colorPrimaryLight"
                             android:textSize="12sp"
@@ -185,7 +185,7 @@
                     android:layout_width="90dp"
                     android:layout_height="90dp"
                     app:cardBackgroundColor="@color/colorPrimary"
-                    app:cardCornerRadius="@dimen/card_corner_radius_size">
+                    app:cardCornerRadius="@dimen/card_round_type_corner_radius_size">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -211,7 +211,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginBottom="4dp"
-                            android:text="@string/home_screen_people_stats_sample"
+                            android:text="@string/home_screen_sample_people_stats"
                             android:textAlignment="center"
                             android:textColor="@color/colorPrimaryLight"
                             android:textSize="12sp"

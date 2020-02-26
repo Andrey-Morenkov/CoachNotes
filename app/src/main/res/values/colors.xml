@@ -2,11 +2,10 @@
 <resources>
     <color name="colorBackground">#28292e</color>
     <color name="colorText">#fefefe</color>
+    <color name="colorPrimaryDarkHighlight">#283C49</color>
     <color name="colorPrimary">#314755</color>
     <color name="colorPrimaryLight">#6f8c9e</color>
     <color name="colorAccent">#F5824E</color>
 
-    <color name="colorLabelPaid">#C27A11</color>
-
-    <color name="colorTransparent">#00FFFFFF</color>
+    <color name="colorPaid">#C27A11</color>
 </resources>

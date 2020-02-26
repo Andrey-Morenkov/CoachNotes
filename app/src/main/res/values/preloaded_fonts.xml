@@ -2,7 +2,5 @@
 <resources>
     <array name="preloaded_fonts" translatable="false">
         <item>@font/montserrat</item>
-        <item>@font/roboto</item>
-        <item>@font/source_sans_pro_extralight</item>
     </array>
 </resources>

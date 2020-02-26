@@ -22,9 +22,41 @@
         <item name="android:textColor">@color/colorText</item>
     </style>
 
+
+
+// Cards
+    <style name="StraightCard" parent="AppTheme">
+        <item name="cardCornerRadius">@dimen/card_straight_type_corner_radius_size</item>
+    </style>
+
+    <style name="CardSettingElement" parent="StraightCard">
+        <item name="cardBackgroundColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="RoundCard" parent="AppTheme">
+        <item name="cardCornerRadius">@dimen/card_round_type_corner_radius_size</item>
+    </style>
+
+    <style name="RoundCard.Colorized">
+        <item name="cardBackgroundColor">@color/colorPrimary</item>
+    </style>
+
+
+
 // Elements (buttons, etc)
-    <style name="ToolbarImageButton" parent="@android:style/Widget.DeviceDefault.ImageButton">
-        <item name="android:background">@color/colorTransparent</item>
+    <style name="TransparentBackgroundImageButton">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="DefaultTextButton" parent="@style/Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/colorText</item>
+    </style>
+
+    <style name="TextAccentButton" parent="DefaultTextButton">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+    <style name="ToolbarImageButton" parent="TransparentBackgroundImageButton">
         <item name="android:layout_width">@dimen/universal_toolbar_action_img_size</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_marginEnd">@dimen/universal_toolbar_action_img_margin_end</item>

@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="home_screen_account_info_height">100dp</dimen>
-    <dimen name="home_screen_submenu_text_size">20sp</dimen>
-    <dimen name="home_screen_submenu_explanation_text_size">14sp</dimen>
-    <dimen name="home_screen_account_name_text_size">20sp</dimen>
-    <dimen name="home_screen_account_avatar_size">65dp</dimen>
 
-    <dimen name="card_corner_radius_size">20dp</dimen>
+// Default values
+    <dimen name="default_indent">16dp</dimen>
+    <dimen name="default_subtitle_text_size">18sp</dimen>
 
-    <dimen name="universal_toolbar_action_img_size">60dp</dimen>
-    <dimen name="universal_toolbar_action_img_margin_end">0dp</dimen>
+// Screen specific params
+
+    // Group info / group add screen
+        <dimen name="group_info_subtitle_text_size">@dimen/default_subtitle_text_size</dimen>
+        <dimen name="group_info_user_input_text_size">24sp</dimen>
+
+    // Home Screen
+        <dimen name="home_screen_account_info_height">100dp</dimen>
+        <dimen name="home_screen_submenu_text_size">20sp</dimen>
+        <dimen name="home_screen_submenu_explanation_text_size">14sp</dimen>
+        <dimen name="home_screen_account_name_text_size">20sp</dimen>
+        <dimen name="home_screen_account_avatar_size">65dp</dimen>
+
+// Element specific params
+    // Card
+        <dimen name="card_round_type_corner_radius_size">20dp</dimen>
+        <dimen name="card_straight_type_corner_radius_size">2dp</dimen>
+
+    //Toolbar
+        <dimen name="universal_toolbar_action_img_size">60dp</dimen>
+        <dimen name="universal_toolbar_action_img_margin_end">0dp</dimen>
+
 </resources>

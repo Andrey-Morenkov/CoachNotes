@@ -1,5 +1,7 @@
 <resources>
+    // Application
     <string name="app_name">Coach Notes</string>
+
 
     // Shared
     <string name="available_soon">Еще не готово</string>
@@ -7,29 +9,67 @@
     <string name="groups">Группы</string>
     <string name="people">Ученики</string>
     <string name="journal">Журнал</string>
-    <string name="label_paid">Платная</string>
+    <string name="age_type_absolute">г.р</string>
+    <string name="age_type_relative">лет</string>
 
-    // Universal toolbar
-    <string name="universal_toolbar_title">Заголовок</string>
-    <string name="universal_toolbar_subtitle">Подзаголовок</string>
 
-    // Home screen
-    <string name="home_screen_sample_name">Кондратьев Александр</string>
-    <string name="home_screen_sample_position">Тренер</string>
-    <string name="home_screen_my_schedule">График занятий</string>
+    // Screens
 
-        // Samples
-        <string name="home_screen_today_date_sample">Сегодня: 01 января 2020</string>
-        <string name="home_screen_group_stats_sample">5 шт</string>
-        <string name="home_screen_people_stats_sample">38 шт</string>
 
-    // Groups screen
-    <string name="groups_screen_toolbar_title">Мои группы</string>
-        // Samples
-        <string name="groups_screen_toolbar_subtitle_sample">5 шт</string>
-        <string name="groups_screen_group_name_sample">Группа #1</string>
-        <string name="groups_screen_group_size_sample">24</string>
-        <string name="groups_screen_group_age_sample">7–8\nлет</string>
-        <string name="groups_screen_group_age_year_sample">2013–2014 г.р</string>
+        // Home screen
+        <string name="home_screen_my_schedule">График занятий</string>
+            // Samples
+            <string name="home_screen_sample_name">Кондратьев Александр</string>
+            <string name="home_screen_sample_position">Тренер</string>
+            <string name="home_screen_sample_today_date">Сегодня: 01 января 2020</string>
+            <string name="home_screen_sample_group_stats">5 шт</string>
+            <string name="home_screen_sample_people_stats">38 шт</string>
+
+
+        // Add new group screen
+        <string name="new_group_screen_group_name_label">Название группы</string>
+        <string name="new_group_screen_members_label">Участники</string>
+
+
+
+        // Groups screen
+        <string name="groups_screen_toolbar_title">Мои группы</string>
+            // Samples
+            <string name="groups_screen_toolbar_subtitle_sample">5 шт</string>
+
+
+    // Items
+
+
+        // Cards
+
+
+            // Group preview card
+                // Samples
+                <string name="group_preview_name_sample">Группа #1</string>
+                <string name="group_preview_group_size_sample">24</string>
+                <string name="group_preview_people_ages_absolute_sample">2013–2014 г.р</string>
+                <string name="group_preview_people_ages_relative_sample">7–8\nлет</string>
+
+            // Group param card
+            <string name="group_param_payment_method">Тип оплаты</string>
+            <string name="group_param_payment_free">Бесплатная</string>
+            <string name="group_param_payment_paid">Платная</string>
+            <string name="group_param_supported_age">Возраст учеников</string>
+                // Samples
+                <string name="group_param_age1_sample">2007</string>
+                <string name="group_param_age2_sample">2008</string>
+    
+            // Group members card
+            <string name="group_members_people">Участники:</string>
+            <string name="group_members_see_all">Полный список</string>
+            <string name="group_members_add_people">Добавить человека</string>
+                // Samples
+                <string name="group_members_people_count_sample">21</string>
+
+
+        // Universal toolbar
+            <string name="universal_toolbar_title">Заголовок</string>
+            <string name="universal_toolbar_subtitle">Подзаголовок</string>
 
 </resources>
