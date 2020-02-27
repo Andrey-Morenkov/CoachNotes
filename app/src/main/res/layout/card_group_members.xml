@@ -52,7 +52,7 @@
                 app:layout_constraintStart_toEndOf="@+id/textView11"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/button"
                 style="@style/TextAccentButton"
                 android:layout_width="wrap_content"
@@ -62,6 +62,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:rippleColor="@android:color/transparent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -90,14 +91,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/recyclerView3">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/button"
-                style="@style/TextAccentButton"
+                style="@style/TextAccentButton.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_add"
                 android:text="@string/group_members_add_people"
                 android:textColor="@color/colorText"
-                app:icon="@drawable/ic_add"
                 app:iconTint="@color/colorText"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

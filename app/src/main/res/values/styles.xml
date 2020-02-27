@@ -52,8 +52,16 @@
         <item name="android:textColor">@color/colorText</item>
     </style>
 
+    <style name="DefaultTextButton.Icon" parent="@style/Widget.MaterialComponents.Button.TextButton">
+        <item name="android:drawablePadding">@dimen/default_icon_padding</item>
+    </style>
+
     <style name="TextAccentButton" parent="DefaultTextButton">
         <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+    <style name="TextAccentButton.Icon" parent="@style/Widget.MaterialComponents.Button.TextButton">
+        <item name="android:drawablePadding">@dimen/default_icon_padding</item>
     </style>
 
     <style name="ToolbarImageButton" parent="TransparentBackgroundImageButton">
