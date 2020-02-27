@@ -5,8 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
-    android:orientation="vertical">
+    android:background="@color/colorBackground">
 
     <include
         layout="@layout/toolbar_only_title"
@@ -67,10 +66,11 @@
             <include
                 layout="@layout/card_group_members"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="400dp"
                 android:layout_marginStart="@dimen/default_indent"
                 android:layout_marginTop="24dp"
-                android:layout_marginEnd="@dimen/default_indent" />
+                android:layout_marginEnd="@dimen/default_indent"
+                android:layout_marginBottom="24dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

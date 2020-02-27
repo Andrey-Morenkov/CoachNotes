@@ -24,6 +24,10 @@
         <dimen name="card_round_type_corner_radius_size">20dp</dimen>
         <dimen name="card_straight_type_corner_radius_size">2dp</dimen>
 
+        <dimen name="card_default_avatar_size">40dp</dimen>
+        <dimen name="card_default_avatar_to_corner_margin">16dp</dimen>
+        <dimen name="card_default_avatar_to_text_margin">16dp</dimen>
+
     //Toolbar
         <dimen name="universal_toolbar_action_img_size">60dp</dimen>
         <dimen name="universal_toolbar_action_img_margin_end">0dp</dimen>

@@ -29,9 +29,11 @@
         <item name="cardCornerRadius">@dimen/card_straight_type_corner_radius_size</item>
     </style>
 
-    <style name="CardSettingElement" parent="StraightCard">
+    <style name="StraightCard.Colorized" parent="AppTheme">
         <item name="cardBackgroundColor">@color/colorPrimary</item>
     </style>
+
+    <style name="CardSettingElement" parent="StraightCard.Colorized"/>
 
     <style name="RoundCard" parent="AppTheme">
         <item name="cardCornerRadius">@dimen/card_round_type_corner_radius_size</item>

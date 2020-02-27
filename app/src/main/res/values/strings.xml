@@ -40,16 +40,21 @@
 
     // Items
 
+        // Previews
+
+            // Preview group
+                // Samples
+                <string name="preview_group_name_sample">Группа #1</string>
+                <string name="preview_group_group_size_sample">24</string>
+                <string name="preview_group_people_ages_absolute_sample">2013–2014 г.р</string>
+                <string name="preview_group_people_ages_relative_sample">7–8\nлет</string>
+
+            // Preview person
+                // Samples
+                <string name="preview_person_name_sample">Вася Иванов</string>
+                <string name="preview_person_group_name_sample">Группа #1</string>
 
         // Cards
-
-
-            // Group preview card
-                // Samples
-                <string name="group_preview_name_sample">Группа #1</string>
-                <string name="group_preview_group_size_sample">24</string>
-                <string name="group_preview_people_ages_absolute_sample">2013–2014 г.р</string>
-                <string name="group_preview_people_ages_relative_sample">7–8\nлет</string>
 
             // Group param card
             <string name="group_param_payment_method">Тип оплаты</string>
