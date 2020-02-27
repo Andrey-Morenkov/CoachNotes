@@ -56,7 +56,7 @@
             </studio.carbonylgroup.textfieldboxes.TextFieldBoxes>
 
             <include
-                layout="@layout/card_group_params"
+                layout="@layout/element_group_params"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/default_indent"
@@ -64,7 +64,7 @@
                 android:layout_marginEnd="@dimen/default_indent" />
 
             <include
-                layout="@layout/card_group_members"
+                layout="@layout/element_group_members"
                 android:layout_width="match_parent"
                 android:layout_height="400dp"
                 android:layout_marginStart="@dimen/default_indent"

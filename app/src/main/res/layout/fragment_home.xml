@@ -62,7 +62,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include
-        layout="@layout/card_today_schedule"
+        layout="@layout/element_today_schedule"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"

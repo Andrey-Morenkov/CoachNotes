@@ -19,6 +19,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:orientation="vertical" />
+            android:orientation="vertical" >
+
+            <include
+                layout="@layout/element_person_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </com.google.android.material.appbar.AppBarLayout>

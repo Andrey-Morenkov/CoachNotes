@@ -54,6 +54,10 @@
         <item name="android:textColor">@color/colorText</item>
     </style>
 
+    <style name="DefaultOutlinedButton" parent="@style/Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/colorText</item>
+    </style>
+
     <style name="DefaultTextButton.Icon" parent="@style/Widget.MaterialComponents.Button.TextButton">
         <item name="android:drawablePadding">@dimen/default_icon_padding</item>
     </style>

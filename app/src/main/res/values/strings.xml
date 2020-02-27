@@ -11,7 +11,7 @@
     <string name="journal">Журнал</string>
     <string name="age_type_absolute">г.р</string>
     <string name="age_type_relative">лет</string>
-
+    <string name="edit">Ред.</string>
 
     // Screens
 
@@ -54,9 +54,9 @@
                 <string name="preview_person_name_sample">Вася Иванов</string>
                 <string name="preview_person_group_name_sample">Группа #1</string>
 
-        // Cards
+        // Elements
 
-            // Group param card
+            // Group param element
             <string name="group_param_payment_method">Тип оплаты</string>
             <string name="group_param_payment_free">Бесплатная</string>
             <string name="group_param_payment_paid">Платная</string>
@@ -65,12 +65,19 @@
                 <string name="group_param_age1_sample">2007</string>
                 <string name="group_param_age2_sample">2008</string>
     
-            // Group members card
+            // Group members element
             <string name="group_members_people">Участники:</string>
             <string name="group_members_see_all">Полный список</string>
             <string name="group_members_add_people">Добавить человека</string>
                 // Samples
                 <string name="group_members_people_count_sample">21</string>
+    
+            // Person header element
+                // Samples
+                <string name="person_header_name_surname_sample">Иван Иванович</string>
+                <string name="person_header_patronymic_sample">Иванов</string>
+                <string name="person_header_age_sample">12 лет</string>
+                <string name="person_header_group_sample">Группа #1</string>
 
 
         // Universal toolbar
