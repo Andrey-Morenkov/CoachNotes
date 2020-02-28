@@ -11,7 +11,7 @@
     <string name="journal">Журнал</string>
     <string name="age_type_absolute">г.р</string>
     <string name="age_type_relative">лет</string>
-    <string name="edit">Ред.</string>
+    <string name="edit">Редактировать</string>
 
     // Screens
 
@@ -78,6 +78,21 @@
                 <string name="person_header_patronymic_sample">Иванов</string>
                 <string name="person_header_age_sample">12 лет</string>
                 <string name="person_header_group_sample">Группа #1</string>
+
+            // Person params element
+                <string name="person_params_common_tab">Общее</string>
+                <string name="person_params_physical_tab">Физ</string>
+                <string name="person_params_sport_tab">Спорт</string>
+                <string name="person_params_med_tab">Мед</string>
+
+            // Person parent info element
+                <string name="person_parent_info_label">Ответственные лица</string>
+
+            // Single parent info element
+                // Samples
+                <string name="single_parent_info_full_name_sample">Наталия Григорьевна</string>
+                <string name="single_parent_info_type_sample">Мама</string>
+                <string name="single_parent_info_phone_sample">+7(920)123–45–67</string>
 
 
         // Universal toolbar

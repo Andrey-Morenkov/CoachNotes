@@ -24,8 +24,6 @@
         <ImageButton
             android:id="@+id/buttonGroupsScreenAddGroup"
             style="@style/ToolbarImageButton"
-            android:layout_width="60dp"
-            android:layout_gravity="center|end"
             app:srcCompat="@drawable/ic_group_add" />
     </FrameLayout>
 

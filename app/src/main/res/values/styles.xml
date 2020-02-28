@@ -50,31 +50,63 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <style name="DefaultTextButton" parent="@style/Widget.MaterialComponents.Button.TextButton">
+
+    <style name="TextButton" parent="@style/Widget.MaterialComponents.Button.TextButton.Icon">
+        <item name="icon">@null</item>
         <item name="android:textColor">@color/colorText</item>
     </style>
 
-    <style name="DefaultOutlinedButton" parent="@style/Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:textColor">@color/colorText</item>
+    <style name="TextButton.Icon">
+        <item name="icon">@drawable/ic_sample</item>
+        <item name="iconTint">@color/colorText</item>
+        <item name="iconPadding">@dimen/default_icon_padding</item>
     </style>
 
-    <style name="DefaultTextButton.Icon" parent="@style/Widget.MaterialComponents.Button.TextButton">
-        <item name="android:drawablePadding">@dimen/default_icon_padding</item>
-    </style>
-
-    <style name="TextAccentButton" parent="DefaultTextButton">
+    <style name="TextButton.Accent">
         <item name="android:textColor">@color/colorAccent</item>
     </style>
 
-    <style name="TextAccentButton.Icon" parent="@style/Widget.MaterialComponents.Button.TextButton">
-        <item name="android:drawablePadding">@dimen/default_icon_padding</item>
+    <style name="TextButton.Accent.Icon">
+        <item name="iconPadding">@dimen/default_icon_padding</item>
+        <item name="icon">@drawable/ic_sample</item>
+        <item name="iconTint">@color/colorAccent</item>
     </style>
+
+
+    <style name="OutlinedButton" parent="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon">
+        <item name="icon">@null</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="strokeColor">@color/colorAccent</item>
+    </style>
+
+    <style name="OutlinedButton.Icon">
+        <item name="icon">@drawable/ic_sample</item>
+        <item name="iconTint">@color/colorAccent</item>
+        <item name="iconPadding">@dimen/default_icon_padding</item>
+    </style>
+
+
+    <style name="FilledButton" parent="Widget.MaterialComponents.Button">
+        <item name="icon">@null</item>
+        <item name="android:textColor">@color/colorText</item>
+        <item name="backgroundTint">@color/colorAccent</item>
+    </style>
+
+    <style name="FilledButton.Icon">
+        <item name="icon">@drawable/ic_sample</item>
+        <item name="iconTint">@color/colorText</item>
+        <item name="iconPadding">@dimen/default_icon_padding</item>
+    </style>
+
 
     <style name="ToolbarImageButton" parent="TransparentBackgroundImageButton">
         <item name="android:layout_width">@dimen/universal_toolbar_action_img_size</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_marginEnd">@dimen/universal_toolbar_action_img_margin_end</item>
-        <item name="android:scaleType">centerInside</item>
+        <item name="android:layout_height">@dimen/universal_toolbar_action_img_size</item>
+        <item name="android:layout_gravity">center_vertical|end</item>
+        <item name="android:padding">@dimen/universal_toolbar_action_img_margin_end</item>
+        <item name="android:layout_margin">@dimen/universal_toolbar_action_img_margin_end</item>
+        <item name="tint">@color/colorText</item>
+        <item name="elevation">4dp</item>
     </style>
 
 </resources>

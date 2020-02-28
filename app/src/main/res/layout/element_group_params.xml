@@ -105,7 +105,7 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button2"
-            style="@style/DefaultTextButton.Icon"
+            style="@style/TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_money_inactive"

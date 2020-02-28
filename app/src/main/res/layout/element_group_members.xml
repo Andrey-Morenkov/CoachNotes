@@ -53,8 +53,8 @@
                 app:layout_constraintStart_toEndOf="@+id/textView11"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                style="@style/TextAccentButton"
+            <com.google.android.material.button.MaterialButton
+                style="@style/TextButton.Accent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/group_members_see_all"
@@ -64,6 +64,46 @@
                 app:rippleColor="@android:color/transparent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView3"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:elevation="0dp"
+            android:paddingStart="@dimen/default_indent"
+            android:paddingTop="8dp"
+            android:paddingEnd="@dimen/default_indent"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@id/divider3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider2"
+            tools:itemCount="3"
+            tools:listitem="@layout/preview_person">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <View
+            android:id="@+id/divider3"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout2"
@@ -80,37 +120,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <androidx.appcompat.widget.AppCompatButton
-                style="@style/TextAccentButton.Icon"
+            <com.google.android.material.button.MaterialButton
+                style="@style/OutlinedButton.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_add"
                 android:text="@string/group_members_add_people"
-                android:textColor="@color/colorText"
-                app:iconTint="@color/colorText"
+                app:icon="@drawable/ic_add"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:rippleColor="@android:color/transparent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView3"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@color/colorPrimaryDarkHighlight"
-            android:elevation="0dp"
-            android:paddingStart="@dimen/default_indent"
-            android:paddingTop="8dp"
-            android:paddingEnd="@dimen/default_indent"
-            android:paddingBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
-            tools:itemCount="3"
-            tools:listitem="@layout/preview_person" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
