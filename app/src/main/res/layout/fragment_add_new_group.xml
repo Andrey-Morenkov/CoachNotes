@@ -36,7 +36,6 @@
             android:orientation="vertical">
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/imageView5"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:layout_gravity="center_horizontal"
@@ -45,7 +44,6 @@
                 tools:srcCompat="@drawable/ic_user_group" />
 
             <studio.carbonylgroup.textfieldboxes.TextFieldBoxes
-                android:id="@+id/text_field_boxes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -59,7 +57,6 @@
                 app:secondaryColor="@color/colorPrimaryLight">
 
                 <studio.carbonylgroup.textfieldboxes.ExtendedEditText
-                    android:id="@+id/extended_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"

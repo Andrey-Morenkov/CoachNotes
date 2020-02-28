@@ -6,6 +6,7 @@
     // Shared
     <string name="available_soon">Еще не готово</string>
     <string name="menu">Меню</string>
+    <string name="group">Группа</string>
     <string name="groups">Группы</string>
     <string name="people">Ученики</string>
     <string name="journal">Журнал</string>
@@ -13,6 +14,16 @@
     <string name="age_type_relative">лет</string>
     <string name="edit">Редактировать</string>
     <string name="create">Создать</string>
+    <string name="required_helper">* обязательно</string>
+
+    <string name="name">Имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="patronymic">Отчество</string>
+    <string name="birthday">День Рождения</string>
+    <string name="parents">Родители</string>
+    <string name="full_name">ФИО</string>
+    <string name="tags">Особенности</string>
+
 
     // Screens
 
