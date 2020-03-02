@@ -4,6 +4,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 // Custom plugins
+apply plugin: 'kotlin-kapt'
 
 android
 {
@@ -50,6 +51,13 @@ dependencies
     // AndroidX
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.core:core-ktx:$ktxcore_version"
+
+    // Dagger
+    implementation "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+
+    // KAndroid
+    implementation "com.pawegio.kandroid:kandroid:$kandroid_version"
 
     implementation project(path: ':repository')
 }

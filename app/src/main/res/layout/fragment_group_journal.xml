@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include
+            layout="@layout/toolbar_only_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            style="@style/ToolbarImageButton"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_share"
+            android:text="@string/create" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorBackground"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/imageButton"
+                style="@style/TransparentBackgroundImageButton"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/ic_left" />
+
+            <TextView
+                android:id="@+id/textView28"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:paddingStart="50dp"
+                android:paddingEnd="50dp"
+                android:text="@string/group_journal_screen_date_sample"
+                android:textAlignment="center"
+                android:textSize="@dimen/default_subtitle_text_size" />
+
+            <ImageButton
+                android:id="@+id/imageButton2"
+                style="@style/TransparentBackgroundImageButton"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/ic_right" />
+
+        </LinearLayout>
+
+        <com.evrencoskun.tableview.TableView
+            android:id="@+id/my_TableView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+
+            app:column_header_height="@dimen/journal_screen_cell_height"
+            app:row_header_width="@dimen/journal_screen_row_header_width"
+            app:selected_color="@color/colorJournalSelected"
+            app:separator_color="@color/colorJournalSeparator"
+            app:shadow_color="@color/colorJournalShadow"
+            app:unselected_color="@color/colorJournalUnselected" />
+
+    </LinearLayout>
+
+</com.google.android.material.appbar.AppBarLayout>

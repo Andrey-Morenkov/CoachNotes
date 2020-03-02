@@ -50,6 +50,10 @@
             // Samples
             <string name="groups_screen_toolbar_subtitle_sample">5 шт</string>
 
+        // Group journal screen
+            // Samples
+            <string name="group_journal_screen_date_sample">Март 2020</string>
+
 
     // Items
 
@@ -107,6 +111,15 @@
                 <string name="single_parent_info_type_sample">Мама</string>
                 <string name="single_parent_info_phone_sample">+7(920)123–45–67</string>
 
+            // Journal column header
+                // Samples
+                <string name="journal_column_header_date_sample">22</string>
+                <string name="journal_column_header_day_of_week_sample">Пн</string>
+
+            // Journal column header
+                // Samples
+                <string name="journal_row_header_surname_sample">Иванов</string>
+                <string name="journal_row_header_name_sample">Иван</string>
 
         // Universal toolbar
             <string name="universal_toolbar_title">Заголовок</string>

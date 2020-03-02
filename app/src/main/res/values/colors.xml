@@ -8,4 +8,9 @@
     <color name="colorAccent">#F5824E</color>
 
     <color name="colorPaid">#C27A11</color>
+
+    <color name="colorJournalSeparator">@color/colorBackground</color>
+    <color name="colorJournalShadow">@color/colorPrimaryDarkHighlight</color>
+    <color name="colorJournalUnselected">@color/colorPrimaryLight</color>
+    <color name="colorJournalSelected">@color/colorText</color>
 </resources>
