@@ -9,8 +9,13 @@
 
     <color name="colorPaid">#C27A11</color>
 
-    <color name="colorJournalSeparator">@color/colorBackground</color>
+    <color name="colorJournalBackground">@color/colorBackground</color>
+    <color name="colorJournalSeparator">@color/colorPrimaryDarkHighlight</color>
     <color name="colorJournalShadow">@color/colorPrimaryDarkHighlight</color>
     <color name="colorJournalUnselected">@color/colorPrimaryLight</color>
     <color name="colorJournalSelected">@color/colorText</color>
+
+    <color name="colorJournalAbsenceGeneral">#F86F65</color>
+    <color name="colorJournalAbsenceSpecial">#F2CF65</color>
+    <color name="colorJournalPresence">#5FCF63</color>
 </resources>

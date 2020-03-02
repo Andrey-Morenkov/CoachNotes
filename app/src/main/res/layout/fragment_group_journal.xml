@@ -19,9 +19,7 @@
         <androidx.appcompat.widget.AppCompatImageButton
             style="@style/ToolbarImageButton"
             android:layout_gravity="center_vertical|end"
-            android:layout_marginEnd="16dp"
-            android:src="@drawable/ic_share"
-            android:text="@string/create" />
+            android:src="@drawable/ic_share" />
     </FrameLayout>
 
     <LinearLayout

@@ -6,7 +6,7 @@
     android:background="@color/colorPrimaryDarkHighlight">
 
     <TextView
-        android:id="@+id/textView32"
+        android:id="@+id/journalRowHeaderSurname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView33"
+        android:id="@+id/journalRowHeaderName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

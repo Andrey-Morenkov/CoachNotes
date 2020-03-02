@@ -7,7 +7,7 @@
     android:background="@color/colorPrimaryDarkHighlight">
 
     <TextView
-        android:id="@+id/textView29"
+        android:id="@+id/journalColumnHeaderDayNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView30"
+        android:id="@+id/journalColumnHeaderDayOfWeek"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"

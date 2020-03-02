@@ -70,6 +70,13 @@ dependencies
     // ViewPager2
     implementation "androidx.viewpager2:viewpager2:$viewpager2_version"
 
+    // KAndroid
+    implementation "com.pawegio.kandroid:kandroid:$kandroid_version"
+
+    // Dagger
+    implementation "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 
     // Circular Image View
     implementation "com.mikhaellopez:circularimageview:$circularimageview_version"

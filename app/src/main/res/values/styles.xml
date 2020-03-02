@@ -98,6 +98,13 @@
         <item name="iconPadding">@dimen/default_icon_padding</item>
     </style>
 
+    <style name="ImageButton" parent="Widget.MaterialComponents.Button">
+        <item name="srcCompat">@drawable/ic_sample</item>
+        <item name="tint">@color/colorPrimaryLight</item>
+        <item name="iconPadding">@dimen/default_icon_padding</item>
+        <item name="backgroundTint">@color/colorPrimaryDarkHighlight</item>
+    </style>
+
 
     <style name="ToolbarImageButton" parent="TransparentBackgroundImageButton">
         <item name="android:layout_width">@dimen/universal_toolbar_action_img_size</item>

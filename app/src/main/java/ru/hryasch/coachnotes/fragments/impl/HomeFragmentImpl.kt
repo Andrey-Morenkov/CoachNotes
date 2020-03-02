@@ -13,6 +13,6 @@ class HomeFragmentImpl : MvpAppCompatFragment()
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
-        return inflater.inflate(R.layout.fragment_add_new_person, container, false)
+        return inflater.inflate(R.layout.fragment_group_journal, container, false)
     }
 }

@@ -35,7 +35,7 @@ buildscript
         easypermission_version = '3.8'
         kandroid_version = '0.8.8@aar'
         moxy_version = '2.1.1'
-        dagger_version = '2.17'
+        dagger_version = '2.26'
         realm_version = '7.0.0-beta-SNAPSHOT'
     }
 
