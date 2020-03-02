@@ -34,21 +34,36 @@
             android:background="@android:color/transparent"
             android:orientation="vertical" >
 
-            <include
-                layout="@layout/element_person_header"
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_user_group" />
+
+            <TextView
+                android:id="@+id/textView27"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/default_indent"
+                android:gravity="center"
+                android:text="@string/preview_group_name_sample"
+                android:textSize="@dimen/group_info_user_input_text_size" />
 
             <include
-                layout="@layout/element_person_tags"
+                layout="@layout/element_group_params"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_indent"
+                android:layout_marginEnd="@dimen/default_indent"
+                android:layout_marginBottom="@dimen/default_indent" />
 
             <include
-                layout="@layout/element_person_params"
+                layout="@layout/element_group_members"
                 android:layout_width="match_parent"
-                android:layout_height="600dp"
-                android:layout_marginTop="24dp" />
+                android:layout_height="400dp"
+                android:layout_margin="@dimen/default_indent" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </com.google.android.material.appbar.AppBarLayout>

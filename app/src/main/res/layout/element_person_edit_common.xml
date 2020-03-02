@@ -10,7 +10,7 @@
         android:id="@+id/textView25"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Основное"
+        android:text="@string/general"
         android:textSize="@dimen/default_subtitle_text_size" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -93,6 +93,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/birthday" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInput5"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:helperTextTextColor="@color/colorAccent"
+            app:hintTextColor="@color/colorAccent"
+            app:layout_constraintEnd_toEndOf="@id/textInput4"
+            app:layout_constraintStart_toStartOf="@id/textInput4"
+            app:layout_constraintTop_toBottomOf="@+id/textInput4">
+
+            <com.google.android.material.textview.MaterialAutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/group" />
         </com.google.android.material.textfield.TextInputLayout>
 
 

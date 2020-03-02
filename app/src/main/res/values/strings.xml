@@ -15,6 +15,7 @@
     <string name="edit">Редактировать</string>
     <string name="create">Создать</string>
     <string name="required_helper">* обязательно</string>
+    <string name="general">Основное</string>
 
     <string name="name">Имя</string>
     <string name="surname">Фамилия</string>
@@ -39,7 +40,7 @@
 
 
         // Add new group screen
-        <string name="new_group_screen_group_name_label">Название группы</string>
+        <string name="new_group_screen_group_name_label">Название</string>
         <string name="new_group_screen_members_label">Участники</string>
 
 

@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
             android:text="@string/group_param_supported_age"
+            android:textColor="@color/colorPrimaryLight"
             android:textSize="@dimen/group_info_subtitle_text_size"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -25,71 +26,50 @@
             android:id="@+id/linearLayout2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView12">
 
-            <com.skydoves.powerspinner.PowerSpinnerView
-                android:layout_width="100dp"
+            <TextView
+                android:id="@+id/textView22"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="center"
-                android:hint="@string/group_param_age1_sample"
-                android:textSize="@dimen/group_info_user_input_text_size"
-                app:spinner_arrow_gravity="end"
-                app:spinner_arrow_padding="8dp"
-                app:spinner_arrow_show="false"
-                app:spinner_divider_color="@color/colorText"
-                app:spinner_divider_show="true"
-                app:spinner_divider_size="0.4dp"
-                app:spinner_popup_animation="normal"
-                app:spinner_popup_background="@color/colorPrimaryLight"
-                app:spinner_popup_elevation="14dp" />
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/group_param_age1_sample"
+                android:textSize="@dimen/group_info_user_input_text_size" />
 
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/imageButton2"
-                style="@style/TransparentBackgroundImageButton"
-                android:layout_width="0dp"
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 app:srcCompat="@drawable/ic_remove" />
 
-            <com.skydoves.powerspinner.PowerSpinnerView
-                android:layout_width="100dp"
+            <TextView
+                android:id="@+id/textView23"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:hint="@string/group_param_age2_sample"
-                android:textColor="@color/colorText"
-                android:textSize="@dimen/group_info_user_input_text_size"
-                app:spinner_arrow_gravity="end"
-                app:spinner_arrow_padding="8dp"
-                app:spinner_arrow_show="false"
-                app:spinner_divider_color="@color/colorText"
-                app:spinner_divider_show="true"
-                app:spinner_divider_size="0.4dp"
-                app:spinner_popup_animation="normal"
-                app:spinner_popup_background="@color/colorPrimaryLight"
-                app:spinner_popup_elevation="14dp" />
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/group_param_age2_sample"
+                android:textSize="@dimen/group_info_user_input_text_size" />
 
             <com.skydoves.powerspinner.PowerSpinnerView
-                android:layout_width="100dp"
+                android:layout_width="120dp"
                 android:layout_height="match_parent"
-                android:gravity="center"
                 android:hint="@string/age_type_absolute"
-                android:paddingStart="@dimen/default_indent"
-                android:soundEffectsEnabled="false"
-                android:textColor="@color/colorText"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:textSize="@dimen/group_info_user_input_text_size"
-                app:spinner_arrow_animate="false"
-                app:spinner_arrow_gravity="end"
-                app:spinner_arrow_padding="8dp"
-                app:spinner_arrow_show="true"
-                app:spinner_divider_color="@color/colorText"
-                app:spinner_divider_show="false"
-                app:spinner_divider_size="0.4dp"
-                app:spinner_popup_animation="normal"
-                app:spinner_popup_background="@color/colorPrimaryLight"
-                app:spinner_popup_elevation="14dp" />
+                app:spinner_arrow_padding="8dp">
+
+            </com.skydoves.powerspinner.PowerSpinnerView>
 
         </LinearLayout>
 
@@ -99,31 +79,24 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/group_param_payment_method"
+            android:textColor="@color/colorPrimaryLight"
             android:textSize="@dimen/group_info_subtitle_text_size"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/button2"
-            style="@style/TextButton.Icon"
+        <TextView
+            android:id="@+id/textView26"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_money_inactive"
-            android:drawablePadding="2dp"
-            android:includeFontPadding="false"
-            android:longClickable="false"
-            android:paddingStart="2dp"
-            android:paddingEnd="2dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
+            android:drawableStart="@drawable/ic_money"
+            android:gravity="center"
+            android:paddingEnd="8dp"
             android:text="@string/group_param_payment_free"
-            android:textAllCaps="false"
-            android:textColor="@color/colorPrimaryLight"
-            android:textColorHighlight="@android:color/transparent"
-            android:textColorHint="@android:color/transparent"
             android:textSize="@dimen/group_info_user_input_text_size"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView13"
-            app:rippleColor="@android:color/transparent" />
+            app:layout_constraintTop_toBottomOf="@+id/textView13" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

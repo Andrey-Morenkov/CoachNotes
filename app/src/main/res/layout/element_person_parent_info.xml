@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/CardSettingElement"
     android:layout_width="match_parent"
-    android:layout_height="250dp">
+    android:layout_height="220dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
