@@ -5,6 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 
 // Custom plugins
 apply plugin: 'kotlin-kapt'
+apply plugin: 'koin'
 
 android
 {
@@ -73,10 +74,10 @@ dependencies
     // KAndroid
     implementation "com.pawegio.kandroid:kandroid:$kandroid_version"
 
-    // Dagger
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+    // Koin
+    implementation "org.koin:koin-core:$koin_version"
+    implementation "org.koin:koin-android:$koin_version"
+    implementation "org.koin:koin-androidx-scope:$koin_version"
 
     // Circular Image View
     implementation "com.mikhaellopez:circularimageview:$circularimageview_version"

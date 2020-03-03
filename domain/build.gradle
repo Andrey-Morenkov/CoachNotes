@@ -52,10 +52,6 @@ dependencies
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.core:core-ktx:$ktxcore_version"
 
-    // Dagger
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-
     // KAndroid
     implementation "com.pawegio.kandroid:kandroid:$kandroid_version"
 

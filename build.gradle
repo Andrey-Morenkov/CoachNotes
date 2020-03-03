@@ -35,7 +35,7 @@ buildscript
         easypermission_version = '3.8'
         kandroid_version = '0.8.8@aar'
         moxy_version = '2.1.1'
-        dagger_version = '2.26'
+        koin_version = '2.1.1'
         realm_version = '7.0.0-beta-SNAPSHOT'
     }
 
@@ -44,6 +44,7 @@ buildscript
         classpath "com.android.tools.build:gradle:$gradle_varsion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "io.realm:realm-gradle-plugin:$realm_version"
+        classpath "org.koin:koin-gradle-plugin:$koin_version"
     }
 }
 

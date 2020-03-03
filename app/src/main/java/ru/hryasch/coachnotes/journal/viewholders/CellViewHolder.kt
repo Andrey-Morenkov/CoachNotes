@@ -1,9 +1,5 @@
 package ru.hryasch.coachnotes.journal.viewholders
 
-
-import javax.inject.Inject
-import javax.inject.Named
-
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -18,9 +14,7 @@ import ru.hryasch.coachnotes.journal.CellModel
 import ru.hryasch.coachnotes.journal.PresenceData
 
 
-class CellViewHolder @Inject constructor (cellItem: View,
-                                          @field:Named("local") private val context: Context
-) : AbstractViewHolder(cellItem)
+class CellViewHolder (cellItem: View, private val context: Context) : AbstractViewHolder(cellItem)
 {
     private val data : TextView = cellItem.findViewById(R.id.journalCellData)
     private val layout: ViewGroup = cellItem.findViewById(R.id.journalCellLayout)
@@ -33,26 +27,20 @@ class CellViewHolder @Inject constructor (cellItem: View,
         {
             is PresenceData -> layout.setBackgroundColor(ContextCompat.getColor(context, R.color.colorJournalPresence))
             is AbsenceData  ->
+            {
+                if ((model.data as AbsenceData).mark != null)
                 {
-                    if ((model.data as AbsenceData).mark != null)
-                    {
-                        layout.setBackgroundColor(ContextCompat.getColor(context, R.color.colorJournalAbsenceSpecial))
-                        data.text = model.data!!.mark
-                    }
-                    else
-                    {
-                        layout.setBackgroundColor(ContextCompat.getColor(context, R.color.colorJournalAbsenceGeneral))
-                    }
+                    layout.setBackgroundColor(ContextCompat.getColor(context, R.color.colorJournalAbsenceSpecial))
+                    data.text = model.data!!.mark
                 }
+                else
+                {
+                    layout.setBackgroundColor(ContextCompat.getColor(context, R.color.colorJournalAbsenceGeneral))
+                }
+            }
 
             else -> layout.setBackgroundColor(ContextCompat.getColor(context, R.color.colorJournalBackground))
         }
-    }
-
-    //TODO: customize
-    override fun setSelected(selectionState: SelectionState)
-    {
-        super.setSelected(selectionState)
     }
 }
 
