@@ -65,7 +65,7 @@
         </LinearLayout>
 
         <com.evrencoskun.tableview.TableView
-            android:id="@+id/my_TableView"
+            android:id="@+id/journalTable"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
