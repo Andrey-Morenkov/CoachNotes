@@ -19,12 +19,6 @@
         <dimen name="home_screen_account_name_text_size">20sp</dimen>
         <dimen name="home_screen_account_avatar_size">65dp</dimen>
 
-    // Journal Screen
-        <dimen name="journal_screen_column_header_width">60dp</dimen>
-        <dimen name="journal_screen_column_header_height">80dp</dimen>
-        <dimen name="journal_screen_row_header_width">110dp</dimen>
-        <dimen name="journal_screen_row_header_height">50dp</dimen>
-        <dimen name="journal_screen_cell_height">20dp</dimen>
 
 // Element specific params
     // Card
@@ -38,5 +32,13 @@
     //Toolbar
         <dimen name="universal_toolbar_action_img_size">24dp</dimen>
         <dimen name="universal_toolbar_action_img_margin_end">16dp</dimen>
+
+    // Journal table
+        <dimen name="journal_table_column_header_width">60dp</dimen>
+        <dimen name="journal_table_column_header_height">80dp</dimen>
+        <dimen name="journal_table_row_header_width">130dp</dimen>
+        <dimen name="journal_table_row_header_height">50dp</dimen>
+
+        <dimen name="journal_table_separator_width">5px</dimen>
 
 </resources>

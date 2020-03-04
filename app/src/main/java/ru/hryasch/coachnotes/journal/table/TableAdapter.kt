@@ -1,4 +1,4 @@
-package ru.hryasch.coachnotes.journal
+package ru.hryasch.coachnotes.journal.table
 
 import android.content.Context
 import android.view.View
@@ -6,20 +6,37 @@ import android.view.ViewGroup
 
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder
+import com.pawegio.kandroid.i
 import com.pawegio.kandroid.inflateLayout
+import com.pawegio.kandroid.w
 import org.koin.core.KoinComponent
-import org.koin.core.get
-import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.journal.viewholders.CellViewHolder
-import ru.hryasch.coachnotes.journal.viewholders.ColumnHeaderViewHolder
-import ru.hryasch.coachnotes.journal.viewholders.RowHeaderViewHolder
+import ru.hryasch.coachnotes.journal.table.viewholders.CellViewHolder
+import ru.hryasch.coachnotes.journal.table.viewholders.ColumnHeaderViewHolder
+import ru.hryasch.coachnotes.journal.table.viewholders.RowHeaderViewHolder
 
 
-class TableAdapter(private val context: Context) : AbstractTableAdapter<ColumnHeaderModel, RowHeaderModel, CellModel>(), KoinComponent
+class TableAdapter(private val context: Context,
+                   private val tableContent: TableModel) : AbstractTableAdapter<ColumnHeaderModel, RowHeaderModel, CellModel>(), KoinComponent
 {
-    private val tableContent: TableModel = get(named("mock"))
+    fun onChangeCellMock(col: Int, row: Int)
+    {
+        with (tableContent.cellContent[col][row])
+        {
+            data =
+                if (data != null)
+                {
+                    null
+                }
+                else
+                {
+                    PresenceData()
+                }
+            i("New data: $data")
+        }
+        notifyDataSetChanged()
+    }
 
     fun renderTable()
     {
@@ -68,6 +85,7 @@ class TableAdapter(private val context: Context) : AbstractTableAdapter<ColumnHe
                                       columnPosition: Int,
                                       rowPosition: Int)
     {
+        w("Rebinding holder($columnPosition:$rowPosition)")
         (holder as CellViewHolder).setModel(cellItemModel!!)
     }
 

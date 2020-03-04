@@ -1,10 +1,10 @@
-package ru.hryasch.coachnotes.journal.viewholders
+package ru.hryasch.coachnotes.journal.table.viewholders
 
 import android.view.View
 import android.widget.TextView
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.journal.RowHeaderModel
+import ru.hryasch.coachnotes.journal.table.RowHeaderModel
 
 class RowHeaderViewHolder(rowHeaderItem: View) : AbstractViewHolder(rowHeaderItem)
 {

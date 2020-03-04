@@ -91,5 +91,8 @@ dependencies
     // TableView
     implementation "com.evrencoskun.library:tableview:$tableview_version"
 
+    // Fakeit
+    implementation "com.github.moove-it:fakeit:$fakeit_version"
+
     implementation project(path: ':domain')
 }

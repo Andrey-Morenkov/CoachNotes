@@ -1,11 +1,11 @@
-package ru.hryasch.coachnotes.journal
+package ru.hryasch.coachnotes.journal.table
 
-import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.listener.ITableViewListener
 import com.pawegio.kandroid.i
+import ru.hryasch.coachnotes.journal.table.viewholders.CellViewHolder
 
-class TableViewClickListener : ITableViewListener
+class TableViewClickListener(private val adapter: TableAdapter) : ITableViewListener
 {
     override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int)
     {
@@ -30,6 +30,8 @@ class TableViewClickListener : ITableViewListener
     override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int)
     {
         i("cell ($column:$row) clicked")
+
+        adapter.onChangeCellMock(column, row)
     }
 
     override fun onRowHeaderLongPressed(rowHeaderView: RecyclerView.ViewHolder, row: Int)

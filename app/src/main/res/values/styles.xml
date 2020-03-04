@@ -115,5 +115,26 @@
         <item name="tint">@color/colorText</item>
         <item name="elevation">4dp</item>
     </style>
+    
+    <style name="TableSeparator">
+        <item name="android:background">@color/colorJournalSeparator</item>
+    </style>
+    
+    <style name="TableSeparator.Constraint">
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="layout_constraintBottom_toBottomOf">parent</item>
+    </style>
+
+    <style name="TableSeparator.Constraint.Vertical">
+        <item name="layout_constraintTop_toTopOf">parent</item>
+        <item name="android:layout_width">@dimen/journal_table_separator_width</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+
+    <style name="TableSeparator.Constraint.Horizontal">
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <item name="android:layout_height">@dimen/journal_table_separator_width</item>
+        <item name="android:layout_width">0dp</item>
+    </style>
 
 </resources>
