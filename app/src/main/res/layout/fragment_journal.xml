@@ -64,18 +64,32 @@
 
         </LinearLayout>
 
-        <com.evrencoskun.tableview.TableView
-            android:id="@+id/journalTable"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
+            android:layout_height="match_parent">
 
-            app:column_header_height="@dimen/journal_table_column_header_height"
-            app:row_header_width="@dimen/journal_table_row_header_width"
-            app:selected_color="@color/colorJournalSelected"
-            app:separator_color="@color/colorJournalSeparator"
-            app:shadow_color="@color/colorJournalSelectedShadow"
-            app:unselected_color="@color/colorJournalBackground" />
+            <ProgressBar
+                android:id="@+id/journalProgressBar"
+                style="@android:style/Widget.Material.Light.ProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:indeterminateBehavior="repeat" />
+
+            <com.evrencoskun.tableview.TableView
+                android:id="@+id/journalTable"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+
+                app:column_header_height="@dimen/journal_table_column_header_height"
+                app:row_header_width="@dimen/journal_table_row_header_width"
+                app:selected_color="@color/colorJournalSelected"
+                app:separator_color="@color/colorJournalSeparator"
+                app:shadow_color="@color/colorJournalSelectedShadow"
+                app:unselected_color="@color/colorJournalBackground" />
+        </FrameLayout>
 
     </LinearLayout>
 

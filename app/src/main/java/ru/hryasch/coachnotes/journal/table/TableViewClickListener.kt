@@ -4,13 +4,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.listener.ITableViewListener
 import com.pawegio.kandroid.i
 import ru.hryasch.coachnotes.journal.table.viewholders.CellViewHolder
+import ru.hryasch.coachnotes.presenters.api.JournalPresenter
 
-class TableViewClickListener(private val adapter: TableAdapter) : ITableViewListener
+class TableViewClickListener(private val presenter: JournalPresenter) : ITableViewListener
 {
     override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int)
     {
         i("cell ($column:$row) long pressed")
-        adapter.onChangeLongCellMock(column, row)
+        //presenter.
     }
 
     override fun onColumnHeaderLongPressed(columnHeaderView: RecyclerView.ViewHolder, column: Int)
@@ -31,7 +32,7 @@ class TableViewClickListener(private val adapter: TableAdapter) : ITableViewList
     override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int)
     {
         i("cell ($column:$row) clicked")
-        adapter.onChangeCellMock(column, row)
+        presenter.test(column, row)
     }
 
     override fun onRowHeaderLongPressed(rowHeaderView: RecyclerView.ViewHolder, row: Int)

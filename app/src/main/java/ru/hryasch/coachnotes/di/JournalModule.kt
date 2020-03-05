@@ -11,6 +11,7 @@ import ru.hryasch.coachnotes.journal.table.MockTableModel
 import ru.hryasch.coachnotes.journal.table.TableAdapter
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.table.TableViewClickListener
+import ru.hryasch.coachnotes.presenters.api.JournalPresenter
 
 
 val journalModule = module {
@@ -19,7 +20,5 @@ val journalModule = module {
     factory { TableModel() }
 
     factory { (context: Context, model: TableModel) -> TableAdapter(context, model) }
-    factory { (adapter: TableAdapter) -> TableViewClickListener(adapter) as ITableViewListener }
-
-    factory { (layout: View, context: Context) -> Journal(layout, context) }
+    factory { (presenter: JournalPresenter) -> TableViewClickListener(presenter) as ITableViewListener }
 }

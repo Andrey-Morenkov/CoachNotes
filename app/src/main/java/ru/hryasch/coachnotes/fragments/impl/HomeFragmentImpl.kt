@@ -21,10 +21,6 @@ class HomeFragmentImpl : MvpAppCompatFragment()
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
-        val view = inflater.inflate(R.layout.fragment_journal, container, false)
-
-        journal = get { parametersOf(view, container!!.context) }
-
-        return view
+        return inflater.inflate(R.layout.fragment_journal, container, false)
     }
 }
