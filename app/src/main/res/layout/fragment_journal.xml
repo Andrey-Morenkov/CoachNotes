@@ -37,14 +37,14 @@
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/imageButton"
+                android:id="@+id/journalButtonPrevPeriod"
                 style="@style/TransparentBackgroundImageButton"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_left" />
 
             <TextView
-                android:id="@+id/textView28"
+                android:id="@+id/journalTextViewPeriod"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -56,7 +56,7 @@
                 android:textSize="@dimen/default_subtitle_text_size" />
 
             <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/imageButton2"
+                android:id="@+id/journalButtonNextPeriod"
                 style="@style/TransparentBackgroundImageButton"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"

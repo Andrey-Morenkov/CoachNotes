@@ -16,6 +16,7 @@
     <string name="create">Создать</string>
     <string name="required_helper">* обязательно</string>
     <string name="general">Основное</string>
+    <string name="phone">Телефон</string>
 
     <string name="name">Имя</string>
     <string name="surname">Фамилия</string>
