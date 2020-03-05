@@ -9,7 +9,7 @@
     <color name="colorAccentTint">#7FF5824E</color>
 
     <color name="colorPaid">#C27A11</color>
-
+    <color name="colorSelected">#65000000</color>
 
 
     <color name="colorJournalBackground">@color/colorBackground</color>
@@ -18,7 +18,7 @@
     <color name="colorJournalUnselected">@color/colorJournalBackground</color>
 
     <color name="colorJournalSelectedShadow">@color/colorPrimaryDarkHighlight</color>
-    <color name="colorJournalSelected">@color/colorAccentTint</color>
+    <color name="colorJournalSelected">@color/colorSelected</color>
 
 
 

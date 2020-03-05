@@ -20,21 +20,29 @@ import ru.hryasch.coachnotes.journal.table.viewholders.RowHeaderViewHolder
 class TableAdapter(private val context: Context,
                    private val tableContent: TableModel) : AbstractTableAdapter<ColumnHeaderModel, RowHeaderModel, CellModel>(), KoinComponent
 {
+    fun onChangeLongCellMock(col: Int, row: Int)
+    {
+        with (tableContent.cellContent[row][col])
+        {
+            data = AbsenceData("Б")
+        }
+
+        notifyDataSetChanged()
+    }
+
     fun onChangeCellMock(col: Int, row: Int)
     {
         with (tableContent.cellContent[row][col])
         {
             data =
-                if (data != null)
+                when (data)
                 {
-                    null
+                    is PresenceData -> AbsenceData()
+                    is AbsenceData -> null
+                    else -> PresenceData()
                 }
-                else
-                {
-                    PresenceData()
-                }
-            i("New data: $data")
         }
+
         notifyDataSetChanged()
     }
 
@@ -85,7 +93,6 @@ class TableAdapter(private val context: Context,
                                       columnPosition: Int,
                                       rowPosition: Int)
     {
-        w("Rebinding holder($columnPosition:$rowPosition)")
         (holder as CellViewHolder).setModel(cellItemModel!!)
     }
 

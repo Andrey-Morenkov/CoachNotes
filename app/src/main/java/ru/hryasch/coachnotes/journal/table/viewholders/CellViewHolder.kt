@@ -4,6 +4,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.content.Context
+import android.content.res.Resources
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder
@@ -18,12 +20,12 @@ import ru.hryasch.coachnotes.journal.table.PresenceData
 class CellViewHolder (cellItem: View, private val context: Context) : AbstractViewHolder(cellItem)
 {
     private val data : TextView = cellItem.findViewById(R.id.journalCellData)
+    private val layout: ConstraintLayout = cellItem.findViewById(R.id.journalCellLayout)
 
     var currentModel: CellModel? = null
 
     fun setModel(model: CellModel)
     {
-        i("Changing model: $currentModel -> $model")
         currentModel = model
 
         modifyData(model)
@@ -36,24 +38,20 @@ class CellViewHolder (cellItem: View, private val context: Context) : AbstractVi
         {
             is PresenceData ->
             {
-                i("modifyLayout: detected PresenceData")
                 data.setBackgroundColor(ContextCompat.getColor(context, R.color.colorJournalPresence))
             }
 
             is AbsenceData ->
             {
                 (model.data as AbsenceData).mark?.let {
-                    i("modifyLayout: detected AbsenceData MARK")
                     data.setBackgroundColor(ContextCompat.getColor(context, R.color.colorJournalAbsenceSpecial))
                 } ?: let {
-                    i("modifyLayout: detected AbsenceData NO MARK")
                     data.setBackgroundColor(ContextCompat.getColor(context, R.color.colorJournalAbsenceGeneral))
                 }
             }
             else ->
             {
-                data.setBackgroundColor(ContextCompat.getColor(context, R.color.colorJournalBackground))
-                i("modifyLayout: detected null")
+                data.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
             }
         }
     }

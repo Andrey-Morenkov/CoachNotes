@@ -10,6 +10,7 @@ class TableViewClickListener(private val adapter: TableAdapter) : ITableViewList
     override fun onCellLongPressed(cellView: RecyclerView.ViewHolder, column: Int, row: Int)
     {
         i("cell ($column:$row) long pressed")
+        adapter.onChangeLongCellMock(column, row)
     }
 
     override fun onColumnHeaderLongPressed(columnHeaderView: RecyclerView.ViewHolder, column: Int)
@@ -30,7 +31,6 @@ class TableViewClickListener(private val adapter: TableAdapter) : ITableViewList
     override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int)
     {
         i("cell ($column:$row) clicked")
-
         adapter.onChangeCellMock(column, row)
     }
 
