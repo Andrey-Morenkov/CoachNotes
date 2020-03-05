@@ -34,7 +34,7 @@ object QuickMarch2020DowGenerator
 class MockTableModel(): TableModel()
 {
     val width = 20
-    val height = 20
+    val height = 100
 
     init
     {

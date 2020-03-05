@@ -22,7 +22,7 @@ class TableAdapter(private val context: Context,
 {
     fun onChangeCellMock(col: Int, row: Int)
     {
-        with (tableContent.cellContent[col][row])
+        with (tableContent.cellContent[row][col])
         {
             data =
                 if (data != null)
