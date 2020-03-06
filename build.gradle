@@ -31,7 +31,6 @@ buildscript
         spinner_version = '1.0.4'
         tableview_version = '0.8.9'
         fakeit_version = "v0.4"
-        jodatime_version = "2.10.5"
 
         coroutines_version = '1.3.3'
         easypermission_version = '3.8'
@@ -39,6 +38,7 @@ buildscript
         moxy_version = '2.1.1'
         koin_version = '2.1.1'
         realm_version = '7.0.0-beta-SNAPSHOT'
+        realm_ext_version = "2.5.0"
     }
 
     dependencies

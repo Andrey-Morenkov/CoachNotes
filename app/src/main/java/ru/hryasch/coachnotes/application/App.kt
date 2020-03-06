@@ -2,11 +2,12 @@ package ru.hryasch.coachnotes.application
 
 import android.app.Application
 import com.mooveit.library.Fakeit
+import io.realm.Realm
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
-import ru.hryasch.coachnotes.di.journalModule
-import java.util.*
+import ru.hryasch.coachnotes.di.journalAppModule
+import ru.hryasch.coachnotes.domain.di.journalRepositoryModule
 
 class App : Application()
 {
@@ -17,9 +18,11 @@ class App : Application()
         startKoin{
             androidLogger()
             androidContext(this@App)
-            modules(journalModule)
+            modules(journalAppModule, journalRepositoryModule, journalRepositoryModule)
         }
 
         Fakeit.initWithLocale("ru")
+
+        Realm.init(applicationContext)
     }
 }

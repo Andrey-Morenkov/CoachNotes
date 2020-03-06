@@ -4,9 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.ProgressBar
-import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageButton
 
@@ -22,7 +20,7 @@ import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.fragments.api.JournalView
 import ru.hryasch.coachnotes.journal.table.TableAdapter
 import ru.hryasch.coachnotes.journal.table.TableModel
-import ru.hryasch.coachnotes.presenters.impl.JournalPresenterImpl
+import ru.hryasch.coachnotes.journal.presenters.impl.JournalPresenterImpl
 
 class JournalGroupFragment : MvpAppCompatFragment(), JournalView
 {
@@ -71,7 +69,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
 
     override fun setPeriod(month: String, year: Int)
     {
-        val str = "$month ${year.toString()}"
+        val str = "$month $year"
         period.text = str
     }
 

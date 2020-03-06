@@ -12,7 +12,6 @@ android
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
-
     defaultConfig
     {
         minSdkVersion 21
@@ -33,6 +32,19 @@ android
         }
     }
 
+// To inline the bytecode built with JVM target 1.8 into
+// bytecode that is being built with JVM target 1.6. (e.g. navArgs)
+    
+    compileOptions
+    {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions
+    {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 dependencies
@@ -40,6 +52,7 @@ dependencies
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Tests stuff
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$junitImpl_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
@@ -53,4 +66,15 @@ dependencies
     // AndroidX
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.core:core-ktx:$ktxcore_version"
+
+    // Klock
+    implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
+
+    // Koin
+    implementation "org.koin:koin-core:$koin_version"
+    implementation "org.koin:koin-android:$koin_version"
+    implementation "org.koin:koin-androidx-scope:$koin_version"
+
+    // Realm extensions
+    implementation "com.github.vicpinm:krealmextensions:$realm_ext_version"
 }

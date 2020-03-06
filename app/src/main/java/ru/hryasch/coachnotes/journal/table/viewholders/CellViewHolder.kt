@@ -1,20 +1,17 @@
 package ru.hryasch.coachnotes.journal.table.viewholders
 
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import android.content.Context
-import android.content.res.Resources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder
-import com.pawegio.kandroid.i
 
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.journal.table.AbsenceData
+import ru.hryasch.coachnotes.domain.journal.data.AbsenceData
 import ru.hryasch.coachnotes.journal.table.CellModel
-import ru.hryasch.coachnotes.journal.table.PresenceData
+import ru.hryasch.coachnotes.domain.journal.data.PresenceData
 
 
 class CellViewHolder (cellItem: View, private val context: Context) : AbstractViewHolder(cellItem)

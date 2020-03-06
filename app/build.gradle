@@ -6,6 +6,7 @@ apply plugin: 'kotlin-android-extensions'
 // Custom plugins
 apply plugin: 'kotlin-kapt'
 apply plugin: 'koin'
+apply plugin: 'realm-android'
 
 android
 {
@@ -99,6 +100,7 @@ dependencies
     // Fakeit
     implementation "com.github.moove-it:fakeit:$fakeit_version"
 
+    // Klock
     implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
 
     implementation project(path: ':domain')

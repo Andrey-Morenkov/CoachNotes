@@ -1,4 +1,4 @@
-package ru.hryasch.coachnotes.domain.common
+package ru.hryasch.coachnotes.repository.common
 
 typealias PersonId = Int
 typealias GroupId = Int

@@ -1,4 +1,4 @@
-package ru.hryasch.coachnotes.presenters.api
+package ru.hryasch.coachnotes.journal.presenters
 
 interface JournalPresenter
 {

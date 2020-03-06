@@ -3,8 +3,7 @@ package ru.hryasch.coachnotes.journal.table
 import androidx.recyclerview.widget.RecyclerView
 import com.evrencoskun.tableview.listener.ITableViewListener
 import com.pawegio.kandroid.i
-import ru.hryasch.coachnotes.journal.table.viewholders.CellViewHolder
-import ru.hryasch.coachnotes.presenters.api.JournalPresenter
+import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
 
 class TableViewClickListener(private val presenter: JournalPresenter) : ITableViewListener
 {
