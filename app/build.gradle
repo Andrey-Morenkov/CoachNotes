@@ -104,4 +104,5 @@ dependencies
     implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
 
     implementation project(path: ':domain')
+    implementation project(path: ':repository')
 }

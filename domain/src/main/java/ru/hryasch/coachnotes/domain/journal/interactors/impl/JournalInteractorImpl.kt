@@ -1,6 +1,5 @@
 package ru.hryasch.coachnotes.domain.journal.interactors.impl
 
-import com.soywiz.klock.DateTimeRange
 import com.soywiz.klock.YearMonth
 import kotlinx.coroutines.Job
 import org.koin.core.KoinComponent

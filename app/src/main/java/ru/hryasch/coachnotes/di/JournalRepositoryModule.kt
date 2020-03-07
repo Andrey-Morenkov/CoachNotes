@@ -1,4 +1,4 @@
-package ru.hryasch.coachnotes.domain.di
+package ru.hryasch.coachnotes.di
 
 import org.koin.core.qualifier.named
 import org.koin.dsl.module

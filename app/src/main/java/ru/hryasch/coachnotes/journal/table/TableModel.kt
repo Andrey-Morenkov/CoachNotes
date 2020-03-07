@@ -6,7 +6,7 @@ import ru.hryasch.coachnotes.journal.table.viewholders.ColumnHeaderModel
 import ru.hryasch.coachnotes.journal.table.viewholders.RowHeaderModel
 
 
-class TableModel() : KoinComponent
+class TableModel()
 {
     var columnHeaderContent: MutableList<ColumnHeaderModel> = ArrayList()
     var rowHeaderContent: MutableList<RowHeaderModel> = ArrayList()
