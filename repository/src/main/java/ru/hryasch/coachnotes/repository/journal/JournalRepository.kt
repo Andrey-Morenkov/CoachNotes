@@ -10,5 +10,5 @@ import ru.hryasch.coachnotes.repository.dao.JournalChunkDAO
 interface JournalRepository
 {
     // 1 month period for now only
-    suspend fun getJournalChunks(period: YearMonth, groupId: GroupId): List<JournalChunkDAO>
+    suspend fun getJournalChunks(period: YearMonth, groupId: GroupId): List<JournalChunkDAO>?
 }
