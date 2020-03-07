@@ -10,6 +10,5 @@ open class GroupDAO(): RealmObject()
 {
     @PrimaryKey
     var id: GroupId = 0
-
     var people: RealmList<PersonId> = RealmList()
 }

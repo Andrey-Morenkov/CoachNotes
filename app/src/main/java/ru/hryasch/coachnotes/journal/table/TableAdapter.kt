@@ -12,9 +12,7 @@ import com.pawegio.kandroid.w
 import org.koin.core.KoinComponent
 
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.journal.table.viewholders.CellViewHolder
-import ru.hryasch.coachnotes.journal.table.viewholders.ColumnHeaderViewHolder
-import ru.hryasch.coachnotes.journal.table.viewholders.RowHeaderViewHolder
+import ru.hryasch.coachnotes.journal.table.viewholders.*
 
 
 class TableAdapter(private val context: Context,

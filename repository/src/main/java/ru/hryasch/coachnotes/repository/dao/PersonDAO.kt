@@ -9,7 +9,6 @@ open class PersonDAO(): RealmObject()
 {
     @PrimaryKey
     var id: PersonId = -1
-
     var firstName: String? = null
     var secondName: String? = null
     var groupId: GroupId? = null

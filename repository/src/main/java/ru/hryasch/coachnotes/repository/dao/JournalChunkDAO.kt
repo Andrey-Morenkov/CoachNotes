@@ -16,10 +16,7 @@ data class JournalChunkDataDAO(val name: String, val mark: JournalMarkDAO)
 open class JournalChunkDAO(): RealmObject()
 {
     @PrimaryKey
-    var timestamp: Date = Date(0)
-
-    @PrimaryKey
+    var timestamp: String = ""
     var groupId: GroupId = 0
-
-    var data: RealmList<JournalChunkDataDAO> = RealmList()
+    var data: RealmList<String> = RealmList()
 }

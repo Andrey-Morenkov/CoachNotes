@@ -7,6 +7,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import ru.hryasch.coachnotes.di.journalAppModule
+import ru.hryasch.coachnotes.di.realmRepositoriesModule
 import ru.hryasch.coachnotes.domain.di.journalRepositoryModule
 
 class App : Application()
@@ -18,7 +19,7 @@ class App : Application()
         startKoin{
             androidLogger()
             androidContext(this@App)
-            modules(journalAppModule, journalRepositoryModule, journalRepositoryModule)
+            modules(journalAppModule, journalRepositoryModule, realmRepositoriesModule)
         }
 
         Fakeit.initWithLocale("ru")

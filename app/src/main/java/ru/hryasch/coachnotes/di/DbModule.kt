@@ -5,7 +5,7 @@ import io.realm.RealmConfiguration
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-val RealmRepositoriesModule = module {
+val realmRepositoriesModule = module {
 
     single(named("persons_mock"))
     {

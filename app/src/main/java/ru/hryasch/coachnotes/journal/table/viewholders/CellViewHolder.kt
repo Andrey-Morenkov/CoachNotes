@@ -10,7 +10,6 @@ import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder
 
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.journal.data.AbsenceData
-import ru.hryasch.coachnotes.journal.table.CellModel
 import ru.hryasch.coachnotes.domain.journal.data.PresenceData
 
 

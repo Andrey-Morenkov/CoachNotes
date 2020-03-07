@@ -14,6 +14,6 @@ class JournalFakeRepository: JournalRepository, KoinComponent
         period: YearMonth,
         groupId: GroupId
     ): List<JournalChunkDAO> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return ArrayList<JournalChunkDAO>()
     }
 }
