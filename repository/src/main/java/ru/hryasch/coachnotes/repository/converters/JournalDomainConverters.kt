@@ -1,14 +1,11 @@
 package ru.hryasch.coachnotes.repository.converters
 
-import com.pawegio.kandroid.i
-import com.pawegio.kandroid.w
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 import ru.hryasch.coachnotes.domain.journal.data.*
-import ru.hryasch.coachnotes.repository.dao.JournalChunkDAO
-import ru.hryasch.coachnotes.repository.dao.JournalMarkAbsence
-import ru.hryasch.coachnotes.repository.dao.JournalMarkDAO
-import ru.hryasch.coachnotes.repository.dao.JournalMarkPresence
+import ru.hryasch.coachnotes.domain.person.Person
+import ru.hryasch.coachnotes.domain.person.PersonImpl
+import ru.hryasch.coachnotes.repository.dao.*
 import java.util.*
 
 val daoDateFormat = DateFormat("dd/MM/yyyy")
@@ -31,6 +28,11 @@ fun JournalMarkDAO.fromDAO(): CellData?
     }
 }
 
+fun PersonDAO.fromDAO(): Person
+{
+    return PersonImpl(this.id, this.name!!, this.surname!!)
+}
+
 fun List<JournalChunkDAO>.fromDAO(): List<JournalChunk>
 {
     val chunkList: MutableList<JournalChunk> = LinkedList()
@@ -41,10 +43,9 @@ fun List<JournalChunkDAO>.fromDAO(): List<JournalChunk>
                                  item.groupId)
 
         item.data.forEach {
-            val name = it.name
             val mark = JournalMarkDAO.fromString(it.mark)?.fromDAO()
 
-            chunk.content[name] = mark
+            chunk.content[JournalChunkPersonName(it.surname, it.name)] = mark
         }
         chunkList.add(chunk)
     }

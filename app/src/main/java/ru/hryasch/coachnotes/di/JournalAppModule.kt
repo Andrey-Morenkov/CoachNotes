@@ -21,5 +21,5 @@ val journalAppModule = module {
     factory { (presenter: JournalPresenter) -> TableViewClickListener(presenter) as ITableViewListener }
 
     single(named("months_RU")) { arrayOf("Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь") }
-
+    single(named("daysOfWeek_RU")) { arrayOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс") }
 }

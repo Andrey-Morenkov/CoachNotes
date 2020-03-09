@@ -5,9 +5,11 @@ import com.soywiz.klock.*
 import io.realm.Realm
 import io.realm.kotlin.where
 import org.koin.core.KoinComponent
+import org.koin.core.get
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
+import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.converters.daoDateFormat
 import ru.hryasch.coachnotes.repository.converters.fromDAO
@@ -18,10 +20,8 @@ import ru.hryasch.coachnotes.repository.dao.JournalMarkPresence
 
 
 
-class JournalFakeRepository: ru.hryasch.coachnotes.domain.repository.JournalRepository, KoinComponent
+class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
 {
-    private val db: Realm by inject(named("journal_storage_mock"))
-
     init
     {
         generateJournalDb()
@@ -30,6 +30,8 @@ class JournalFakeRepository: ru.hryasch.coachnotes.domain.repository.JournalRepo
     override suspend fun getJournalChunks(period: YearMonth,
                                           groupId: GroupId): List<JournalChunk>?
     {
+        val db = getDb()
+
         val firstDate = DateTime.invoke(period.year, period.month, 1)
 
         val chunkList: MutableList<JournalChunkDAO> = ArrayList()
@@ -46,7 +48,9 @@ class JournalFakeRepository: ru.hryasch.coachnotes.domain.repository.JournalRepo
             chunk?.let { chunkList.add(it) }
             currentDate += 1.days
         }
+
         i("chunkListSize = ${chunkList.size}")
+
         return if (chunkList.size == 0)
         {
             null
@@ -59,6 +63,8 @@ class JournalFakeRepository: ru.hryasch.coachnotes.domain.repository.JournalRepo
 
     private fun generateJournalDb()
     {
+        val db = getDb()
+
         val chunk = JournalChunkDAO()
         chunk.timestamp = DateTime.now().format(daoDateFormat)
 
@@ -68,19 +74,22 @@ class JournalFakeRepository: ru.hryasch.coachnotes.domain.repository.JournalRepo
 
         val data1 = JournalChunkDataDAO()
         data1.apply {
-            name = "Вася 1"
+            name = "Имя1"
+            surname = "Фамилия1"
             mark = JournalMarkPresence().toString()
         }
 
         val data2 = JournalChunkDataDAO()
         data2.apply {
-            name = "Вася 2"
+            name = "Имя2"
+            surname = "Фамилия2"
             mark = JournalMarkAbsence().toString()
         }
 
         val data3 = JournalChunkDataDAO()
         data3.apply {
-            name = "Вася 3"
+            name = "Имя3"
+            surname = "Фамилия3"
             mark = JournalMarkAbsence("Б").toString()
         }
 
@@ -94,4 +103,6 @@ class JournalFakeRepository: ru.hryasch.coachnotes.domain.repository.JournalRepo
             it.copyToRealm(chunk)
         }
     }
+
+    private fun getDb(): Realm = Realm.getInstance(get(named("journal_storage_mock")))
 }

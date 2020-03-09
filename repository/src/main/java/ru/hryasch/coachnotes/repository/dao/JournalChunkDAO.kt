@@ -50,6 +50,7 @@ class JournalMarkAbsence(val mark: String? = null): JournalMarkDAO()
 open class JournalChunkDataDAO(): RealmObject()
 {
     var name: String = ""
+    var surname: String = ""
     var mark: String = ""
 }
 
