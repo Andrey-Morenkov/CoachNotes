@@ -4,7 +4,6 @@ import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import com.soywiz.klock.Date
 import com.soywiz.klock.YearMonth
-import kotlinx.coroutines.Job
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.koin.core.qualifier.named
@@ -42,10 +41,21 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         return generateTableData(period, chunks, personRepository.getPersonsByGroup(1)!!)
     }
 
-    override fun saveJournal(tableDump: TableData): Job
+    override suspend fun saveJournal(tableDump: TableData)
     {
         TODO()
     }
+
+    override suspend fun saveChangedCell(date: Date,
+                                         person: JournalChunkPersonName,
+                                         cellData: CellData?,
+                                         groupId: GroupId)
+    {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+
+
 
     private fun generateTableData(period: YearMonth, chunks: List<JournalChunk>?, people: List<Person>): TableData
     {

@@ -31,7 +31,7 @@ class TableViewClickListener(private val presenter: JournalPresenter) : ITableVi
     override fun onCellClicked(cellView: RecyclerView.ViewHolder, column: Int, row: Int)
     {
         i("cell ($column:$row) clicked")
-        presenter.test(column, row)
+        presenter.onCellClicked(column, row)
     }
 
     override fun onRowHeaderLongPressed(rowHeaderView: RecyclerView.ViewHolder, row: Int)

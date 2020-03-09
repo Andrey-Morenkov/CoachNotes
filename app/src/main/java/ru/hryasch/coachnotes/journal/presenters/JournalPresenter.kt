@@ -2,7 +2,7 @@ package ru.hryasch.coachnotes.journal.presenters
 
 interface JournalPresenter
 {
-    fun test(col: Int, row: Int)
+    fun onCellClicked(col: Int, row: Int)
 
     fun nextMonth()
 

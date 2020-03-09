@@ -35,9 +35,11 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         changePeriod()
     }
 
-    override fun test(col: Int, row: Int)
+    override fun onCellClicked(col: Int, row: Int)
     {
-        i("-- TEST IN PRESENTER --")
+        i("onCell($col:$row) clicked")
+
+        val cell = tableModel.cellContent[row][col]
 
         with (tableModel.cellContent[row][col])
         {
@@ -49,6 +51,8 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     else -> PresenceData()
                 }
         }
+
+
 
         viewState.refreshData()
     }

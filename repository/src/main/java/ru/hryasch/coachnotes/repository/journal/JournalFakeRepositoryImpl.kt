@@ -41,9 +41,9 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         while (currentDate in searchingRange)
         {
             val chunk = db.where<JournalChunkDAO>()
-                .equalTo("timestamp", currentDate.format(daoDateFormat))
-                .equalTo("groupId", 1.toInt())
-                .findFirst()
+                          .equalTo("timestamp", currentDate.format(daoDateFormat))
+                          .equalTo("groupId", 1.toInt())
+                          .findFirst()
 
             chunk?.let { chunkList.add(it) }
             currentDate += 1.days
@@ -60,6 +60,21 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
             chunkList.fromDAO()
         }
     }
+
+    override suspend fun updateJournalChunk(chunk: JournalChunk)
+    {
+        val db = getDb()
+
+        val ch = db.where<JournalChunkDAO>()
+                   .equalTo("timestamp", chunk.date.format(daoDateFormat))
+                   .equalTo("groupId", chunk.groupId)
+                   .findFirst()
+
+        ch?.data = chunk.content
+    }
+
+
+
 
     private fun generateJournalDb()
     {
