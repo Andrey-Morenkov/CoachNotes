@@ -8,7 +8,7 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import ru.hryasch.coachnotes.di.journalAppModule
 import ru.hryasch.coachnotes.di.realmRepositoriesModule
-import ru.hryasch.coachnotes.domain.di.journalRepositoryModule
+import ru.hryasch.coachnotes.di.journalRepositoryModule
 
 class App : Application()
 {

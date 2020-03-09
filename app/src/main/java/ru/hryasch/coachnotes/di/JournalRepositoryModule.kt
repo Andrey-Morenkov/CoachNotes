@@ -1,9 +1,9 @@
-package ru.hryasch.coachnotes.domain.di
+package ru.hryasch.coachnotes.di
 
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import ru.hryasch.coachnotes.repository.journal.JournalRepository
-import ru.hryasch.coachnotes.repository.journal.impl.JournalFakeRepository
+import ru.hryasch.coachnotes.domain.repository.JournalRepository
+import ru.hryasch.coachnotes.repository.journal.JournalFakeRepository
 
 val journalRepositoryModule = module {
 

@@ -1,13 +1,13 @@
-package ru.hryasch.coachnotes.repository.person.impl
+package ru.hryasch.coachnotes.repository.person
 
 import io.realm.Realm
 import io.realm.RealmConfiguration
-import io.realm.kotlin.where
 import org.koin.core.KoinComponent
+import ru.hryasch.coachnotes.domain.person.Person
+import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.common.PersonId
 import ru.hryasch.coachnotes.repository.dao.PersonDAO
-import ru.hryasch.coachnotes.repository.person.PersonRepository
 
 class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
 {
@@ -41,12 +41,12 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         }
     }
 
-    override fun getPerson(person: PersonId): PersonDAO
+    override suspend fun getPerson(person: PersonId): Person?
     {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getPersonsByGroup(group: GroupId): List<PersonDAO>?
+    override suspend fun getPersonsByGroup(group: GroupId): List<Person>?
     {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
