@@ -5,8 +5,8 @@ import com.soywiz.klock.YearMonth
 
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.journal.data.CellData
-import ru.hryasch.coachnotes.domain.journal.data.JournalChunkPersonName
 import ru.hryasch.coachnotes.domain.journal.data.TableData
+import ru.hryasch.coachnotes.domain.person.Person
 
 
 interface JournalInteractor
@@ -16,7 +16,7 @@ interface JournalInteractor
     suspend fun saveJournal(tableDump: TableData)
 
     suspend fun saveChangedCell(date: Date,
-                                person: JournalChunkPersonName,
+                                person: Person,
                                 cellData: CellData?,
                                 groupId: GroupId)
 }

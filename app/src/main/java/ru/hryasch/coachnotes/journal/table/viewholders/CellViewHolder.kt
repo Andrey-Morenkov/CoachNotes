@@ -16,7 +16,6 @@ import ru.hryasch.coachnotes.domain.journal.data.PresenceData
 class CellViewHolder (cellItem: View, private val context: Context) : AbstractViewHolder(cellItem)
 {
     private val data : TextView = cellItem.findViewById(R.id.journalCellData)
-    private val layout: ConstraintLayout = cellItem.findViewById(R.id.journalCellLayout)
 
     var currentModel: CellModel? = null
 

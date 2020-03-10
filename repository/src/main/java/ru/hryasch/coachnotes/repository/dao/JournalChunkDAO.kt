@@ -1,63 +1,82 @@
 package ru.hryasch.coachnotes.repository.dao
 
+import com.pawegio.kandroid.i
+import com.soywiz.klock.Date
+import com.soywiz.klock.DateTime
+import com.soywiz.klock.parse
 import io.realm.RealmList
 import io.realm.RealmObject
+import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
+import io.realm.annotations.Required
+import ru.hryasch.coachnotes.domain.journal.data.CellData
+import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
 
 import ru.hryasch.coachnotes.repository.common.GroupId
+import ru.hryasch.coachnotes.repository.converters.daoDateFormat
+import ru.hryasch.coachnotes.repository.converters.toDAO
 
-sealed class JournalMarkDAO()
-{
-    companion object
-    {
-        fun fromString(str: String): JournalMarkDAO?
-        {
-            val options = str.split(" ")
-            return when(options[0])
-            {
-                "p" -> JournalMarkPresence()
-                "a" ->
-                {
-                    if (options.size == 1)
-                    {
-                        JournalMarkAbsence()
-                    }
-                    else
-                    {
-                        JournalMarkAbsence(options[1])
-                    }
-                }
-                else -> null
-            }
-        }
-    }
-}
-
-class JournalMarkPresence(): JournalMarkDAO()
-{
-    override fun toString(): String = "p"
-}
-class JournalMarkAbsence(val mark: String? = null): JournalMarkDAO()
-{
-    override fun toString(): String
-    {
-        var str = "a"
-        mark?.let { str += " $mark" }
-        return str
-    }
-}
 
 open class JournalChunkDataDAO(): RealmObject()
 {
     var name: String = ""
     var surname: String = ""
     var mark: String = ""
+
+    constructor(surname: String, name: String, mark: JournalMarkDAO) : this()
+    {
+        this.name = name
+        this.surname = surname
+        this.mark = mark.serialize()
+    }
+
+    constructor(surname: String, name: String, mark: CellData) : this()
+    {
+        this.name = name
+        this.surname = surname
+        this.mark = mark.toDAO().serialize()
+    }
+}
+
+data class JournalChunkDAOId (val date: Date, val groupId: GroupId)
+{
+    companion object
+    {
+        private const val delimiter = "/"
+
+        fun getSerialized(date: Date, groupId: GroupId): String
+        {
+            return "${date.format(daoDateFormat)}$delimiter$groupId"
+        }
+
+        fun getSerialized(date: String, groupId: GroupId): String
+        {
+            return "$date$delimiter$groupId"
+        }
+
+        fun deserialize(str: String): JournalChunkDAOId
+        {
+            val groupIdStr = str.reversed()
+                                .substringBefore(delimiter)
+                                .reversed()
+
+            val date = str.substringBefore("$delimiter$groupIdStr")
+            return JournalChunkDAOId(daoDateFormat.parse(date).local.date, groupIdStr.toInt())
+        }
+    }
 }
 
 open class JournalChunkDAO(): RealmObject()
 {
+    @Index
+    @Required
     @PrimaryKey
-    var timestamp: String = ""
-    var groupId: GroupId = 0
+    var id: String? = null
     var data: RealmList<JournalChunkDataDAO> = RealmList()
+
+    constructor(date: Date, groupId: GroupId) : this()
+    {
+        id = JournalChunkDAOId.getSerialized(date, groupId)
+        i("created new chunk: id = $id")
+    }
 }

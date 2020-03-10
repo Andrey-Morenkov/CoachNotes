@@ -1,6 +1,7 @@
 package ru.hryasch.coachnotes.journal.presenters.impl
 
 import com.pawegio.kandroid.i
+import com.soywiz.klock.Date
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.YearMonth
 import com.soywiz.klock.months
@@ -14,8 +15,10 @@ import ru.hryasch.coachnotes.converters.toModel
 
 import ru.hryasch.coachnotes.fragments.api.JournalView
 import ru.hryasch.coachnotes.domain.journal.data.AbsenceData
+import ru.hryasch.coachnotes.domain.journal.data.JournalChunkPersonName
 import ru.hryasch.coachnotes.domain.journal.data.PresenceData
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
+import ru.hryasch.coachnotes.domain.person.PersonImpl
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
 
@@ -41,18 +44,24 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
         val cell = tableModel.cellContent[row][col]
 
-        with (tableModel.cellContent[row][col])
-        {
-            data =
-                when (data)
+        cell.data =
+                when (cell.data)
                 {
                     is PresenceData -> AbsenceData()
                     is AbsenceData -> null
                     else -> PresenceData()
                 }
+
+        GlobalScope.launch(Dispatchers.IO)
+        {
+            val person = PersonImpl(tableModel.rowHeaderContent[row].data.person.surname,
+                                    tableModel.rowHeaderContent[row].data.person.name)
+
+            journalInteractor.saveChangedCell(tableModel.columnHeaderContent[col].data.timestamp,
+                                              person,
+                                              tableModel.cellContent[row][col].data,
+                                              tableModel.groupId)
         }
-
-
 
         viewState.refreshData()
     }
@@ -83,7 +92,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         findingTableJob = GlobalScope.launch(Dispatchers.IO)
         {
             tableModel = journalInteractor
-                            .getJournal(chosenPeriod, 123)
+                            .getJournal(chosenPeriod, 1)
                             .toModel()
 
             withContext(Dispatchers.Main)

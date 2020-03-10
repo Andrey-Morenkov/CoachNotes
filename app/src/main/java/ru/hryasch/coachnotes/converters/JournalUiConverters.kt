@@ -6,9 +6,12 @@ import ru.hryasch.coachnotes.journal.table.viewholders.CellModel
 import ru.hryasch.coachnotes.journal.table.viewholders.ColumnHeaderModel
 import ru.hryasch.coachnotes.journal.table.viewholders.RowHeaderModel
 
+
 fun TableData.toModel(): TableModel
 {
-    val tableModel: TableModel = TableModel()
+    val tableModel = TableModel()
+
+    tableModel.groupId = this.groupId
 
     columnHeadersData.forEach {
         tableModel.columnHeaderContent.add(ColumnHeaderModel(it))

@@ -12,6 +12,7 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 import ru.hryasch.coachnotes.domain.person.Person
+import ru.hryasch.coachnotes.domain.person.PersonImpl
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import java.util.*
@@ -23,22 +24,22 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     private val journalRepository: JournalRepository by inject(named("mock"))
     private val personRepository: PersonRepository by inject(named("mock"))
 
-    private val dayOfWeekNames: Array<String> by inject(named("daysOfWeek_RU"))
-
     override suspend fun getJournal(period: YearMonth, groupId: GroupId): TableData
     {
         val chunks = journalRepository.getJournalChunks(period, groupId)
 
         chunks?.forEach {
             e("CHUNK")
-            i("timestamp = ${it.date.day}/${it.date.month}/${it.date.year}")
+            i("timestamp = ${it.date.day}/${it.date.month.index1}/${it.date.year}")
             i("groupId = ${it.groupId}")
             it.content.forEach { cnt ->
                 i("data[${cnt.key} : ${cnt.value}]")
             }
         }
 
-        return generateTableData(period, chunks, personRepository.getPersonsByGroup(1)!!)
+        //TODO: chunks post processing
+
+        return generateTableData(period, groupId, chunks, personRepository.getPersonsByGroup(groupId)!!)
     }
 
     override suspend fun saveJournal(tableDump: TableData)
@@ -47,20 +48,20 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     }
 
     override suspend fun saveChangedCell(date: Date,
-                                         person: JournalChunkPersonName,
+                                         person: Person,
                                          cellData: CellData?,
                                          groupId: GroupId)
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        journalRepository.updateJournalChunkData(date, groupId, person, cellData)
     }
 
 
 
-
-    private fun generateTableData(period: YearMonth, chunks: List<JournalChunk>?, people: List<Person>): TableData
+    private fun generateTableData(period: YearMonth, groupId: GroupId, chunks: List<JournalChunk>?, people: List<Person>): TableData
     {
         val tableData = TableData()
 
+        tableData.groupId = groupId
         tableData.columnHeadersData.addAll(generateDayOfMonthDescription(period))
         tableData.rowHeadersData.addAll(generateNames(chunks, people))
         tableData.cellsData.addAll(generateCellData(chunks, tableData.rowHeadersData, tableData.columnHeadersData))
@@ -73,24 +74,23 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         val headers: MutableList<ColumnHeaderData> = LinkedList<ColumnHeaderData>()
         for (day in (1 .. period.days))
         {
-            val dayOfWeek = Date.invoke(period.year, period.month, day).dayOfWeek.index0Monday
-            headers.add(ColumnHeaderData(day, dayOfWeekNames[dayOfWeek]))
+            headers.add(ColumnHeaderData(Date.Companion.invoke(period, day)))
         }
         return headers
     }
 
     private fun generateNames(chunks: List<JournalChunk>?, people: List<Person>): List<RowHeaderData>
     {
-        val allPeople: MutableSet<JournalChunkPersonName> = HashSet()
+        val allPeople: MutableSet<Person> = HashSet()
 
         people.forEach {
-            allPeople.add(JournalChunkPersonName(it.surname, it.name))
+            allPeople.add(PersonImpl(it.surname, it.name))
         }
 
-        val chunksPeople: MutableSet<JournalChunkPersonName> = HashSet()
+        val chunksPeople: MutableSet<Person> = HashSet()
         chunks?.forEach {
             it.content.forEach { entry ->
-                chunksPeople.add(entry.key)
+                chunksPeople.add(PersonImpl(entry.key.surname, entry.key.name))
             }
         }
 
@@ -100,33 +100,40 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
         val headers: MutableList<RowHeaderData> = LinkedList()
         allPeople.forEach {
-            headers.add(RowHeaderData(it.surname, it.name))
+            headers.add(RowHeaderData(it))
+        }
+
+        headers.sortBy {
+            it.person.surname
+            it.person.name
         }
 
         return headers
     }
 
-    private fun generateCellData(chunks: List<JournalChunk>?, allPeople: List<RowHeaderData>, days: List<ColumnHeaderData>): MutableList<MutableList<CellData?>>
+    private fun generateCellData(chunks: List<JournalChunk>?,
+                                 allPeople: List<RowHeaderData>,
+                                 days: List<ColumnHeaderData>): MutableList<MutableList<CellData?>>
     {
         val cells: MutableList<MutableList<CellData?>> = LinkedList()
 
-        allPeople.forEach { person ->
+        allPeople.forEach { personData ->
             val dataByDay: MutableList<CellData?> = LinkedList()
 
             days.forEach { dayData ->
-                val chunk = chunks?.find { it -> it.date.day == dayData.day }
+                val chunk = chunks?.find { it.date == dayData.timestamp }
                 if (chunk == null)
                 {
                     dataByDay.add(generateEmptyCellData())
                 }
                 else
                 {
-                    val personDataByDay = chunk.content.filter { it.key.surname == person.surname &&
-                                                                 it.key.name == person.name}
+                    val personDataByDay = chunk.content.filter { it.key.surname == personData.person.surname &&
+                                                                 it.key.name == personData.person.name }
 
                     if (personDataByDay.isEmpty())
                     {
-                        //TODO: there was no this person => new noExistData?
+                        //TODO: there was no this personData => new noExistData?
                         dataByDay.add(generateEmptyCellData())
                     }
                     else

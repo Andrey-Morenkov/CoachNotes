@@ -1,23 +1,23 @@
 package ru.hryasch.coachnotes.repository.journal
 
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import com.soywiz.klock.*
 import io.realm.Realm
 import io.realm.kotlin.where
 import org.koin.core.KoinComponent
 import org.koin.core.get
-import org.koin.core.inject
 import org.koin.core.qualifier.named
+import ru.hryasch.coachnotes.domain.journal.data.CellData
 import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
+import ru.hryasch.coachnotes.domain.journal.data.JournalChunkPersonName
+import ru.hryasch.coachnotes.domain.person.Person
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.converters.daoDateFormat
 import ru.hryasch.coachnotes.repository.converters.fromDAO
-import ru.hryasch.coachnotes.repository.dao.JournalChunkDAO
-import ru.hryasch.coachnotes.repository.dao.JournalChunkDataDAO
-import ru.hryasch.coachnotes.repository.dao.JournalMarkAbsence
-import ru.hryasch.coachnotes.repository.dao.JournalMarkPresence
-
+import ru.hryasch.coachnotes.repository.converters.toDAO
+import ru.hryasch.coachnotes.repository.dao.*
 
 
 class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
@@ -32,26 +32,22 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
     {
         val db = getDb()
 
-        val firstDate = DateTime.invoke(period.year, period.month, 1)
-
         val chunkList: MutableList<JournalChunkDAO> = ArrayList()
 
-        val searchingRange = firstDate until (firstDate + 1.months)
-        var currentDate = firstDate
-        while (currentDate in searchingRange)
+        val firstDayOfMonth = DateTime.invoke(period.year, period.month, 1)
+        var currentDate = firstDayOfMonth
+
+        while (currentDate in (firstDayOfMonth until (firstDayOfMonth + 1.months)))
         {
-            val chunk = db.where<JournalChunkDAO>()
-                          .equalTo("timestamp", currentDate.format(daoDateFormat))
-                          .equalTo("groupId", 1.toInt())
-                          .findFirst()
+            val chunk = getChunk(db, currentDate.date, 1)
+
+            if (chunk != null) e("date: ${daoDateFormat.format(currentDate)}} chunk = $chunk")
 
             chunk?.let { chunkList.add(it) }
             currentDate += 1.days
         }
 
-        i("chunkListSize = ${chunkList.size}")
-
-        return if (chunkList.size == 0)
+        return if (chunkList.isEmpty())
         {
             null
         }
@@ -61,16 +57,57 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         }
     }
 
-    override suspend fun updateJournalChunk(chunk: JournalChunk)
+    override suspend fun updateJournalChunkData(date: Date,
+                                                groupId: GroupId,
+                                                person: Person,
+                                                mark: CellData?)
     {
         val db = getDb()
 
-        val ch = db.where<JournalChunkDAO>()
-                   .equalTo("timestamp", chunk.date.format(daoDateFormat))
-                   .equalTo("groupId", chunk.groupId)
-                   .findFirst()
+        i("updateJournalChunkData: \n" +
+                "date = ${date.format(daoDateFormat)} \n" +
+                "groupId = $groupId\n" +
+                "person = ${person.surname} ${person.name} (${person.id})\n" +
+                "mark = ${mark.toString()}")
 
-        ch?.data = chunk.content
+        val chunk = getOrCreateChunk(db, date, groupId)
+        val personMarkInfo = chunk.data.find { it.surname == person.surname && it.name == person.name }
+
+        if (mark == null)
+        {
+            e("mark == null")
+            // delete info about person from chunk
+            personMarkInfo?.let {
+                chunk.data.remove(it)
+                e("personMarkInfo != null")
+            }
+        }
+        else
+        {
+            e("mark != null")
+            // create chunk info about person or update
+            if (personMarkInfo == null)
+            {
+                e("personMarkInfo == null")
+                chunk.data.add(JournalChunkDataDAO(person.surname, person.name, mark))
+            }
+            else
+            {
+                e("personMarkInfo != null")
+                personMarkInfo.mark = mark.toDAO().serialize()
+            }
+        }
+
+        if (chunk.data.isEmpty())
+        {
+            e("delete chunk")
+            deleteChunk(db, chunk)
+        }
+        else
+        {
+            e("create or update chunk")
+            createOrUpdateChunk(db, chunk)
+        }
     }
 
 
@@ -80,33 +117,10 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
     {
         val db = getDb()
 
-        val chunk = JournalChunkDAO()
-        chunk.timestamp = DateTime.now().format(daoDateFormat)
-
-        i("timestamp = ${chunk.timestamp}")
-
-        chunk.groupId = 1
-
-        val data1 = JournalChunkDataDAO()
-        data1.apply {
-            name = "Имя1"
-            surname = "Фамилия1"
-            mark = JournalMarkPresence().toString()
-        }
-
-        val data2 = JournalChunkDataDAO()
-        data2.apply {
-            name = "Имя2"
-            surname = "Фамилия2"
-            mark = JournalMarkAbsence().toString()
-        }
-
-        val data3 = JournalChunkDataDAO()
-        data3.apply {
-            name = "Имя3"
-            surname = "Фамилия3"
-            mark = JournalMarkAbsence("Б").toString()
-        }
+        val chunk = JournalChunkDAO(DateTimeTz.nowLocal().local.date, 1)
+        val data1 = JournalChunkDataDAO("Фамилия1", "Имя1", JournalMarkPresenceDAO())
+        val data2 = JournalChunkDataDAO("Фамилия2", "Имя2", JournalMarkAbsenceDAO())
+        val data3 = JournalChunkDataDAO("Фамилия3", "Имя3", JournalMarkAbsenceDAO("Б"))
 
         chunk.data.apply {
             add(data1)
@@ -114,8 +128,60 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
             add(data3)
         }
 
+        e("generated chunk: id = ${chunk.id}")
+
         db.executeTransaction {
             it.copyToRealm(chunk)
+        }
+    }
+
+    private fun getChunk(db: Realm, date: Date, groupId: GroupId): JournalChunkDAO?
+    {
+        val obj = db.where<JournalChunkDAO>()
+                    .equalTo("id", JournalChunkDAOId.getSerialized(date, groupId))
+                    .findFirst()
+
+        return obj?.run { db.copyFromRealm(obj) }
+    }
+
+    private fun getChunk(db: Realm, chunk: JournalChunkDAO): JournalChunkDAO?
+    {
+        val obj = db.where<JournalChunkDAO>()
+                    .equalTo("id", chunk.id)
+                    .findFirst()
+
+        return obj?.run { db.copyFromRealm(obj) }
+    }
+
+    private fun getOrCreateChunk(db: Realm, date: Date, groupId: GroupId): JournalChunkDAO
+    {
+        return getChunk(db, date, groupId) ?: JournalChunkDAO(date, groupId)
+    }
+
+    private fun deleteChunk(db: Realm, chunk: JournalChunkDAO)
+    {
+        db.executeTransaction {
+            it.where<JournalChunkDAO>()
+              .equalTo("id", chunk.id)
+              .findFirst()
+              ?.deleteFromRealm()
+        }
+    }
+
+    private fun deleteChunk(db: Realm, date: Date, groupId: GroupId)
+    {
+        db.executeTransaction {
+            it.where<JournalChunkDAO>()
+              .equalTo("id", JournalChunkDAOId.getSerialized(date, groupId))
+              .findFirst()
+              ?.deleteFromRealm()
+        }
+    }
+
+    private fun createOrUpdateChunk(db: Realm, chunk: JournalChunkDAO)
+    {
+        db.executeTransaction {
+            it.copyToRealmOrUpdate(chunk)
         }
     }
 

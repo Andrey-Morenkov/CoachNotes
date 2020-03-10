@@ -12,7 +12,7 @@ class RowHeaderViewHolder(rowHeaderItem: View) : AbstractViewHolder(rowHeaderIte
 
     fun setModel(model: RowHeaderModel)
     {
-        surname.text = model.data.surname
-        name.text = model.data.name
+        surname.text = model.data.person.surname
+        name.text = model.data.person.name
     }
 }

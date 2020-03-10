@@ -9,6 +9,4 @@ data class JournalChunk(val date: Date,
                         val groupId: GroupId)
 {
     val content: MutableMap<JournalChunkPersonName, CellData?> = HashMap()
-
-    fun isEmpty() = content.isEmpty()
 }
