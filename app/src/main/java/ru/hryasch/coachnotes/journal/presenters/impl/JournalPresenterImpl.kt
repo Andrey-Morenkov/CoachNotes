@@ -15,6 +15,7 @@ import ru.hryasch.coachnotes.converters.toModel
 
 import ru.hryasch.coachnotes.fragments.api.JournalView
 import ru.hryasch.coachnotes.domain.journal.data.AbsenceData
+import ru.hryasch.coachnotes.domain.journal.data.CellData
 import ru.hryasch.coachnotes.domain.journal.data.JournalChunkPersonName
 import ru.hryasch.coachnotes.domain.journal.data.PresenceData
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
@@ -22,6 +23,10 @@ import ru.hryasch.coachnotes.domain.person.PersonImpl
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
 import java.util.*
+
+// TODO: from dn on write -> event updated chunk to presenter -> refresh if current period or skip
+// TODO: refresh period event is skip strategy
+// TODO: add "not synced" states to cells
 
 @InjectViewState
 class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinComponent
@@ -64,6 +69,8 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
         changingJobs["$col|$row"] = GlobalScope.launch(Dispatchers.IO)
         {
+            val backupData: CellData? = CellData.getCopy(tableModel.cellContent[row][col].data)
+
             i("waiting for update...")
             delay(5000)
             i("let's save")
@@ -72,7 +79,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
             journalInteractor.saveChangedCell(tableModel.columnHeaderContent[col].data.timestamp,
                 person,
-                tableModel.cellContent[row][col].data,
+                backupData,
                 tableModel.groupId)
         }
 

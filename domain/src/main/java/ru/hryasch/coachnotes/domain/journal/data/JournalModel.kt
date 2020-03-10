@@ -10,6 +10,19 @@ sealed class CellData(val mark: String? = null)
     {
         return "<cell_data: $mark>"
     }
+
+    companion object
+    {
+        fun getCopy(data: CellData?): CellData?
+        {
+            return when (data)
+            {
+                is PresenceData -> PresenceData()
+                is AbsenceData -> AbsenceData(data.mark)
+                else -> null
+            }
+        }
+    }
 }
 
 class PresenceData() : CellData()

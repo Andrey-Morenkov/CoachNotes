@@ -37,6 +37,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
                                           groupId: GroupId): List<JournalChunk>?
     {
         val db = getDb()
+        db.refresh()
 
         val chunkList: MutableList<JournalChunkDAO> = ArrayList()
 
@@ -198,6 +199,8 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
             while (true)
             {
                 val task = tasks.receive()
+
+                db.refresh()
 
                 i("=== Executing on ${Thread.currentThread().name} ===")
                 db.executeTransactionAsync(task)
