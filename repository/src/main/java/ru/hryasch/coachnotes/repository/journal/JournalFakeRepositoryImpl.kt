@@ -64,49 +64,54 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
     {
         val db = getDb()
 
-        i("updateJournalChunkData: \n" +
-                "date = ${date.format(daoDateFormat)} \n" +
-                "groupId = $groupId\n" +
-                "person = ${person.surname} ${person.name} (${person.id})\n" +
-                "mark = ${mark.toString()}")
+        db.executeTransaction {
 
-        val chunk = getOrCreateChunk(db, date, groupId)
-        val personMarkInfo = chunk.data.find { it.surname == person.surname && it.name == person.name }
+            i("updateJournalChunkData: \n" +
+                    "date = ${date.format(daoDateFormat)} \n" +
+                    "groupId = $groupId\n" +
+                    "person = ${person.surname} ${person.name} (${person.id})\n" +
+                    "mark = ${mark.toString()}")
 
-        if (mark == null)
-        {
-            e("mark == null")
-            // delete info about person from chunk
-            personMarkInfo?.let {
-                chunk.data.remove(it)
-                e("personMarkInfo != null")
-            }
-        }
-        else
-        {
-            e("mark != null")
-            // create chunk info about person or update
-            if (personMarkInfo == null)
+            val chunk = getOrCreateChunk(db, date, groupId)
+            val personMarkInfo = chunk.data.find { it.surname == person.surname && it.name == person.name }
+
+            if (mark == null)
             {
-                e("personMarkInfo == null")
-                chunk.data.add(JournalChunkDataDAO(person.surname, person.name, mark))
+                e("mark == null")
+                // delete info about person from chunk
+                personMarkInfo?.let {
+                    chunk.data.remove(it)
+                    e("personMarkInfo != null")
+                }
             }
             else
             {
-                e("personMarkInfo != null")
-                personMarkInfo.mark = mark.toDAO().serialize()
+                e("mark != null")
+                // create chunk info about person or update
+                if (personMarkInfo == null)
+                {
+                    e("personMarkInfo == null")
+                    chunk.data.add(JournalChunkDataDAO(person.surname, person.name, mark))
+                }
+                else
+                {
+                    e("personMarkInfo != null")
+                    personMarkInfo.mark = mark.toDAO().serialize()
+                }
             }
-        }
 
-        if (chunk.data.isEmpty())
-        {
-            e("delete chunk")
-            deleteChunk(db, chunk)
-        }
-        else
-        {
-            e("create or update chunk")
-            createOrUpdateChunk(db, chunk)
+            if (chunk.data.isEmpty())
+            {
+                e("delete chunk")
+                deleteChunk(db, chunk)
+            }
+            else
+            {
+                e("create or update chunk")
+                createOrUpdateChunk(db, chunk)
+            }
+
+            e("=== EXECUTED ===")
         }
     }
 
@@ -160,29 +165,23 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
 
     private fun deleteChunk(db: Realm, chunk: JournalChunkDAO)
     {
-        db.executeTransaction {
-            it.where<JournalChunkDAO>()
-              .equalTo("id", chunk.id)
-              .findFirst()
-              ?.deleteFromRealm()
-        }
+        db.where<JournalChunkDAO>()
+          .equalTo("id", chunk.id)
+          .findFirst()
+          ?.deleteFromRealm()
     }
 
     private fun deleteChunk(db: Realm, date: Date, groupId: GroupId)
     {
-        db.executeTransaction {
-            it.where<JournalChunkDAO>()
-              .equalTo("id", JournalChunkDAOId.getSerialized(date, groupId))
-              .findFirst()
-              ?.deleteFromRealm()
-        }
+        db.where<JournalChunkDAO>()
+          .equalTo("id", JournalChunkDAOId.getSerialized(date, groupId))
+          .findFirst()
+          ?.deleteFromRealm()
     }
 
     private fun createOrUpdateChunk(db: Realm, chunk: JournalChunkDAO)
     {
-        db.executeTransaction {
-            it.copyToRealmOrUpdate(chunk)
-        }
+        db.copyToRealmOrUpdate(chunk)
     }
 
     private fun getDb(): Realm = Realm.getInstance(get(named("journal_storage_mock")))

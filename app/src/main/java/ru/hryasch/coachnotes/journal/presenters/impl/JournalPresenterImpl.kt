@@ -29,7 +29,9 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     private val monthNames:Array<String> by inject(named("months_RU"))
 
     private lateinit var tableModel: TableModel
+
     private lateinit var findingTableJob: Job
+    private lateinit var savingJob: Job
 
     private var chosenPeriod: YearMonth = DateTime.now().yearMonth
 
@@ -42,6 +44,8 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     {
         i("onCell($col:$row) clicked")
 
+        if (this::savingJob.isInitialized && savingJob.isActive) return
+
         val cell = tableModel.cellContent[row][col]
 
         cell.data =
@@ -52,7 +56,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     else -> PresenceData()
                 }
 
-        GlobalScope.launch(Dispatchers.IO)
+        savingJob = GlobalScope.launch(Dispatchers.IO)
         {
             val person = PersonImpl(tableModel.rowHeaderContent[row].data.person.surname,
                                     tableModel.rowHeaderContent[row].data.person.name)
@@ -61,19 +65,26 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                                               person,
                                               tableModel.cellContent[row][col].data,
                                               tableModel.groupId)
-        }
 
-        viewState.refreshData()
+            withContext(Dispatchers.Main)
+            {
+                viewState.refreshData()
+            }
+        }
     }
 
     override fun nextMonth()
     {
+        if (!this::savingJob.isInitialized || !savingJob.isCompleted) return
+
         chosenPeriod += 1.months
         changePeriod()
     }
 
     override fun prevMonth()
     {
+        if (!this::savingJob.isInitialized || !savingJob.isCompleted) return
+
         chosenPeriod -= 1.months
         changePeriod()
     }
