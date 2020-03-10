@@ -52,6 +52,8 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
         val cell = tableModel.cellContent[row][col]
 
+        // TODO: Add data as synced/not synced
+
         cell.data =
                 when (cell.data)
                 {
