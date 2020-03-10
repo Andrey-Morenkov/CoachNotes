@@ -4,7 +4,10 @@ import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import com.soywiz.klock.*
 import io.realm.Realm
+import io.realm.Realm.Transaction.Callback
 import io.realm.kotlin.where
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
@@ -18,13 +21,16 @@ import ru.hryasch.coachnotes.repository.converters.daoDateFormat
 import ru.hryasch.coachnotes.repository.converters.fromDAO
 import ru.hryasch.coachnotes.repository.converters.toDAO
 import ru.hryasch.coachnotes.repository.dao.*
+import java.util.concurrent.Executors
 
 
 class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
 {
+    private val tasks = Channel<Realm.Transaction>(capacity = 32)
     init
     {
         generateJournalDb()
+        runDbWorker()
     }
 
     override suspend fun getJournalChunks(period: YearMonth,
@@ -62,10 +68,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
                                                 person: Person,
                                                 mark: CellData?)
     {
-        val db = getDb()
-
-        db.executeTransaction {
-
+        tasks.send(Realm.Transaction { db ->
             i("updateJournalChunkData: \n" +
                     "date = ${date.format(daoDateFormat)} \n" +
                     "groupId = $groupId\n" +
@@ -73,7 +76,8 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
                     "mark = ${mark.toString()}")
 
             val chunk = getOrCreateChunk(db, date, groupId)
-            val personMarkInfo = chunk.data.find { it.surname == person.surname && it.name == person.name }
+            val personMarkInfo = chunk.data.find { it.surname == person.surname &&
+                                                   it.name == person.name }
 
             if (mark == null)
             {
@@ -112,7 +116,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
             }
 
             e("=== EXECUTED ===")
-        }
+        })
     }
 
 
@@ -185,4 +189,20 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
     }
 
     private fun getDb(): Realm = Realm.getInstance(get(named("journal_storage_mock")))
+
+    private fun runDbWorker()
+    {
+        GlobalScope.launch(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+        {
+            val db = getDb()
+            while (true)
+            {
+                val task = tasks.receive()
+
+                i("=== Executing on ${Thread.currentThread().name} ===")
+                db.executeTransactionAsync(task)
+                i("=== Executed on ${Thread.currentThread().name} ===")
+            }
+        }
+    }
 }

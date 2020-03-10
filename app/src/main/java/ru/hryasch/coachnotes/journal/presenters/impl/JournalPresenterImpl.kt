@@ -21,6 +21,7 @@ import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 import ru.hryasch.coachnotes.domain.person.PersonImpl
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
+import java.util.*
 
 @InjectViewState
 class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinComponent
@@ -31,7 +32,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     private lateinit var tableModel: TableModel
 
     private lateinit var findingTableJob: Job
-    private lateinit var savingJob: Job
+    private val changingJobs: MutableMap<String, Job> = TreeMap()
 
     private var chosenPeriod: YearMonth = DateTime.now().yearMonth
 
@@ -44,8 +45,6 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     {
         i("onCell($col:$row) clicked")
 
-        if (this::savingJob.isInitialized && savingJob.isActive) return
-
         val cell = tableModel.cellContent[row][col]
 
         cell.data =
@@ -56,35 +55,38 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     else -> PresenceData()
                 }
 
-        savingJob = GlobalScope.launch(Dispatchers.IO)
+        val currJob = changingJobs["$col|$row"]
+        if (currJob != null && currJob.isActive)
         {
+            i("cancelled")
+            currJob.cancel()
+        }
+
+        changingJobs["$col|$row"] = GlobalScope.launch(Dispatchers.IO)
+        {
+            i("waiting for update...")
+            delay(5000)
+            i("let's save")
             val person = PersonImpl(tableModel.rowHeaderContent[row].data.person.surname,
-                                    tableModel.rowHeaderContent[row].data.person.name)
+                tableModel.rowHeaderContent[row].data.person.name)
 
             journalInteractor.saveChangedCell(tableModel.columnHeaderContent[col].data.timestamp,
-                                              person,
-                                              tableModel.cellContent[row][col].data,
-                                              tableModel.groupId)
-
-            withContext(Dispatchers.Main)
-            {
-                viewState.refreshData()
-            }
+                person,
+                tableModel.cellContent[row][col].data,
+                tableModel.groupId)
         }
+
+        viewState.refreshData()
     }
 
     override fun nextMonth()
     {
-        if (!this::savingJob.isInitialized || !savingJob.isCompleted) return
-
         chosenPeriod += 1.months
         changePeriod()
     }
 
     override fun prevMonth()
     {
-        if (!this::savingJob.isInitialized || !savingJob.isCompleted) return
-
         chosenPeriod -= 1.months
         changePeriod()
     }
