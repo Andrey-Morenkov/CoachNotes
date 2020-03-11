@@ -11,21 +11,19 @@ import moxy.MvpPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.koin.core.qualifier.named
-import ru.hryasch.coachnotes.converters.toModel
 
+import ru.hryasch.coachnotes.converters.toModel
 import ru.hryasch.coachnotes.fragments.api.JournalView
+import ru.hryasch.coachnotes.journal.table.TableModel
+import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
+import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.journal.data.AbsenceData
 import ru.hryasch.coachnotes.domain.journal.data.CellData
-import ru.hryasch.coachnotes.domain.journal.data.JournalChunkPersonName
 import ru.hryasch.coachnotes.domain.journal.data.PresenceData
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 import ru.hryasch.coachnotes.domain.person.PersonImpl
-import ru.hryasch.coachnotes.journal.table.TableModel
-import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
 import java.util.*
 
-// TODO: from dn on write -> event updated chunk to presenter -> refresh if current period or skip
-// TODO: refresh period event is skip strategy
 // TODO: add "not synced" states to cells
 
 @InjectViewState
@@ -34,11 +32,11 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     private val journalInteractor: JournalInteractor by inject()
     private val monthNames:Array<String> by inject(named("months_RU"))
 
-    private lateinit var tableModel: TableModel
-
+    private val presenterScope = CoroutineScope(Dispatchers.IO)
     private lateinit var findingTableJob: Job
-    private val changingJobs: MutableMap<String, Job> = TreeMap()
+    private val          changingChunkJobs: MutableMap<String, Job> = TreeMap()
 
+    private var tableModel: TableModel = TableModel()
     private var chosenPeriod: YearMonth = DateTime.now().yearMonth
 
     init
@@ -48,41 +46,49 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
     override fun onCellClicked(col: Int, row: Int)
     {
-        i("onCell($col:$row) clicked")
+        lateinit var backupData: ChunkEntryBackup
 
-        val cell = tableModel.cellContent[row][col]
+        synchronized(tableModel)
+        {
+            val cell = tableModel.cellContent[row][col]
+            cell.data = when (cell.data)
+            {
+                is PresenceData -> AbsenceData()
+                is AbsenceData -> null
+                else -> PresenceData()
+            }
 
-        // TODO: Add data as synced/not synced
+            backupData = backupChangedCell(col, row)
+        }
 
-        cell.data =
-                when (cell.data)
-                {
-                    is PresenceData -> AbsenceData()
-                    is AbsenceData -> null
-                    else -> PresenceData()
-                }
-
-        val currJob = changingJobs["$col|$row"]
+        val currJob = changingChunkJobs["$col|$row"]
         if (currJob != null && currJob.isActive)
         {
             i("cancelled")
             currJob.cancel()
         }
 
-        changingJobs["$col|$row"] = GlobalScope.launch(Dispatchers.IO)
+        changingChunkJobs["$col|$row"] = GlobalScope.launch(Dispatchers.Default)
         {
-            val backupData: CellData? = CellData.getCopy(tableModel.cellContent[row][col].data)
-
             i("waiting for update...")
             delay(5000)
             i("let's save")
-            val person = PersonImpl(tableModel.rowHeaderContent[row].data.person.surname,
-                tableModel.rowHeaderContent[row].data.person.name)
 
-            journalInteractor.saveChangedCell(tableModel.columnHeaderContent[col].data.timestamp,
-                person,
-                backupData,
-                tableModel.groupId)
+            journalInteractor.saveChangedCell(backupData.date,
+                                              backupData.personInfo,
+                                              backupData.cellData,
+                                              backupData.groupId)
+
+            // hotfix
+            if (tableModel.groupId == backupData.groupId &&
+                chosenPeriod == YearMonth.Companion.invoke(backupData.date.yearYear, backupData.date.month))
+            {
+                // re-upload table model
+                withContext(Dispatchers.Main)
+                {
+                    changePeriod()
+                }
+            }
         }
 
         viewState.refreshData()
@@ -111,11 +117,16 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             findingTableJob.cancel()
         }
 
-        findingTableJob = GlobalScope.launch(Dispatchers.IO)
-        {
-            tableModel = journalInteractor
+        findingTableJob = presenterScope.launch {
+            val newModel = journalInteractor
                             .getJournal(chosenPeriod, 1)
                             .toModel()
+
+            synchronized(tableModel)
+            {
+                tableModel = newModel
+                changingChunkJobs.clear()
+            }
 
             withContext(Dispatchers.Main)
             {
@@ -125,9 +136,28 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         }
     }
 
+    override fun onDestroy()
+    {
+        super.onDestroy()
+    }
+
     private fun changePeriod()
     {
         changePeriod(monthNames[chosenPeriod.month.index0], chosenPeriod.year.year)
     }
 
+    private fun backupChangedCell(col: Int, row: Int): ChunkEntryBackup
+    {
+        return ChunkEntryBackup(Date(tableModel.columnHeaderContent[col].data.timestamp.encoded),
+                                tableModel.groupId,
+                                PersonImpl(tableModel.rowHeaderContent[row].data.person.surname,
+                                           tableModel.rowHeaderContent[row].data.person.name),
+                                CellData.getCopy(tableModel.cellContent[row][col].data)
+        )
+    }
+
+    private data class ChunkEntryBackup(val date: Date,
+                                        val groupId: GroupId,
+                                        val personInfo: PersonImpl,
+                                        val cellData: CellData?)
 }

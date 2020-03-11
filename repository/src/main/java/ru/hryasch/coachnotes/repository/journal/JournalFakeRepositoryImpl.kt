@@ -26,18 +26,15 @@ import java.util.concurrent.Executors
 
 class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
 {
-    private val tasks = Channel<Realm.Transaction>(capacity = 32)
     init
     {
         generateJournalDb()
-        runDbWorker()
     }
 
     override suspend fun getJournalChunks(period: YearMonth,
                                           groupId: GroupId): List<JournalChunk>?
     {
         val db = getDb()
-        db.refresh()
 
         val chunkList: MutableList<JournalChunkDAO> = ArrayList()
 
@@ -46,6 +43,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
 
         while (currentDate in (firstDayOfMonth until (firstDayOfMonth + 1.months)))
         {
+            db.refresh()
             val chunk = getChunk(db, currentDate.date, 1)
 
             if (chunk != null) e("date: ${daoDateFormat.format(currentDate)}} chunk = $chunk")
@@ -69,16 +67,19 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
                                                 person: Person,
                                                 mark: CellData?)
     {
-        tasks.send(Realm.Transaction { db ->
-            i("updateJournalChunkData: \n" +
-                    "date = ${date.format(daoDateFormat)} \n" +
-                    "groupId = $groupId\n" +
-                    "person = ${person.surname} ${person.name} (${person.id})\n" +
-                    "mark = ${mark.toString()}")
+        val db = getDb()
+        db.refresh()
 
+        i("updateJournalChunkData: \n" +
+               "date    = ${date.format(daoDateFormat)} \n" +
+               "groupId = $groupId\n" +
+               "person  = ${person.surname} ${person.name} (${person.id})\n" +
+               "mark    = ${mark.toString()}")
+
+        db.executeTransaction {
             val chunk = getOrCreateChunk(db, date, groupId)
             val personMarkInfo = chunk.data.find { it.surname == person.surname &&
-                                                   it.name == person.name }
+                    it.name == person.name }
 
             if (mark == null)
             {
@@ -115,9 +116,9 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
                 e("create or update chunk")
                 createOrUpdateChunk(db, chunk)
             }
+        }
 
-            e("=== EXECUTED ===")
-        })
+        i("SAVED")
     }
 
 
@@ -190,22 +191,4 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
     }
 
     private fun getDb(): Realm = Realm.getInstance(get(named("journal_storage_mock")))
-
-    private fun runDbWorker()
-    {
-        GlobalScope.launch(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-        {
-            val db = getDb()
-            while (true)
-            {
-                val task = tasks.receive()
-
-                db.refresh()
-
-                i("=== Executing on ${Thread.currentThread().name} ===")
-                db.executeTransactionAsync(task)
-                i("=== Executed on ${Thread.currentThread().name} ===")
-            }
-        }
-    }
 }
