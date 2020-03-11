@@ -9,8 +9,9 @@
     <string name="permission_external_storage_settings_dialog_title">Сеттингс ТИТЛЕ</string>
     <string name="permission_external_storage_settings_dialog_message">Сеттингс МЕССАГЕ</string>
 
-    // Shared
-    <string name="available_soon">Еще не готово</string>
+    // Folders and files
+    <string name="coachNotesSubdirectoryName">Тренерские журналы</string>
+
     <string name="menu">Меню</string>
     <string name="group">Группа</string>
     <string name="groups">Группы</string>
