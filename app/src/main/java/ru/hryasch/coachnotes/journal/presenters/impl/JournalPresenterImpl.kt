@@ -80,7 +80,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                                               backupData.groupId)
 
             // hotfix
-            if (tableModel.groupId == backupData.groupId &&
+            /*if (tableModel.groupId == backupData.groupId &&
                 chosenPeriod == YearMonth.Companion.invoke(backupData.date.yearYear, backupData.date.month))
             {
                 // re-upload table model
@@ -89,6 +89,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     changePeriod()
                 }
             }
+             */
         }
 
         viewState.refreshData()
