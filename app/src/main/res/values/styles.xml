@@ -104,6 +104,19 @@
         <item name="iconPadding">@dimen/default_icon_padding</item>
         <item name="backgroundTint">@color/colorPrimaryDarkHighlight</item>
     </style>
+    
+    <style name="DefaultToolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="elevation">4dp</item>
+        <item name="navigationIcon">?attr/homeAsUpIndicator</item>
+        <item name="title">@string/universal_toolbar_title</item>
+    </style>
+
+    <style name="DefaultToolbar.subtitle">
+        <item name="subtitle">@string/universal_toolbar_subtitle</item>
+    </style>
 
 
     <style name="ToolbarImageButton" parent="TransparentBackgroundImageButton">

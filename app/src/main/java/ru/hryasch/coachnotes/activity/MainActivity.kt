@@ -7,7 +7,7 @@ import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.fragments.impl.HomeFragmentImpl
 import ru.hryasch.coachnotes.fragments.impl.JournalGroupFragment
 
-class MainActivity : FragmentActivity()
+class MainActivity : AppCompatActivity()
 {
     override fun onCreate(savedInstanceState: Bundle?)
     {

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
 
 import com.evrencoskun.tableview.TableView
@@ -56,7 +57,10 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
         buttonPrevMonth = layout.findViewById(R.id.journalButtonPrevPeriod)
         textViewPeriod = layout.findViewById(R.id.journalTextViewPeriod)
 
+        (activity as AppCompatActivity).setSupportActionBar(layout.findViewById(R.id.journalToolbar))
+
         buttonShareJournal.setOnClickListener {
+            i("clicked!!!!!")
             Permissions
                 .check(container!!.context,
                        arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),

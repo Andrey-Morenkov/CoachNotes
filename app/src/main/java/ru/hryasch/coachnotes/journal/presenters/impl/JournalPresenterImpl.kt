@@ -87,7 +87,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     chosenPeriod == YearMonth.Companion.invoke(backupData.date.yearYear, backupData.date.month))
                 {
                     isNeedToRefresh = true
-                    tableModel.cellContent[col][row].data = backupData.cellData
+                    tableModel.cellContent[row][col].data = backupData.cellData
                 }
             }
 
