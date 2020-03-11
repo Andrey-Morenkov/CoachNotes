@@ -103,6 +103,9 @@ dependencies
     // Klock
     implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
 
+    // Permissions
+    implementation "com.nabinbhandari.android:permissions:$permissions_version"
+
     implementation project(path: ':domain')
     implementation project(path: ':repository')
 }

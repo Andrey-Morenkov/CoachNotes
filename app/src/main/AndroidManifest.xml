@@ -5,6 +5,8 @@
     package="ru.hryasch.coachnotes"
     tools:ignore="GoogleAppIndexingWarning">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:name="ru.hryasch.coachnotes.application.App"
         android:allowBackup="true"

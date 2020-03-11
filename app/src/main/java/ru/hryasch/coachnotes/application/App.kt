@@ -23,7 +23,7 @@ class App : Application()
                 journalRepositoryModule, realmRepositoriesModule)
         }
 
-        Fakeit.initWithLocale("ru")
+        //Fakeit.initWithLocale("ru")
 
         Realm.init(applicationContext)
     }

@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.fragments.impl
 
+import android.Manifest
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,8 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageButton
 
 import com.evrencoskun.tableview.TableView
+import com.nabinbhandari.android.permissions.PermissionHandler
+import com.nabinbhandari.android.permissions.Permissions
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import moxy.MvpAppCompatFragment
@@ -27,14 +30,16 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
     @InjectPresenter
     lateinit var presenter: JournalPresenterImpl
 
-    private lateinit var tableView: TableView
+    private lateinit var buttonShareJournal: AppCompatImageButton
+
+    private lateinit var viewJournalTable: TableView
     private lateinit var tableAdapter: TableAdapter
 
-    private lateinit var loadingSpinner: ProgressBar
+    private lateinit var spinnerLoadingTable: ProgressBar
 
-    private lateinit var nextMonth: AppCompatImageButton
-    private lateinit var prevMonth: AppCompatImageButton
-    private lateinit var period: TextView
+    private lateinit var buttonNextMonth: AppCompatImageButton
+    private lateinit var buttonPrevMonth: AppCompatImageButton
+    private lateinit var textViewPeriod: TextView
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -42,18 +47,39 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
     {
         val layout = inflater.inflate(R.layout.fragment_journal, container, false)
 
-        loadingSpinner = layout.findViewById(R.id.journalProgressBar)
-        tableView = layout.findViewById(R.id.journalTable)
+        buttonShareJournal = layout.findViewById(R.id.journalButtonShare)
 
-        nextMonth = layout.findViewById(R.id.journalButtonNextPeriod)
-        prevMonth = layout.findViewById(R.id.journalButtonPrevPeriod)
-        period = layout.findViewById(R.id.journalTextViewPeriod)
+        spinnerLoadingTable = layout.findViewById(R.id.journalProgressBar)
+        viewJournalTable = layout.findViewById(R.id.journalTable)
 
-        nextMonth.setOnClickListener {
+        buttonNextMonth = layout.findViewById(R.id.journalButtonNextPeriod)
+        buttonPrevMonth = layout.findViewById(R.id.journalButtonPrevPeriod)
+        textViewPeriod = layout.findViewById(R.id.journalTextViewPeriod)
+
+        buttonShareJournal.setOnClickListener {
+            Permissions
+                .check(container!!.context,
+                       arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                       container.context.getString(R.string.permission_external_storage_rationale),
+                       Permissions.Options()
+                           .setRationaleDialogTitle(container.context.getString(R.string.permission_external_storage_rationale_dialog_title))
+                           .setSettingsDialogMessage(container.context.getString(R.string.permission_external_storage_rationale_dialog_message))
+                           .setSettingsDialogTitle(container.context.getString(R.string.permission_external_storage_settings_dialog_title))
+                           .setSettingsText(container.context.getString(R.string.permission_external_storage_settings_dialog_message)),
+                       object: PermissionHandler()
+                       {
+                           override fun onGranted()
+                           {
+                               presenter.onExportButtonClicked()
+                           }
+                       })
+        }
+
+        buttonNextMonth.setOnClickListener {
             presenter.nextMonth()
         }
 
-        prevMonth.setOnClickListener {
+        buttonPrevMonth.setOnClickListener {
             presenter.prevMonth()
         }
 
@@ -63,26 +89,26 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
     override fun waitingState()
     {
         i("-- Waiting State --")
-        loadingSpinner.visible = true
-        tableView.visible = false
+        spinnerLoadingTable.visible = true
+        viewJournalTable.visible = false
     }
 
     override fun setPeriod(month: String, year: Int)
     {
         val str = "$month $year"
-        period.text = str
+        textViewPeriod.text = str
     }
 
     override fun showingState(tableContent: TableModel)
     {
         i("-- Showing State --")
         tableAdapter = get { parametersOf(context, tableContent) }
-        tableView.adapter = tableAdapter
-        tableView.tableViewListener = get { parametersOf(presenter) }
+        viewJournalTable.adapter = tableAdapter
+        viewJournalTable.tableViewListener = get { parametersOf(presenter) }
         tableAdapter.renderTable()
 
-        loadingSpinner.visible = false
-        tableView.visible = true
+        spinnerLoadingTable.visible = false
+        viewJournalTable.visible = true
     }
 
     override fun refreshData()

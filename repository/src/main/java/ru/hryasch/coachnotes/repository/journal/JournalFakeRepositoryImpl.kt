@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
+import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.CellData
 import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
 import ru.hryasch.coachnotes.domain.journal.data.JournalChunkPersonName
@@ -121,7 +122,10 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         i("SAVED")
     }
 
-
+    override suspend fun exportJournal(period: YearMonth, group: Group)
+    {
+        TODO("Not yet implemented")
+    }
 
 
     private fun generateJournalDb()

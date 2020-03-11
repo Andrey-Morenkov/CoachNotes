@@ -2,6 +2,12 @@
     // Application
     <string name="app_name">Coach Notes</string>
 
+    // Permissions
+    <string name="permission_external_storage_rationale">Чтобы иметь возможность генерировать файлы, нужно разрешение</string>
+    <string name="permission_external_storage_rationale_dialog_title">Ратионале ТИТЛЕ</string>
+    <string name="permission_external_storage_rationale_dialog_message">Ратионале МЕССАГЕ</string>
+    <string name="permission_external_storage_settings_dialog_title">Сеттингс ТИТЛЕ</string>
+    <string name="permission_external_storage_settings_dialog_message">Сеттингс МЕССАГЕ</string>
 
     // Shared
     <string name="available_soon">Еще не готово</string>

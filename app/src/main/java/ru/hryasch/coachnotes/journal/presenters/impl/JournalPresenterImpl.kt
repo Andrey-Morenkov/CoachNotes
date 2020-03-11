@@ -80,19 +80,33 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                                               backupData.groupId)
 
             // hotfix
-            /*if (tableModel.groupId == backupData.groupId &&
-                chosenPeriod == YearMonth.Companion.invoke(backupData.date.yearYear, backupData.date.month))
+            var isNeedToRefresh = false
+            synchronized(tableModel)
             {
-                // re-upload table model
-                withContext(Dispatchers.Main)
+                if (tableModel.groupId == backupData.groupId &&
+                    chosenPeriod == YearMonth.Companion.invoke(backupData.date.yearYear, backupData.date.month))
                 {
-                    changePeriod()
+                    isNeedToRefresh = true
+                    tableModel.cellContent[col][row].data = backupData.cellData
                 }
             }
-             */
+
+            // refresh table model
+            if (isNeedToRefresh)
+            {
+                withContext(Dispatchers.Main)
+                {
+                    viewState.refreshData()
+                }
+            }
         }
 
         viewState.refreshData()
+    }
+
+    override fun onExportButtonClicked()
+    {
+        i("==== EXPORT CLICKED ====")
     }
 
     override fun nextMonth()
