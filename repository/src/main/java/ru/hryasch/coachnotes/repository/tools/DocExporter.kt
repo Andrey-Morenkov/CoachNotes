@@ -53,7 +53,6 @@ object DocExporter: DataExporter, KoinComponent
     {
         val document = XWPFDocument()
 
-
         // margins
         // header
 

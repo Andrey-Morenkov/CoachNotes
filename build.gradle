@@ -39,7 +39,7 @@ buildscript
         koin_version = '2.1.1'
         realm_version = '7.0.0-beta-SNAPSHOT'
         realm_ext_version = "2.5.0"
-        apachePOI_version = "3.17"
+        apachePOI_version = "4.1.1"
         permissions_version = "3.8"
     }
 
