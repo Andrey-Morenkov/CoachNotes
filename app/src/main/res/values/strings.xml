@@ -24,6 +24,7 @@
     <string name="required_helper">* обязательно</string>
     <string name="general">Основное</string>
     <string name="phone">Телефон</string>
+    <string name="available_soon">Еще не готово</string>
 
     <string name="name">Имя</string>
     <string name="surname">Фамилия</string>

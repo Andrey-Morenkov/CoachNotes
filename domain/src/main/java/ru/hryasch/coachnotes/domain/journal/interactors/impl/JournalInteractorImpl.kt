@@ -9,12 +9,15 @@ import org.koin.core.inject
 import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.domain.common.GroupId
+import ru.hryasch.coachnotes.domain.group.data.Group
+import ru.hryasch.coachnotes.domain.group.data.GroupImpl
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 import ru.hryasch.coachnotes.domain.person.Person
 import ru.hryasch.coachnotes.domain.person.PersonImpl
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
+import ru.hryasch.coachnotes.domain.tools.DataExporter
 import java.util.*
 import kotlin.collections.HashSet
 
@@ -23,6 +26,8 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 {
     private val journalRepository: JournalRepository by inject(named("mock"))
     private val personRepository: PersonRepository by inject(named("mock"))
+
+    private val exporter: DataExporter by inject(named("docx"))
 
     override suspend fun getJournal(period: YearMonth, groupId: GroupId): TableData
     {
@@ -42,11 +47,6 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         return generateTableData(period, groupId, chunks, personRepository.getPersonsByGroup(groupId)!!)
     }
 
-    override suspend fun saveJournal(tableDump: TableData)
-    {
-        TODO()
-    }
-
     override suspend fun saveChangedCell(date: Date,
                                          person: Person,
                                          cellData: CellData?,
@@ -55,6 +55,11 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         journalRepository.updateJournalChunkData(date, groupId, person, cellData)
     }
 
+    override suspend fun exportJournal(period: YearMonth, groupId: GroupId)
+    {
+        // JUST TO TRY FOR NOW
+        exporter.export(LinkedList<JournalChunk>(), GroupImpl(groupId, "aa", 2), period, "ABCD")
+    }
 
 
     private fun generateTableData(period: YearMonth, groupId: GroupId, chunks: List<JournalChunk>?, people: List<Person>): TableData

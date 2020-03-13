@@ -11,14 +11,16 @@ import ru.hryasch.coachnotes.repository.tools.DocExporter
 import java.io.File
 
 val toolsModule = module {
-    single(named("global")) { App.getContext() as Context}
+    single(named("global")) { App.getCtx() as Context}
 
-    single(named("doc")) { DocExporter as DataExporter }
+    single(named("docx")) { DocExporter as DataExporter }
 
     single(named("journalDirectory")) {
-        val journalDir: File = File(App.getContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)!!.toString() +
+        val vtx: Context by inject(named("global"))
+        val journalDir: File = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString() +
                                     File.separator +
-                                    App.getContext().getString(R.string.coachNotesSubdirectoryName))
+                                    vtx.getString(R.string.coachNotesSubdirectoryName))
         if (!journalDir.exists())
         {
             journalDir.mkdirs()

@@ -11,14 +11,12 @@ import ru.hryasch.coachnotes.domain.person.Person
 
 interface JournalInteractor
 {
-    // TODO: convert fun with return to unit fun with callback channel
     suspend fun getJournal(period: YearMonth, groupId: GroupId): TableData
 
-    suspend fun saveJournal(tableDump: TableData)
-
-    // TODO: change save cell to save chunk
     suspend fun saveChangedCell(date: Date,
                                 person: Person,
                                 cellData: CellData?,
                                 groupId: GroupId)
+
+    suspend fun exportJournal(period: YearMonth, groupId: GroupId)
 }

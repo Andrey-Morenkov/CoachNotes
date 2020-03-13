@@ -80,8 +80,9 @@ dependencies
 
     // Realm extensions
     implementation "com.github.vicpinm:krealmextensions:$realm_ext_version"
-    implementation project(path: ':domain')
 
     // Apache POI
-    implementation "com.github.Andrey-Morenkov.poi-android:poi:$apachePOI_version"
+    implementation "com.github.Andrey-Morenkov.poi-android:poi:$poiVersion"
+
+    implementation project(path: ':domain')
 }

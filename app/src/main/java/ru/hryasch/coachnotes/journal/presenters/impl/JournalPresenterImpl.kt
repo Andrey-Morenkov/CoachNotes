@@ -107,6 +107,10 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     override fun onExportButtonClicked()
     {
         i("==== EXPORT CLICKED ====")
+        GlobalScope.launch(Dispatchers.Default)
+        {
+            journalInteractor.exportJournal(YearMonth.Companion.invoke(2020, 1), 1)
+        }
     }
 
     override fun nextMonth()
