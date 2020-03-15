@@ -49,7 +49,6 @@ android
 
 dependencies
 {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Tests stuff
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -81,8 +80,8 @@ dependencies
     // Realm extensions
     implementation "com.github.vicpinm:krealmextensions:$realm_ext_version"
 
-    // Apache POI
-    implementation "com.github.Andrey-Morenkov.poi-android:poi:$poiVersion"
-
+	// Apache POI
+    implementation "com.github.SUPERCILEX.poi-android:poi:3.17"
+	
     implementation project(path: ':domain')
 }

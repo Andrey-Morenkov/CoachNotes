@@ -9,4 +9,7 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <string name="journal_header_first_line">Табель</string>
+    <string name="journal_header_second_line">учёта посещаемости занятий</string>
 </resources>
