@@ -69,7 +69,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         changingChunkJobs["$col|$row"] = GlobalScope.launch(Dispatchers.Default)
         {
             i("waiting for update...")
-            delay(5000)
+            delay(2000)
             i("let's save")
 
             journalInteractor.saveChangedCell(backupData.date,

@@ -28,7 +28,7 @@ import kotlin.math.roundToLong
 object DocExporter: DataExporter, KoinComponent
 {
     internal val saveDirectory:File by inject(named("journalDirectory"))
-    internal const val fileExtension = "docx"
+    internal const val fileExtension = "doc"
 
     init
     {
@@ -180,9 +180,9 @@ private object XWPFHelper: KoinComponent
         val widFN : CTTblWidth = table.getRow(0).getCell(1).ctTc.addNewTcPr().addNewTcW().apply { w = BigInteger.valueOf(5.3.cm().toTwip()) }
         i("TableColumn(1): set width = ${widFN.w.toLong()}TWips")
 
-        val chunkColumnsWidth = (table.width - widNum.w.toLong() - widFN.w.toLong()).toDouble() / chunksCount
+        val chunkColumnsWidth = (table.ctTbl.tblPr.tblW.w.toLong() - widNum.w.toLong() - widFN.w.toLong()).toDouble() / chunksCount
 
-        i("TableWidth = ${table.width}tw: [#:${widNum.w}tw, FN:${widFN.w}tw, $chunksCount columns:${chunkColumnsWidth}tw]")
+        i("TableWidth = ${table.ctTbl.tblPr.tblW.w.toLong()} tw: [№:${widNum.w}tw, FN:${widFN.w}tw, $chunksCount columns:${chunkColumnsWidth}tw]")
 
         for (chunkColumn in 0 until chunksCount)
         {
