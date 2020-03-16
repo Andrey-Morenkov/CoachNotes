@@ -90,9 +90,9 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     {
         val allPeople: MutableSet<Person> = HashSet()
 
-        people.forEach {
-            allPeople.add(PersonImpl(it.surname, it.name))
-        }
+        //people.forEach {
+        //    allPeople.add(PersonImpl(it.surname, it.name))
+        //}
 
         val chunksPeople: MutableSet<Person> = HashSet()
         chunks?.forEach {
@@ -110,10 +110,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             headers.add(RowHeaderData(it))
         }
 
-        headers.sortBy {
-            it.person.surname
-            it.person.name
-        }
+        headers.sortWith( compareBy { it.person } )
 
         return headers
     }

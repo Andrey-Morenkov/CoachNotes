@@ -8,5 +8,8 @@ data class PersonImpl(override var surname: String,
                       override val id: PersonId? = null,
                       override var groupId: GroupId? = null) : Person
 {
-
+    override fun compareTo(other: Person): Int
+    {
+        return "$surname $name $groupId $id".compareTo("${other.surname} ${other.name} ${other.groupId} ${other.id}")
+    }
 }

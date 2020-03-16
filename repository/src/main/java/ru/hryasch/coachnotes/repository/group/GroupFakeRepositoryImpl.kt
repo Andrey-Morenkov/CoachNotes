@@ -32,9 +32,15 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
     }
 
 
-    override suspend fun getGroup(group: GroupId): Group?
+    override suspend fun getGroup(groupId: GroupId): Group?
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val db = getDb()
+        db.refresh()
+
+        val group = db.where<GroupDAO>()
+                      .equalTo("id", groupId)
+                      .findFirst()
+        return group?.fromDAO()
     }
 
     override suspend fun getAllGroups(): List<Group>?

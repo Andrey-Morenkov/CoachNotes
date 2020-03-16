@@ -63,7 +63,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
             i("clicked!!!!!")
             Permissions
                 .check(container!!.context,
-                       arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                       arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
                        container.context.getString(R.string.permission_external_storage_rationale),
                        Permissions.Options()
                            .setRationaleDialogTitle(container.context.getString(R.string.permission_external_storage_rationale_dialog_title))

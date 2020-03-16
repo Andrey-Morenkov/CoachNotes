@@ -10,13 +10,16 @@ fun List<GroupDAO>.fromDAO(): List<Group>
 {
     val groupList: MutableList<Group> = LinkedList()
 
-    this.forEach {
-        val group = GroupImpl(it.id!!, it.name!!, it.availableAge?.toByte())
-        it.members.forEach {
-            group.membersList.add(it)
-        }
-        groupList.add(group)
-    }
+    this.forEach { groupList.add(it.fromDAO()) }
 
     return groupList
+}
+
+fun GroupDAO.fromDAO(): Group
+{
+    val group = GroupImpl(this.id!!, this.name!!, this.availableAge?.toByte())
+    this.members.forEach {
+        group.membersList.add(it)
+    }
+    return group
 }

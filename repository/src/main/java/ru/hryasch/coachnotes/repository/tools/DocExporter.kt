@@ -13,10 +13,7 @@ import org.koin.core.inject
 import org.koin.core.qualifier.named
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*
 import ru.hryasch.coachnotes.domain.group.data.Group
-import ru.hryasch.coachnotes.domain.journal.data.AbsenceData
-import ru.hryasch.coachnotes.domain.journal.data.CellData
-import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
-import ru.hryasch.coachnotes.domain.journal.data.PresenceData
+import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.tools.DataExporter
 import ru.hryasch.coachnotes.repository.R
 import ru.hryasch.coachnotes.repository.tools.DocExporter.fileExtension
@@ -94,17 +91,16 @@ private class JournalDocument(val period: YearMonth,
         val monthNames: Array<String> by inject(named("months_RU"))
 
         val periodInfo = "${monthNames[period.month.index0].toLowerCase(Locale("ru"))} ${period.yearInt}"
-        val groupInfo = "${group.availableAge}"
+        val groupInfo = "${group.availableAge} лет"
 
         // "Кондратьев Январь 2020 6 лет.docx"
         val outputFile = File(saveDirectory, "$coachName $periodInfo $groupInfo.$fileExtension")
         if (outputFile.exists())
         {
             outputFile.delete()
-            outputFile.createNewFile()
         }
-
         i("outputFile: ${outputFile.absolutePath}")
+        outputFile.createNewFile()
 
         return outputFile
     }
@@ -135,7 +131,7 @@ private object XWPFHelper: KoinComponent
             .createRun()
             .also { it.applyDefaultStyle() }
             .apply {
-                setText(context.getString(R.string.journal_header_second_line).toUpperCase(Locale("ru")))
+                setText(context.getString(R.string.journal_header_second_line))
                 addCarriageReturn()
             }
 
@@ -159,14 +155,11 @@ private object XWPFHelper: KoinComponent
     fun createFooter(document: XWPFDocument, coachName: String)
     {
         document.createParagraph()
-            .createRun()
-            .addCarriageReturn()
-
-        document.createParagraph()
             .apply {
                 alignment = ParagraphAlignment.LEFT
                 indentationLeft = (-2).cm().toTwip().toInt()
             }
+            .also { it.createRun().addCarriageReturn() }
             .createRun()
             .also { it.applyTableStyle() }
             .apply {
@@ -176,28 +169,33 @@ private object XWPFHelper: KoinComponent
 
     private fun tuneSkeletonTable(table: XWPFTable, chunksCount: Int)
     {
-        table.width = (A4Width.toTwip() - tableLeftIndentation.toTwip() - tableRightIndentation.toTwip()).toInt()
-
-        // Hotfix for page margins
-        table.applyMarginFix()
+        // Table width
+        table.ctTbl.tblPr.addNewTblW().w = BigInteger.valueOf((A4Width.toTwip() - tableLeftIndentation.toTwip() - tableRightIndentation.toTwip()))
 
         // Set custom № column width
         val widNum: CTTblWidth = table.getRow(0).getCell(0).ctTc.addNewTcPr().addNewTcW().apply { w = BigInteger.valueOf(0.75.cm().toTwip()) }
+        i("TableColumn(0): set width = ${widNum.w.toLong()}TWips")
 
         // Set custom FullName column width
         val widFN : CTTblWidth = table.getRow(0).getCell(1).ctTc.addNewTcPr().addNewTcW().apply { w = BigInteger.valueOf(5.3.cm().toTwip()) }
-
-        d("TableWidth = ${table.width}, NoWidth = ${widNum.w.toLong()}, FioWidth = ${widFN.w.toLong()}")
+        i("TableColumn(1): set width = ${widFN.w.toLong()}TWips")
 
         val chunkColumnsWidth = (table.width - widNum.w.toLong() - widFN.w.toLong()).toDouble() / chunksCount
+
+        i("TableWidth = ${table.width}tw: [#:${widNum.w}tw, FN:${widFN.w}tw, $chunksCount columns:${chunkColumnsWidth}tw]")
+
         for (chunkColumn in 0 until chunksCount)
         {
+            i("TableColumn(${chunkColumn + 2}): set width = ${BigInteger.valueOf(chunkColumnsWidth.toLong())} TWips")
             table.getRow(0).getCell(chunkColumn + 2).ctTc.addNewTcPr().addNewTcW().w = BigInteger.valueOf(chunkColumnsWidth.toLong())
         }
     }
 
     private fun createTableSkeleton(table: XWPFTable, chunksCount: Int, peopleCount: Int)
     {
+        // Hotfix for page margins
+        table.applyMarginFix()
+
         createSimpleTable(table, chunksCount, peopleCount)
         table.rows.forEach {
             it.tableCells.forEach {
@@ -218,12 +216,12 @@ private object XWPFHelper: KoinComponent
 
         // Create table cells
         val firstRow = table.getRow(0)
-        repeat(fullWidth)
+        repeat(fullWidth - 1) //Cell(1,1) always exists
         {
             firstRow.addNewTableCell()
         }
 
-        repeat(fullHeight)
+        repeat(fullHeight - 1) //Cell(1,1) always exists
         {
             table.createRow()
         }
@@ -266,7 +264,7 @@ private object XWPFHelper: KoinComponent
         table.getRow(0).getCell(0).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("№") }
         table.getRow(0).getCell(1).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("Ф.И") }
         table.getRow(0).getCell(2).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("Дата") }
-        table.getRow(2).getCell(2).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("Нмер занятия") }
+        table.getRow(2).getCell(2).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("Номер занятия") }
         for (i in 4 until table.rows.size)
         {
             table.getRow(i).getCell(0).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("${i - 3}") }
@@ -331,7 +329,7 @@ private fun CellData.toDoc(): String?
     return when (this)
     {
         is PresenceData -> ""
-        is AbsenceData -> this.mark
+        is AbsenceData -> mark ?: "Н"
         else -> ""
     }
 }
@@ -403,10 +401,10 @@ private sealed class XWPFMeasure(val value: Float)
 
 private class Cm(value: Float): XWPFMeasure(value)
 {
-    override fun toTwip(): Long = ((PTs_IN_INCH * TWIPS_IN_PT) / CMs_IN_INCH).roundToLong()  // 567
+    override fun toTwip(): Long = (value * ((PTs_IN_INCH * TWIPS_IN_PT) / CMs_IN_INCH)).roundToLong()  // 567
 }
 
 private class Pt(value: Float): XWPFMeasure(value)
 {
-    override fun toTwip(): Long = TWIPS_IN_PT.toLong()
+    override fun toTwip(): Long = (value * TWIPS_IN_PT).toLong()
 }

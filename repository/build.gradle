@@ -84,7 +84,8 @@ dependencies
     implementation "com.github.javafaker:javafaker:$faker_version"
 
 	// Apache POI
-    implementation "com.github.SUPERCILEX.poi-android:poi:3.17"
+    //implementation "com.github.SUPERCILEX.poi-android:poi:3.17"
+    implementation files("lib/poishadow-all.jar")
 	
     implementation project(path: ':domain')
 }
