@@ -1,11 +1,16 @@
 package ru.hryasch.coachnotes.repository.person
 
+import com.github.javafaker.Faker
+import com.pawegio.kandroid.d
 import io.realm.Realm
 import io.realm.kotlin.where
+import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.get
+import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.person.Person
+import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.common.PersonId
@@ -15,47 +20,61 @@ import java.util.*
 
 class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
 {
+    private val faker: Faker = Faker(Locale("ru"))
+    private val groupRepo: GroupRepository by inject(named("mock"))
+    private var initializingJob: Job
+
     init
     {
-        generatePersonDb()
+        d("PersonFakeRepositoryImpl INIT START")
+        initializingJob = GlobalScope.launch(Dispatchers.Default)
+        {
+            generatePersonDb()
+            d("PersonFakeRepositoryImpl INIT FINISH")
+        }
     }
 
-    private fun generatePersonDb()
+    private suspend fun generatePersonDb()
     {
-        val db = getDb()
-
-        for (i in 1..3)
+        for (group in groupRepo.getAllGroups()!!)
         {
-            val person = PersonDAO()
-            person.groupId = 1
-            person.id = i
-            person.surname = "Фамилия$i"
-            person.name = "Имя$i"
+            for (personId in group.membersList)
+            {
 
-            db.executeTransaction {
-                it.copyToRealm(person)
+                val newPerson = PersonDAO(personId, group.id, faker.name().firstName(), faker.name().lastName())
+                d("Generated person: ${newPerson.name} ${newPerson.surname} (id: ${newPerson.id} / groupId: ${newPerson.groupId})")
+
+                getDb().executeTransaction {
+                    it.copyToRealm(newPerson)
+                }
             }
         }
     }
 
-    override suspend fun getPerson(person: PersonId): Person?
+    override suspend fun getPerson(personId: PersonId): Person?
     {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override suspend fun getPersonsByGroup(group: GroupId): List<Person>?
+    override suspend fun getPersonsByGroup(groupId: GroupId): List<Person>?
     {
+        if (initializingJob.isActive) { initializingJob.join() }
         val db = getDb()
+        db.refresh()
 
         val personsList: MutableList<Person> = LinkedList()
         val personsDao = db.where<PersonDAO>()
-                        .equalTo("groupId", 1.toInt())
+                        .equalTo("groupId", groupId)
                         .findAll()
-        personsDao.forEach {
-            personsList.add(it.fromDAO())
-        }
 
-        return personsList
+        return if (personsDao.isEmpty())
+        {
+            null
+        }
+        else
+        {
+            personsDao.fromDAO()
+        }
     }
 
     private fun getDb(): Realm = Realm.getInstance(get(named("persons_mock")))

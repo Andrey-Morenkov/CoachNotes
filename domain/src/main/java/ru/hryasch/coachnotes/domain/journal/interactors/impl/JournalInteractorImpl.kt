@@ -9,12 +9,11 @@ import org.koin.core.inject
 import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.domain.common.GroupId
-import ru.hryasch.coachnotes.domain.group.data.Group
-import ru.hryasch.coachnotes.domain.group.data.GroupImpl
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 import ru.hryasch.coachnotes.domain.person.Person
 import ru.hryasch.coachnotes.domain.person.PersonImpl
+import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.domain.tools.DataExporter
@@ -26,6 +25,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 {
     private val journalRepository: JournalRepository by inject(named("mock"))
     private val personRepository: PersonRepository by inject(named("mock"))
+    private val groupRepository: GroupRepository by inject(named("mock"))
 
     private val exporter: DataExporter by inject(named("docx"))
 
@@ -57,8 +57,10 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
     override suspend fun exportJournal(period: YearMonth, groupId: GroupId)
     {
-        // JUST TO TRY FOR NOW
-        exporter.export(LinkedList<JournalChunk>(), GroupImpl(groupId, "aa", 2), period, "ABCD")
+        val group = groupRepository.getGroup(groupId)!!
+        val chunks = journalRepository.getJournalChunks(period, groupId)!!
+
+        exporter.export(chunks, group, period)
     }
 
 

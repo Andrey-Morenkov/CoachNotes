@@ -20,4 +20,12 @@ open class PersonDAO(): RealmObject()
     var name: String? = null
     @Required
     var surname: String? = null
+
+    constructor(id: PersonId, groupId: GroupId, name: String, surname: String): this()
+    {
+        this.id = id
+        this.groupId = groupId
+        this.name = name
+        this.surname = surname
+    }
 }

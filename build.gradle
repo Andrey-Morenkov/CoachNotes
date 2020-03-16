@@ -30,7 +30,7 @@ buildscript
         circularimageview_version = '4.2.0'
         spinner_version = '1.0.4'
         tableview_version = '0.8.9'
-        fakeit_version = "v0.4"
+        faker_version = "1.0.2"
 
         coroutines_version = '1.3.3'
         easypermission_version = '3.8'

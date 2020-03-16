@@ -1,10 +1,8 @@
 package ru.hryasch.coachnotes.journal.presenters.impl
 
 import com.pawegio.kandroid.i
+import com.soywiz.klock.*
 import com.soywiz.klock.Date
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.YearMonth
-import com.soywiz.klock.months
 import kotlinx.coroutines.*
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -109,7 +107,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         i("==== EXPORT CLICKED ====")
         GlobalScope.launch(Dispatchers.Default)
         {
-            journalInteractor.exportJournal(YearMonth.Companion.invoke(2020, 1), 1)
+            journalInteractor.exportJournal(chosenPeriod, tableModel.groupId)
         }
     }
 

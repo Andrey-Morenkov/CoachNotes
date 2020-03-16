@@ -84,7 +84,7 @@ private class JournalDocument(val period: YearMonth,
 
     private suspend fun generateDocument(chunks: List<JournalChunk>): XWPFDocument
     {
-        return XWPFDocument().also { XWPFHelper.createHeader(it, period, group.availableAge.toInt(), coachName) }
+        return XWPFDocument().also { XWPFHelper.createHeader(it, period, group.availableAge!!.toInt(), coachName) }
                              .also { XWPFHelper.createTable(it, chunks) }
                              .also { XWPFHelper.createFooter(it, coachName) }
     }

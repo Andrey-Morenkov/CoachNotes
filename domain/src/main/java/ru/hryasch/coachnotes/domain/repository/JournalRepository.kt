@@ -19,7 +19,4 @@ interface JournalRepository
                                        groupId: GroupId,
                                        person: Person,
                                        mark: CellData?)
-
-    suspend fun exportJournal(period: YearMonth,
-                              group: Group)
 }

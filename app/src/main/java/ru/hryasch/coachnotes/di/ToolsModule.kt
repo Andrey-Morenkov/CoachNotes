@@ -18,7 +18,7 @@ val toolsModule = module {
     single(named("journalDirectory")) {
         val vtx: Context by inject(named("global"))
         val journalDir: File = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() +
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString() +
                                     File.separator +
                                     vtx.getString(R.string.coachNotesSubdirectoryName))
         if (!journalDir.exists())

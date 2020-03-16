@@ -15,5 +15,15 @@ open class GroupDAO(): RealmObject()
     @PrimaryKey
     var id: GroupId? = null
 
-    var people: RealmList<PersonId> = RealmList()
+    @Required
+    var name: String? = null
+    var availableAge: Int? = null
+    var members: RealmList<PersonId> = RealmList()
+
+    constructor(id: GroupId, name: String, availableAge: Int): this()
+    {
+        this.id = id
+        this.name = name
+        this.availableAge = availableAge
+    }
 }

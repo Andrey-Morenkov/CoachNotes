@@ -1,8 +1,6 @@
 package ru.hryasch.coachnotes.application
 
 import android.app.Application
-import android.content.Context
-import com.mooveit.library.Fakeit
 import io.realm.Realm
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -37,8 +35,6 @@ class App : Application()
                     realmRepositoriesModule,
                     toolsModule)
         }
-
-        //Fakeit.initWithLocale("ru")
 
         Realm.init(applicationContext)
     }

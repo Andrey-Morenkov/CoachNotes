@@ -6,6 +6,6 @@ import ru.hryasch.coachnotes.domain.person.Person
 
 interface PersonRepository
 {
-    suspend fun getPerson(person: PersonId): Person?
-    suspend fun getPersonsByGroup(group: GroupId): List<Person>?
+    suspend fun getPerson(personId: PersonId): Person?
+    suspend fun getPersonsByGroup(groupId: GroupId): List<Person>?
 }

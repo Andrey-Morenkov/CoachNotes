@@ -1,41 +1,58 @@
 package ru.hryasch.coachnotes.repository.journal
 
+import com.pawegio.kandroid.d
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import com.soywiz.klock.*
+import com.soywiz.klock.Date
 import io.realm.Realm
-import io.realm.Realm.Transaction.Callback
 import io.realm.kotlin.where
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import org.koin.core.KoinComponent
 import org.koin.core.get
+import org.koin.core.inject
 import org.koin.core.qualifier.named
-import ru.hryasch.coachnotes.domain.group.data.Group
+import ru.hryasch.coachnotes.domain.journal.data.AbsenceData
 import ru.hryasch.coachnotes.domain.journal.data.CellData
 import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
-import ru.hryasch.coachnotes.domain.journal.data.JournalChunkPersonName
+import ru.hryasch.coachnotes.domain.journal.data.PresenceData
 import ru.hryasch.coachnotes.domain.person.Person
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
+import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.converters.daoDateFormat
 import ru.hryasch.coachnotes.repository.converters.fromDAO
 import ru.hryasch.coachnotes.repository.converters.toDAO
 import ru.hryasch.coachnotes.repository.dao.*
-import java.util.concurrent.Executors
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 
 class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
 {
+    private val personRepo: PersonRepository by inject(named("mock"))
+    private var initializingJob: Job
+
     init
     {
-        generateJournalDb()
+        d("JournalFakeRepositoryImpl INIT START")
+
+        initializingJob = GlobalScope.launch(Dispatchers.Default)
+        {
+            generateJournalDb()
+            d("JournalFakeRepositoryImpl INIT FINISH")
+        }
     }
 
     override suspend fun getJournalChunks(period: YearMonth,
                                           groupId: GroupId): List<JournalChunk>?
     {
+        if (initializingJob.isActive) { initializingJob.join() }
+
         val db = getDb()
+        db.refresh()
 
         val chunkList: MutableList<JournalChunkDAO> = ArrayList()
 
@@ -47,7 +64,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
             db.refresh()
             val chunk = getChunk(db, currentDate.date, 1)
 
-            if (chunk != null) e("date: ${daoDateFormat.format(currentDate)}} chunk = $chunk")
+            if (chunk != null) e("date: ${daoDateFormat.format(currentDate)} chunk = $chunk")
 
             chunk?.let { chunkList.add(it) }
             currentDate += 1.days
@@ -122,32 +139,60 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         i("SAVED")
     }
 
-    override suspend fun exportJournal(period: YearMonth, group: Group)
+
+    private suspend fun generateJournalDb()
     {
-        TODO("Not yet implemented")
+        val executionDays = generateExecutionDays().sorted()
+        val personsList = personRepo.getPersonsByGroup(1)!!
+
+        val chunkList: MutableList<JournalChunkDAO> = LinkedList()
+
+        for (exeDay in executionDays)
+        {
+            val chunk = JournalChunkDAO(exeDay, 1)
+            for (person in personsList)
+            {
+                chunk.data.add(JournalChunkDataDAO(person.surname, person.name, getRandomCellData()))
+            }
+            chunkList.add(chunk)
+        }
+
+        chunkList.forEach { chunk ->
+            getDb().executeTransaction {
+                it.copyToRealm(chunk)
+            }
+        }
     }
 
-
-    private fun generateJournalDb()
+    private fun getRandomCellData(): CellData
     {
-        val db = getDb()
+        return when(Random.nextInt(0..10))
+        {
+            in 0..1 -> AbsenceData("Б")
+            in 1..3 -> AbsenceData()
+            else -> PresenceData()
+        }
+    }
 
-        val chunk = JournalChunkDAO(DateTimeTz.nowLocal().local.date, 1)
-        val data1 = JournalChunkDataDAO("Фамилия1", "Имя1", JournalMarkPresenceDAO())
-        val data2 = JournalChunkDataDAO("Фамилия2", "Имя2", JournalMarkAbsenceDAO())
-        val data3 = JournalChunkDataDAO("Фамилия3", "Имя3", JournalMarkAbsenceDAO("Б"))
+    private fun generateExecutionDays(): List<Date>
+    {
+        val executionsDays: MutableList<Date> = LinkedList()
+        val executionsCount = Random.nextInt(5..9)
 
-        chunk.data.apply {
-            add(data1)
-            add(data2)
-            add(data3)
+        val today = DateTimeTz.nowLocal()
+        for (i in 1..executionsCount)
+        {
+            var exeDay: Date
+            do
+            {
+                exeDay = Date.invoke(today.year, today.month, Random.nextInt(1..today.yearMonth.days))
+            }
+            while (executionsDays.find { it == exeDay } != null)
+            d("generated execution date: ${exeDay.format("dd/MM/yyyy")}")
+            executionsDays.add(exeDay)
         }
 
-        e("generated chunk: id = ${chunk.id}")
-
-        db.executeTransaction {
-            it.copyToRealm(chunk)
-        }
+        return executionsDays
     }
 
     private fun getChunk(db: Realm, date: Date, groupId: GroupId): JournalChunkDAO?

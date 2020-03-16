@@ -28,11 +28,6 @@ fun CellData.toDAO(): JournalMarkDAO
     }
 }
 
-fun PersonDAO.fromDAO(): Person
-{
-    return PersonImpl(this.surname!!, this.name!!, this.id!!)
-}
-
 @JvmName("DAOChunkListConverter")
 fun List<JournalChunkDAO>.fromDAO(): List<JournalChunk>
 {
