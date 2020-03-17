@@ -16,7 +16,7 @@ import ru.hryasch.coachnotes.journal.table.viewholders.*
 
 
 class TableAdapter(private val context: Context,
-                   private val tableContent: TableModel) : AbstractTableAdapter<ColumnHeaderModel, RowHeaderModel, CellModel>(), KoinComponent
+                   val tableContent: TableModel) : AbstractTableAdapter<ColumnHeaderModel, RowHeaderModel, CellModel>(), KoinComponent
 {
     fun renderTable()
     {

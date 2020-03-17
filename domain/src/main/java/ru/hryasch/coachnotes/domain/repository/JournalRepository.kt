@@ -15,8 +15,5 @@ interface JournalRepository
     suspend fun getJournalChunks(period: YearMonth,
                                  groupId: GroupId): List<JournalChunk>?
 
-    suspend fun updateJournalChunkData(date: Date,
-                                       groupId: GroupId,
-                                       person: Person,
-                                       mark: CellData?)
+    suspend fun updateJournalChunk(chunk: JournalChunk)
 }

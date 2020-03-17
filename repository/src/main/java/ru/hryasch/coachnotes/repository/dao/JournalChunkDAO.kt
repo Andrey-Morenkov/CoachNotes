@@ -10,6 +10,7 @@ import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.Required
 import ru.hryasch.coachnotes.domain.journal.data.CellData
+import ru.hryasch.coachnotes.domain.journal.data.ChunkPersonName
 import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
 
 import ru.hryasch.coachnotes.repository.common.GroupId
@@ -34,6 +35,13 @@ open class JournalChunkDataDAO(): RealmObject()
     {
         this.name = name
         this.surname = surname
+        this.mark = mark.toDAO().serialize()
+    }
+
+    constructor(personInfo: ChunkPersonName, mark: CellData): this()
+    {
+        this.name = personInfo.name
+        this.surname = personInfo.surname
         this.mark = mark.toDAO().serialize()
     }
 }
@@ -79,4 +87,6 @@ open class JournalChunkDAO(): RealmObject()
         id = JournalChunkDAOId.getSerialized(date, groupId)
         i("created new chunk: id = $id")
     }
+
+    fun isEmpty() = data.isEmpty()
 }

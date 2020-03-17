@@ -14,6 +14,7 @@ fun JournalMarkDAO.fromDAO(): CellData
     {
         is JournalMarkPresenceDAO -> PresenceData()
         is JournalMarkAbsenceDAO -> AbsenceData(this.mark)
+        is JournalMarkUnknownDAO -> UnknownData()
     }
 }
 
@@ -23,6 +24,7 @@ fun CellData.toDAO(): JournalMarkDAO
     {
         is PresenceData -> JournalMarkPresenceDAO()
         is AbsenceData -> JournalMarkAbsenceDAO(this.mark)
+        is UnknownData -> JournalMarkUnknownDAO()
         else -> JournalMarkPresenceDAO() // not happening
     }
 }

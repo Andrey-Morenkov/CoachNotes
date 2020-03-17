@@ -79,6 +79,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
         findingTableJob = GlobalScope.launch(Dispatchers.IO)
         {
+            i("findingTableJob launched")
             val newModel = journalInteractor.getJournal(chosenPeriod, 1).toModel()
             tableHelper.changeDataModel(newModel)
 
@@ -110,17 +111,30 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         @Synchronized
         fun changeDataModel(newModel: TableModel)
         {
+            i("changeDataModel")
             tableModel = newModel
 
-            tableModel.cellContent.forEach { _ ->
-                chunksStates.add(0)
+            for (col in 0 until tableModel.cellContent[0].size)
+            {
                 changingChunkJobs.add(Job())
+                var chunkState = 0
+                for (row in 0 until tableModel.cellContent.size)
+                {
+                    val cellData = tableModel.cellContent[row][col].data
+                    if ((cellData is AbsenceData) || (cellData is PresenceData))
+                    {
+                        chunkState++
+                    }
+                }
+                chunksStates.add(chunkState)
+                i("changeDataModel: chunk[$col]State = $chunkState")
             }
         }
 
         @Synchronized
         fun onChangePeriod()
         {
+            i("onChangePeriod")
             changingChunkSupervisor.cancelChildren(CancellationException("fflush"))
             changingChunkSupervisor = Job()
             clearTableMetadata()
@@ -135,12 +149,13 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 is PresenceData ->
                 {
                     cell.data = AbsenceData()
-                    saveChunkOnBackground(col)
+                    saveChunkOnBackground(col, row)
                 }
 
                 is AbsenceData ->
                 {
                     chunksStates[col]--
+                    i("chunksStates[$col] = ${chunksStates[col]}")
                     if (isChunkEmpty(col))
                     {
                         for (i in 0 until tableModel.cellContent.size) // for each row
@@ -152,14 +167,15 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     {
                         cell.data = UnknownData()
                     }
-                    saveChunkOnBackground(col)
+                    saveChunkOnBackground(col, row)
                 }
 
                 is UnknownData ->
                 {
                     chunksStates[col]++
+                    i("chunksStates[$col] = ${chunksStates[col]}")
                     cell.data = PresenceData()
-                    saveChunkOnBackground(col)
+                    saveChunkOnBackground(col, row)
                 }
 
                 is NoExistData ->
@@ -170,6 +186,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 else -> //null
                 {
                     chunksStates[col] = 1
+                    i("chunksStates[$col] = ${chunksStates[col]}")
                     for (i in 0 until tableModel.cellContent.size) // for each row
                     {
                         if (i != row)
@@ -178,7 +195,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                         }
                     }
                     cell.data = PresenceData()
-                    saveChunkOnBackground(col)
+                    saveChunkOnBackground(col, row)
                 }
             }
         }
@@ -199,58 +216,74 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             chunksStates.clear()
         }
 
-        private fun saveChunkOnBackground(col: Int)
+        @Synchronized
+        private fun saveChunkOnBackground(col: Int, row: Int)
         {
+            i("saveChunkOnBackground")
             val day = tableModel.columnHeaderContent[col].data.timestamp.day
             var chunkBackup = chunksToSave[day]
             if (chunkBackup == null)
             {
-                chunkBackup = JournalChunk(tableModel.columnHeaderContent[col].data.timestamp, getGroupId()).apply {
-                    for (row in 0 .. tableModel.rowHeaderContent.size)
-                    {
-                        content[ChunkPersonName(tableModel.rowHeaderContent[row].data.person)] = CellData.getCopy(tableModel.cellContent[row][col].data)
-                    }
-                }
+                i("chunkBackup == null")
+                chunkBackup = JournalChunk(tableModel.columnHeaderContent[col].data.timestamp, getGroupId())
                 chunksToSave[day] = chunkBackup
             }
             else
             {
+                i("chunkBackup != null")
                 cancelSavingJob(col)
             }
 
+            for (row in 0 until tableModel.rowHeaderContent.size)
+            {
+                chunkBackup.content[ChunkPersonName(tableModel.rowHeaderContent[row].data.person)] = CellData.getCopy(tableModel.cellContent[row][col].data)
+            }
+            i("update backuped chunk")
+
+
             changingChunkJobs[col] = GlobalScope.launch (Dispatchers.IO + changingChunkSupervisor)
             {
+                i("changingChunkJob launched")
                 try
                 {
                     withTimeout(7000)
                     {
-                        delay(Double.POSITIVE_INFINITY.toLong())
-                    }
-                }
-                catch (e: CancellationException)
-                {
-                    when (e.message)
-                    {
-                        "fflush" -> saveChunk(chunkBackup, col)
+                        delay(Int.MAX_VALUE.toLong())
                     }
                 }
                 catch (e: TimeoutCancellationException)
                 {
+                    i("catch TimeoutCancellationException")
                     saveChunk(chunkBackup, col)
+                }
+                catch (e: CancellationException)
+                {
+                    i("catch CancellationException")
+                    when (e.message)
+                    {
+                        "fflush" ->
+                        {
+                            i("fflush")
+                            saveChunk(chunkBackup, col)
+                        }
+                    }
                 }
             }
         }
 
         private fun cancelSavingJob(col: Int)
         {
+            i("cancelSavingJob")
             if (!changingChunkJobs[col].isCancelled)
             {
+                i("cancelled")
                 changingChunkJobs[col].cancel()
             }
         }
 
         private suspend fun saveChunk(chunkBackup: JournalChunk, col: Int)
         {
+            i("saveChunk")
             journalInteractor.saveJournalChunk(chunkBackup)
 
             var isNeedToRefresh = false
@@ -258,7 +291,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             {
                 if (isChunkShowingNow(chunkBackup))
                 {
-                    for (row in 0 .. tableModel.rowHeaderContent.size)
+                    for (row in 0 until tableModel.rowHeaderContent.size)
                     {
                         tableModel.cellContent[row][col].data = chunkBackup.content[ChunkPersonName(tableModel.rowHeaderContent[row].data.person)]
                     }
@@ -268,13 +301,13 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
             if (isNeedToRefresh)
             {
+                i("Refresh data")
                 withContext(Dispatchers.Main)
                 {
                     viewState.refreshData()
                 }
             }
         }
-
 
     }
 }

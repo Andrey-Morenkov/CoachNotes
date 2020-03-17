@@ -12,10 +12,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.inject
 import org.koin.core.qualifier.named
-import ru.hryasch.coachnotes.domain.journal.data.AbsenceData
-import ru.hryasch.coachnotes.domain.journal.data.CellData
-import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
-import ru.hryasch.coachnotes.domain.journal.data.PresenceData
+import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.person.Person
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
@@ -80,63 +77,39 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         }
     }
 
-    override suspend fun updateJournalChunkData(date: Date,
-                                                groupId: GroupId,
-                                                person: Person,
-                                                mark: CellData?)
+    override suspend fun updateJournalChunk(chunk: JournalChunk)
     {
         val db = getDb()
         db.refresh()
 
-        i("updateJournalChunkData: \n" +
-               "date    = ${date.format(daoDateFormat)} \n" +
-               "groupId = $groupId\n" +
-               "person  = ${person.surname} ${person.name} (${person.id})\n" +
-               "mark    = ${mark.toString()}")
+        i("updateJournalChunk: \n" +
+               "date    = ${chunk.date.format(daoDateFormat)} \n" +
+               "groupId = ${chunk.groupId}\n")
 
         db.executeTransaction {
-            val chunk = getOrCreateChunk(db, date, groupId)
-            val personMarkInfo = chunk.data.find { it.surname == person.surname &&
-                    it.name == person.name }
+            val daoChunk = getOrCreateChunk(db, chunk.date, chunk.groupId)
+            daoChunk.data.clear()
 
-            if (mark == null)
-            {
-                e("mark == null")
-                // delete info about person from chunk
-                personMarkInfo?.let {
-                    chunk.data.remove(it)
-                    e("personMarkInfo != null")
-                }
-            }
-            else
-            {
-                e("mark != null")
-                // create chunk info about person or update
-                if (personMarkInfo == null)
+            chunk.content.forEach {
+                if (it.value != null && it.value !is NoExistData)
                 {
-                    e("personMarkInfo == null")
-                    chunk.data.add(JournalChunkDataDAO(person.surname, person.name, mark))
-                }
-                else
-                {
-                    e("personMarkInfo != null")
-                    personMarkInfo.mark = mark.toDAO().serialize()
+                    daoChunk.data.add(JournalChunkDataDAO(it.key, it.value!!))
                 }
             }
 
-            if (chunk.data.isEmpty())
+            if (daoChunk.isEmpty())
             {
                 e("delete chunk")
-                deleteChunk(db, chunk)
+                deleteChunk(db, daoChunk)
             }
             else
             {
                 e("create or update chunk")
-                createOrUpdateChunk(db, chunk)
+                createOrUpdateChunk(db, daoChunk)
             }
         }
 
-        i("SAVED")
+        i("SAVED or DELETED")
     }
 
 

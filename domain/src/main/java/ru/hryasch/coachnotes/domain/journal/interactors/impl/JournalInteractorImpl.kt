@@ -49,7 +49,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
     override suspend fun saveJournalChunk(chunk: JournalChunk)
     {
-
+        journalRepository.updateJournalChunk(chunk)
     }
 
 
@@ -88,9 +88,9 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     {
         val allPeople: MutableSet<Person> = HashSet()
 
-        //people.forEach {
-        //    allPeople.add(PersonImpl(it.surname, it.name))
-        //}
+        people.forEach {
+            allPeople.add(PersonImpl(it.surname, it.name))
+        }
 
         val chunksPeople: MutableSet<Person> = HashSet()
         chunks?.forEach {

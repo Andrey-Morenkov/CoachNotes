@@ -9,4 +9,6 @@ interface Person: Comparable<Person>
     var name: String
     var surname: String
     var groupId: GroupId?
+
+    override fun toString(): String
 }

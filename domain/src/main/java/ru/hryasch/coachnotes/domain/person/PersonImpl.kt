@@ -12,4 +12,6 @@ data class PersonImpl(override var surname: String,
     {
         return "$surname $name $groupId $id".compareTo("${other.surname} ${other.name} ${other.groupId} ${other.id}")
     }
+
+    override fun toString(): String = "$id: [$surname $name group = $groupId]"
 }
