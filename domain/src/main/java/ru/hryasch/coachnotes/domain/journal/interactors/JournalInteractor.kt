@@ -5,6 +5,7 @@ import com.soywiz.klock.YearMonth
 
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.journal.data.CellData
+import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
 import ru.hryasch.coachnotes.domain.journal.data.TableData
 import ru.hryasch.coachnotes.domain.person.Person
 
@@ -13,10 +14,7 @@ interface JournalInteractor
 {
     suspend fun getJournal(period: YearMonth, groupId: GroupId): TableData
 
-    suspend fun saveChangedCell(date: Date,
-                                person: Person,
-                                cellData: CellData?,
-                                groupId: GroupId)
+    suspend fun saveJournalChunk(chunk: JournalChunk)
 
     suspend fun exportJournal(period: YearMonth, groupId: GroupId)
 }

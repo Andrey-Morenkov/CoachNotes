@@ -13,15 +13,18 @@ import ru.hryasch.coachnotes.journal.table.TableModel
 
 interface JournalView: MvpView
 {
+    // States (level 0)
     @StateStrategyType(SingleStateStrategy::class)
     fun waitingState()
-
-    @StateStrategyType(AddToEndSingleStrategy::class)
-    fun setPeriod(month: String, year:Int)
 
     @StateStrategyType(SingleStateStrategy::class)
     fun showingState(tableContent: TableModel)
 
+    // Additional events (level 1)
+    @StateStrategyType(AddToEndSingleStrategy::class)
+    fun setPeriod(month: String, year:Int)
+
+    // Runtime events (level 2)
     @StateStrategyType(SkipStrategy::class)
     fun refreshData()
 }

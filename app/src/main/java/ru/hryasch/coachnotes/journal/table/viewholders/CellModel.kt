@@ -3,8 +3,8 @@ package ru.hryasch.coachnotes.journal.table.viewholders
 import com.evrencoskun.tableview.sort.ISortableModel
 import ru.hryasch.coachnotes.domain.journal.data.*
 
-class CellModel(private var id: String,
-                var       data: CellData?) : ISortableModel
+data class CellModel(private var id: String,
+                     var       data: CellData?) : ISortableModel
 {
     override fun getContent(): Any? = data
     override fun getId(): String = id

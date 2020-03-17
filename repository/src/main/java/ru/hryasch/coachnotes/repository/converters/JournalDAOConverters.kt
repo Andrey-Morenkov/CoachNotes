@@ -2,8 +2,6 @@ package ru.hryasch.coachnotes.repository.converters
 
 import com.soywiz.klock.DateFormat
 import ru.hryasch.coachnotes.domain.journal.data.*
-import ru.hryasch.coachnotes.domain.person.Person
-import ru.hryasch.coachnotes.domain.person.PersonImpl
 import ru.hryasch.coachnotes.repository.dao.*
 import java.util.*
 
@@ -25,6 +23,7 @@ fun CellData.toDAO(): JournalMarkDAO
     {
         is PresenceData -> JournalMarkPresenceDAO()
         is AbsenceData -> JournalMarkAbsenceDAO(this.mark)
+        else -> JournalMarkPresenceDAO() // not happening
     }
 }
 
@@ -40,7 +39,7 @@ fun List<JournalChunkDAO>.fromDAO(): List<JournalChunk>
 
         it.data.forEach { personDataDAO ->
             val mark = JournalMarkDAO.deserialize(personDataDAO.mark)!!.fromDAO()
-            chunk.content[JournalChunkPersonName(personDataDAO.surname, personDataDAO.name)] = mark
+            chunk.content[ChunkPersonName(personDataDAO.surname, personDataDAO.name)] = mark
         }
 
         chunkList.add(chunk)

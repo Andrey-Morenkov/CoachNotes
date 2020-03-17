@@ -47,13 +47,11 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         return generateTableData(period, groupId, chunks, personRepository.getPersonsByGroup(groupId)!!)
     }
 
-    override suspend fun saveChangedCell(date: Date,
-                                         person: Person,
-                                         cellData: CellData?,
-                                         groupId: GroupId)
+    override suspend fun saveJournalChunk(chunk: JournalChunk)
     {
-        journalRepository.updateJournalChunkData(date, groupId, person, cellData)
+
     }
+
 
     override suspend fun exportJournal(period: YearMonth, groupId: GroupId)
     {

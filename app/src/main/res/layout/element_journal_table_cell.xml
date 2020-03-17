@@ -6,6 +6,19 @@
     android:layout_width="@dimen/journal_table_column_header_width"
     android:layout_height="@dimen/journal_table_row_header_height">
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/journalCellDataSpecial"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="8dp"
+        android:tint="@color/colorJournalAbsenceGeneral"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_no_exist" />
+
     <TextView
         android:id="@+id/journalCellData"
         android:layout_width="0dp"

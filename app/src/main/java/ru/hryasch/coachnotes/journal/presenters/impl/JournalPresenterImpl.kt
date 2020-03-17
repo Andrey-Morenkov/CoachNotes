@@ -2,7 +2,6 @@ package ru.hryasch.coachnotes.journal.presenters.impl
 
 import com.pawegio.kandroid.i
 import com.soywiz.klock.*
-import com.soywiz.klock.Date
 import kotlinx.coroutines.*
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -15,12 +14,10 @@ import ru.hryasch.coachnotes.fragments.api.JournalView
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
 import ru.hryasch.coachnotes.domain.common.GroupId
-import ru.hryasch.coachnotes.domain.journal.data.AbsenceData
-import ru.hryasch.coachnotes.domain.journal.data.CellData
-import ru.hryasch.coachnotes.domain.journal.data.PresenceData
+import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
-import ru.hryasch.coachnotes.domain.person.PersonImpl
-import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 // TODO: add "not synced" states to cells
 
@@ -30,11 +27,8 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     private val journalInteractor: JournalInteractor by inject()
     private val monthNames:Array<String> by inject(named("months_RU"))
 
-    private val presenterScope = CoroutineScope(Dispatchers.IO)
+    private val tableHelper: TableHelper = TableHelper()
     private lateinit var findingTableJob: Job
-    private val          changingChunkJobs: MutableMap<String, Job> = TreeMap()
-
-    private var tableModel: TableModel = TableModel()
     private var chosenPeriod: YearMonth = DateTime.now().yearMonth
 
     init
@@ -44,70 +38,17 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
     override fun onCellClicked(col: Int, row: Int)
     {
-        lateinit var backupData: ChunkEntryBackup
-
-        synchronized(tableModel)
-        {
-            val cell = tableModel.cellContent[row][col]
-            cell.data = when (cell.data)
-            {
-                is PresenceData -> AbsenceData()
-                is AbsenceData -> null
-                else -> PresenceData()
-            }
-
-            backupData = backupChangedCell(col, row)
-        }
-
-        val currJob = changingChunkJobs["$col|$row"]
-        if (currJob != null && currJob.isActive)
-        {
-            i("cancelled")
-            currJob.cancel()
-        }
-
-        changingChunkJobs["$col|$row"] = GlobalScope.launch(Dispatchers.Default)
-        {
-            i("waiting for update...")
-            delay(2000)
-            i("let's save")
-
-            journalInteractor.saveChangedCell(backupData.date,
-                                              backupData.personInfo,
-                                              backupData.cellData,
-                                              backupData.groupId)
-
-            // hotfix
-            var isNeedToRefresh = false
-            synchronized(tableModel)
-            {
-                if (tableModel.groupId == backupData.groupId &&
-                    chosenPeriod == YearMonth.Companion.invoke(backupData.date.yearYear, backupData.date.month))
-                {
-                    isNeedToRefresh = true
-                    tableModel.cellContent[row][col].data = backupData.cellData
-                }
-            }
-
-            // refresh table model
-            if (isNeedToRefresh)
-            {
-                withContext(Dispatchers.Main)
-                {
-                    viewState.refreshData()
-                }
-            }
-        }
-
+        tableHelper.onCellCLicked(col, row)
         viewState.refreshData()
     }
 
     override fun onExportButtonClicked()
     {
         i("==== EXPORT CLICKED ====")
+        //TODO: wait for all savings
         GlobalScope.launch(Dispatchers.Default)
         {
-            journalInteractor.exportJournal(chosenPeriod, tableModel.groupId)
+            journalInteractor.exportJournal(chosenPeriod, tableHelper.getGroupId())
         }
     }
 
@@ -129,33 +70,24 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         viewState.waitingState()
         viewState.setPeriod(month, year)
 
+        tableHelper.onChangePeriod()
+
         if (this::findingTableJob.isInitialized && findingTableJob.isActive)
         {
             findingTableJob.cancel()
         }
 
-        findingTableJob = presenterScope.launch {
-            val newModel = journalInteractor
-                            .getJournal(chosenPeriod, 1)
-                            .toModel()
-
-            synchronized(tableModel)
-            {
-                tableModel = newModel
-                changingChunkJobs.clear()
-            }
+        findingTableJob = GlobalScope.launch(Dispatchers.IO)
+        {
+            val newModel = journalInteractor.getJournal(chosenPeriod, 1).toModel()
+            tableHelper.changeDataModel(newModel)
 
             withContext(Dispatchers.Main)
             {
-                viewState.showingState(tableModel)
+                viewState.showingState(tableHelper.tableModel)
                 viewState.setPeriod(month, year)
             }
         }
-    }
-
-    override fun onDestroy()
-    {
-        super.onDestroy()
     }
 
     private fun changePeriod()
@@ -163,18 +95,186 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         changePeriod(monthNames[chosenPeriod.month.index0], chosenPeriod.year.year)
     }
 
-    private fun backupChangedCell(col: Int, row: Int): ChunkEntryBackup
-    {
-        return ChunkEntryBackup(Date(tableModel.columnHeaderContent[col].data.timestamp.encoded),
-                                tableModel.groupId,
-                                PersonImpl(tableModel.rowHeaderContent[row].data.person.surname,
-                                           tableModel.rowHeaderContent[row].data.person.name),
-                                CellData.getCopy(tableModel.cellContent[row][col].data)
-        )
-    }
 
-    private data class ChunkEntryBackup(val date: Date,
-                                        val groupId: GroupId,
-                                        val personInfo: PersonImpl,
-                                        val cellData: CellData?)
+    inner class TableHelper
+    {
+        var tableModel: TableModel = TableModel()
+        private set
+
+        private var chunksStates: MutableList<Int> = ArrayList()
+
+        private var changingChunkSupervisor: Job = Job()
+        private var changingChunkJobs: MutableList<Job> = ArrayList()
+        private var chunksToSave: MutableMap<Int, JournalChunk> = HashMap()
+
+        @Synchronized
+        fun changeDataModel(newModel: TableModel)
+        {
+            tableModel = newModel
+
+            tableModel.cellContent.forEach { _ ->
+                chunksStates.add(0)
+                changingChunkJobs.add(Job())
+            }
+        }
+
+        @Synchronized
+        fun onChangePeriod()
+        {
+            changingChunkSupervisor.cancelChildren(CancellationException("fflush"))
+            changingChunkSupervisor = Job()
+            clearTableMetadata()
+        }
+
+        @Synchronized
+        fun onCellCLicked(col: Int, row: Int)
+        {
+            val cell = tableModel.cellContent[row][col]
+            when (cell.data)
+            {
+                is PresenceData ->
+                {
+                    cell.data = AbsenceData()
+                    saveChunkOnBackground(col)
+                }
+
+                is AbsenceData ->
+                {
+                    chunksStates[col]--
+                    if (isChunkEmpty(col))
+                    {
+                        for (i in 0 until tableModel.cellContent.size) // for each row
+                        {
+                            tableModel.cellContent[i][col].data = null
+                        }
+                    }
+                    else
+                    {
+                        cell.data = UnknownData()
+                    }
+                    saveChunkOnBackground(col)
+                }
+
+                is UnknownData ->
+                {
+                    chunksStates[col]++
+                    cell.data = PresenceData()
+                    saveChunkOnBackground(col)
+                }
+
+                is NoExistData ->
+                {
+                    //Nothing
+                }
+
+                else -> //null
+                {
+                    chunksStates[col] = 1
+                    for (i in 0 until tableModel.cellContent.size) // for each row
+                    {
+                        if (i != row)
+                        {
+                            tableModel.cellContent[i][col].data = UnknownData()
+                        }
+                    }
+                    cell.data = PresenceData()
+                    saveChunkOnBackground(col)
+                }
+            }
+        }
+
+        @Synchronized
+        fun isChunkEmpty(col: Int): Boolean = (chunksStates[col] == 0)
+
+        @Synchronized
+        fun getGroupId(): GroupId = tableModel.groupId
+
+        @Synchronized
+        fun isChunkShowingNow(chunk: JournalChunk): Boolean = (chunk.groupId == tableModel.groupId && (chosenPeriod == YearMonth.Companion.invoke(chunk.date.yearYear, chunk.date.month)))
+
+        private fun clearTableMetadata()
+        {
+            chunksToSave.clear()
+            changingChunkJobs.clear()
+            chunksStates.clear()
+        }
+
+        private fun saveChunkOnBackground(col: Int)
+        {
+            val day = tableModel.columnHeaderContent[col].data.timestamp.day
+            var chunkBackup = chunksToSave[day]
+            if (chunkBackup == null)
+            {
+                chunkBackup = JournalChunk(tableModel.columnHeaderContent[col].data.timestamp, getGroupId()).apply {
+                    for (row in 0 .. tableModel.rowHeaderContent.size)
+                    {
+                        content[ChunkPersonName(tableModel.rowHeaderContent[row].data.person)] = CellData.getCopy(tableModel.cellContent[row][col].data)
+                    }
+                }
+                chunksToSave[day] = chunkBackup
+            }
+            else
+            {
+                cancelSavingJob(col)
+            }
+
+            changingChunkJobs[col] = GlobalScope.launch (Dispatchers.IO + changingChunkSupervisor)
+            {
+                try
+                {
+                    withTimeout(7000)
+                    {
+                        delay(Double.POSITIVE_INFINITY.toLong())
+                    }
+                }
+                catch (e: CancellationException)
+                {
+                    when (e.message)
+                    {
+                        "fflush" -> saveChunk(chunkBackup, col)
+                    }
+                }
+                catch (e: TimeoutCancellationException)
+                {
+                    saveChunk(chunkBackup, col)
+                }
+            }
+        }
+
+        private fun cancelSavingJob(col: Int)
+        {
+            if (!changingChunkJobs[col].isCancelled)
+            {
+                changingChunkJobs[col].cancel()
+            }
+        }
+
+        private suspend fun saveChunk(chunkBackup: JournalChunk, col: Int)
+        {
+            journalInteractor.saveJournalChunk(chunkBackup)
+
+            var isNeedToRefresh = false
+            synchronized(this)
+            {
+                if (isChunkShowingNow(chunkBackup))
+                {
+                    for (row in 0 .. tableModel.rowHeaderContent.size)
+                    {
+                        tableModel.cellContent[row][col].data = chunkBackup.content[ChunkPersonName(tableModel.rowHeaderContent[row].data.person)]
+                    }
+                    isNeedToRefresh = true
+                }
+            }
+
+            if (isNeedToRefresh)
+            {
+                withContext(Dispatchers.Main)
+                {
+                    viewState.refreshData()
+                }
+            }
+        }
+
+
+    }
 }

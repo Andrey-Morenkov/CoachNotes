@@ -10,6 +10,7 @@ sealed class JournalMarkDAO()
             return when(options[0])
             {
                 "p" -> JournalMarkPresenceDAO()
+                "u" -> JournalMarkUnknownDAO()
                 "a" ->
                 {
                     if (options.size == 1)
@@ -43,5 +44,11 @@ class JournalMarkAbsenceDAO(val mark: String? = null): JournalMarkDAO()
         return str
     }
 
+    override fun serialize() = toString()
+}
+
+class JournalMarkUnknownDAO(): JournalMarkDAO()
+{
+    override fun toString(): String = "u"
     override fun serialize() = toString()
 }
