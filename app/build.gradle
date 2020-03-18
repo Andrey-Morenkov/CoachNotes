@@ -103,6 +103,9 @@ dependencies
     // Permissions
     implementation "com.nabinbhandari.android:permissions:$permissions_version"
 
+    // SnackProgressBar
+    implementation "com.github.tingyik90:snackprogressbar:$snack_progressbar_version"
+
     implementation project(path: ':domain')
     implementation project(path: ':repository')
 }

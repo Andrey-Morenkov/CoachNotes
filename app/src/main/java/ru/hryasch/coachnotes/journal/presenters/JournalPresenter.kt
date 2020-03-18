@@ -5,6 +5,8 @@ interface JournalPresenter
     fun onCellClicked(col: Int, row: Int)
     fun onExportButtonClicked()
 
+    fun onJournalSaveNotificationDismiss()
+
     fun nextMonth()
     fun prevMonth()
     fun changePeriod(month: String, year: Int)

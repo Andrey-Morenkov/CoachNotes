@@ -1,10 +1,7 @@
 package ru.hryasch.coachnotes.fragments.api
 
 import moxy.MvpView
-import moxy.viewstate.strategy.AddToEndSingleStrategy
-import moxy.viewstate.strategy.SingleStateStrategy
-import moxy.viewstate.strategy.SkipStrategy
-import moxy.viewstate.strategy.StateStrategyType
+import moxy.viewstate.strategy.*
 
 
 import ru.hryasch.coachnotes.journal.table.TableModel
@@ -13,18 +10,22 @@ import ru.hryasch.coachnotes.journal.table.TableModel
 
 interface JournalView: MvpView
 {
-    // States (level 0)
+    // Base (level 0)
     @StateStrategyType(SingleStateStrategy::class)
     fun waitingState()
 
     @StateStrategyType(SingleStateStrategy::class)
     fun showingState(tableContent: TableModel)
 
-    // Additional events (level 1)
+    // Permanent state (level 1)
     @StateStrategyType(AddToEndSingleStrategy::class)
     fun setPeriod(month: String, year:Int)
 
-    // Runtime events (level 2)
+    // Timed events (level 2)
+    @StateStrategyType(AddToEndSingleStrategy::class)
+    fun showSavingJournalNotification(isFinished: Boolean?) //hotfix with null to dismiss this
+
+    // Runtime events (level 3)
     @StateStrategyType(SkipStrategy::class)
     fun refreshData()
 }

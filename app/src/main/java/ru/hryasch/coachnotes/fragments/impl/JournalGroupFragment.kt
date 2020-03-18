@@ -1,7 +1,10 @@
 package ru.hryasch.coachnotes.fragments.impl
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,13 +21,22 @@ import com.evrencoskun.tableview.TableView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.nabinbhandari.android.permissions.PermissionHandler
 import com.nabinbhandari.android.permissions.Permissions
+import com.pawegio.kandroid.IntentFor
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.runOnUiThread
 import com.pawegio.kandroid.visible
+import com.soywiz.klock.Date
+import com.soywiz.klock.DateTime
+import com.soywiz.klock.DateTimeTz
+import com.tingyik90.snackprogressbar.SnackProgressBar
+import com.tingyik90.snackprogressbar.SnackProgressBarManager
 import kotlinx.android.synthetic.main.fragment_journal.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.android.ext.android.get
+import org.koin.core.KoinComponent
 import org.koin.core.parameter.parametersOf
+import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
@@ -33,8 +45,9 @@ import ru.hryasch.coachnotes.fragments.api.JournalView
 import ru.hryasch.coachnotes.journal.table.TableAdapter
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.impl.JournalPresenterImpl
+import java.io.File
 
-class JournalGroupFragment : MvpAppCompatFragment(), JournalView
+class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: JournalPresenterImpl
@@ -52,6 +65,10 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
 
     private lateinit var okJournalShareClickListener: JournalShareOkListener
     private lateinit var errorJournalShareClickListener: JournalShareErrorListener
+
+    private val monthNames: Array<String> = get(named("months_RU"))
+
+    private val snackProgressBarManager by lazy { SnackProgressBarManager(activity!!.findViewById(R.id.home_container), lifecycleOwner = this) }
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -81,6 +98,18 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
             presenter.prevMonth()
         }
 
+        snackProgressBarManager
+            .setMessageMaxLines(1)
+            .setBackgroundColor(R.color.colorPrimaryDarkHighlight)
+            .setOnDisplayListener(object: SnackProgressBarManager.OnDisplayListener
+            {
+                override fun onDismissed(snackProgressBar: SnackProgressBar, onDisplayId: Int)
+                {
+                    presenter.onJournalSaveNotificationDismiss()
+                    super.onDismissed(snackProgressBar, onDisplayId)
+                }
+            })
+
         return layout
     }
 
@@ -96,6 +125,65 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
     {
         val str = "$month $year"
         textViewPeriod.text = str
+
+        if (monthNames[DateTime.nowLocal().month0] == month && DateTime.nowLocal().yearInt == year)
+        {
+            buttonNextMonth.visibility = View.INVISIBLE
+        }
+        else
+        {
+            buttonNextMonth.visibility = View.VISIBLE
+        }
+    }
+
+    override fun showSavingJournalNotification(isFinished: Boolean?)
+    {
+        when (isFinished)
+        {
+            false ->
+            {
+                snackProgressBarManager.setActionTextColor(android.R.color.transparent)
+                SnackProgressBar(SnackProgressBar.TYPE_HORIZONTAL, "Журнал сохраняется...")
+                    .setIsIndeterminate(true)
+                    .setSwipeToDismiss(true)
+                    .setAction("Открыть папку", object: SnackProgressBar.OnActionClickListener {
+                        override fun onActionClick()
+                        {
+                        }
+                    })
+                    .also {
+                        runOnUiThread {
+                            snackProgressBarManager.show(it, SnackProgressBarManager.LENGTH_INDEFINITE)
+                        }
+                    }
+            }
+
+            true ->
+            {
+                val currentShowing = snackProgressBarManager.getLastShown()
+                currentShowing
+                    ?.setMessage("Журнал сохранен")
+                    ?.setIsIndeterminate(false)
+                    ?.setProgressMax(1)
+                    ?.setAction("Открыть папку", object: SnackProgressBar.OnActionClickListener {
+                        override fun onActionClick()
+                        {
+                            val savingDir: File = get(named("journalDirectory"))
+                            val intent = Intent(Intent.ACTION_VIEW)
+                                .setDataAndType(Uri.parse(savingDir.absolutePath), "resource/folder")
+                            startActivity(intent)
+                            snackProgressBarManager.dismissAll()
+                        }
+                    })
+                currentShowing?.also {
+                    runOnUiThread {
+                        snackProgressBarManager.updateTo(it)
+                        snackProgressBarManager.setProgress(1)
+                        snackProgressBarManager.setActionTextColor(R.color.colorAccent)
+                    }
+                }
+            }
+        }
     }
 
     override fun showingState(tableContent: TableModel)
@@ -107,7 +195,6 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
         tableAdapter.renderTable()
 
         journalButtonShare.isEnabled = true
-
         checkShareButtonState()
 
         spinnerLoadingTable.visible = false
@@ -177,6 +264,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView
 
     inner class JournalShareErrorListener(private val container: ViewGroup): View.OnClickListener
     {
+        @SuppressLint("NewApi")
         override fun onClick(p0: View?)
         {
             i("clicked ERROR")

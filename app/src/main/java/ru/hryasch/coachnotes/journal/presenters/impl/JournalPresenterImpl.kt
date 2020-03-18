@@ -45,11 +45,22 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     override fun onExportButtonClicked()
     {
         i("==== EXPORT CLICKED ====")
-        //TODO: wait for all savings
+
+        viewState.showSavingJournalNotification(false)
+
         GlobalScope.launch(Dispatchers.Default)
         {
+            i("wait for saving...")
+            tableHelper.saveAllChunksImmediatelyAndWait()
+            i("all saved")
             journalInteractor.exportJournal(chosenPeriod, tableHelper.getGroupId())
+            viewState.showSavingJournalNotification(true)
         }
+    }
+
+    override fun onJournalSaveNotificationDismiss()
+    {
+        viewState.showSavingJournalNotification(null)
     }
 
     override fun nextMonth()
@@ -138,6 +149,13 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             changingChunkSupervisor.cancelChildren(CancellationException("fflush"))
             changingChunkSupervisor = Job()
             clearTableMetadata()
+        }
+
+        @Synchronized
+        suspend fun saveAllChunksImmediatelyAndWait()
+        {
+            changingChunkSupervisor.cancelChildren(CancellationException("fflush"))
+            changingChunkSupervisor.children.toList().forEach { it.join() }
         }
 
         @Synchronized
