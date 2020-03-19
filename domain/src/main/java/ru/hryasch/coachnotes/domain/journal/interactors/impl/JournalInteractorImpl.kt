@@ -3,6 +3,7 @@ package ru.hryasch.coachnotes.domain.journal.interactors.impl
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import com.soywiz.klock.Date
+import com.soywiz.klock.DateTime
 import com.soywiz.klock.YearMonth
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -18,6 +19,7 @@ import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.domain.tools.DataExporter
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
 
@@ -29,7 +31,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
     private val exporter: DataExporter by inject(named("docx"))
 
-    override suspend fun getJournal(period: YearMonth, groupId: GroupId): TableData
+    override suspend fun getJournal(period: YearMonth, groupId: GroupId): TableData?
     {
         val chunks = journalRepository.getJournalChunks(period, groupId)
 
@@ -41,8 +43,6 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                 i("data[${cnt.key} : ${cnt.value}]")
             }
         }
-
-        //TODO: chunks post processing
 
         return generateTableData(period, groupId, chunks, personRepository.getPersonsByGroup(groupId)!!)
     }
@@ -62,13 +62,16 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     }
 
 
-    private fun generateTableData(period: YearMonth, groupId: GroupId, chunks: List<JournalChunk>?, people: List<Person>): TableData
+    private fun generateTableData(period: YearMonth, groupId: GroupId, chunks: List<JournalChunk>?, groupPeople: List<Person>): TableData?
     {
+
         val tableData = TableData()
 
         tableData.groupId = groupId
         tableData.columnHeadersData.addAll(generateDayOfMonthDescription(period))
-        tableData.rowHeadersData.addAll(generateNames(chunks, people))
+
+
+        generateNames(chunks, groupPeople, period)?.also { tableData.rowHeadersData.addAll(it) } ?: return null
         tableData.cellsData.addAll(generateCellData(chunks, tableData.rowHeadersData, tableData.columnHeadersData))
 
         return tableData
@@ -84,23 +87,32 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         return headers
     }
 
-    private fun generateNames(chunks: List<JournalChunk>?, people: List<Person>): List<RowHeaderData>
+    private fun generateNames(chunks: List<JournalChunk>?, groupPeople: List<Person>, period: YearMonth): List<RowHeaderData>?
     {
         val allPeople: MutableSet<Person> = HashSet()
 
-        people.forEach {
-            allPeople.add(PersonImpl(it.surname, it.name))
+        if (period.isHistorical())
+        {
+            // using only chunks info
+            if (chunks == null)
+            {
+                // no chunks => no data
+                e("historical, no chunks")
+                return null
+            }
+            e("historical, have chunks")
+        }
+        else
+        {
+            e("non historical")
+            // using mix of chunks people (if chunks exist) and current people
+            allPeople.addAll(groupPeople)
         }
 
-        val chunksPeople: MutableSet<Person> = HashSet()
         chunks?.forEach {
             it.content.forEach { entry ->
-                chunksPeople.add(PersonImpl(entry.key.surname, entry.key.name))
+                allPeople.add(PersonImpl(entry.key.surname, entry.key.name, -1, -1))
             }
-        }
-
-        chunksPeople.forEach {
-            allPeople.add(it)
         }
 
         val headers: MutableList<RowHeaderData> = LinkedList()
@@ -117,39 +129,47 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                                  allPeople: List<RowHeaderData>,
                                  days: List<ColumnHeaderData>): MutableList<MutableList<CellData?>>
     {
-        val cells: MutableList<MutableList<CellData?>> = LinkedList()
+        val cells = Array(allPeople.size) { arrayOfNulls<CellData?>(days.size)}
 
-        allPeople.forEach { personData ->
-            val dataByDay: MutableList<CellData?> = LinkedList()
-
-            days.forEach { dayData ->
-                val chunk = chunks?.find { it.date == dayData.timestamp }
-                if (chunk == null)
+        for (col in cells[0].indices)
+        {
+            val chunk = chunks?.find { it.date == days[col].timestamp }
+            if (chunk == null)
+            {
+                for (row in cells.indices)
                 {
-                    dataByDay.add(generateEmptyCellData())
+                    cells[row][col] = generateEmptyCellData()
                 }
-                else
+            }
+            else
+            {
+                for (row in cells.indices)
                 {
-                    val personDataByDay = chunk.content.filter { it.key.surname == personData.person.surname &&
-                                                                 it.key.name == personData.person.name }
-
+                    val personDataByDay = chunk.content.filter { it.key.surname == allPeople[row].person.surname &&
+                                                                 it.key.name == allPeople[row].person.name }
+                    // No person data for this date => no exist
                     if (personDataByDay.isEmpty())
                     {
-                        //TODO: there was no this personData => new noExistData?
-                        dataByDay.add(generateEmptyCellData())
+                        cells[row][col] = generateNoExistData()
                     }
                     else
                     {
-                        dataByDay.add(personDataByDay.values.first())
+                        cells[row][col] = personDataByDay.values.first()
                     }
                 }
             }
-
-            cells.add(dataByDay)
         }
 
-        return cells
+        val cellsList: MutableList<MutableList<CellData?>> = ArrayList()
+        cells.forEach {
+            cellsList.add(it.toMutableList())
+        }
+
+        return cellsList
     }
 
     private fun generateEmptyCellData(): CellData? = null
+    private fun generateNoExistData(): CellData = NoExistData()
 }
+
+private fun YearMonth.isHistorical(): Boolean = this.month != DateTime.nowLocal().month

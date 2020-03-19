@@ -91,12 +91,26 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         findingTableJob = GlobalScope.launch(Dispatchers.IO)
         {
             i("findingTableJob launched")
-            val newModel = journalInteractor.getJournal(chosenPeriod, 1).toModel()
-            tableHelper.changeDataModel(newModel)
+            val newModel = journalInteractor.getJournal(chosenPeriod, 1)?.toModel()
+
+            if (newModel != null)
+            {
+                tableHelper.changeDataModel(newModel)
+                withContext(Dispatchers.Main)
+                {
+                    viewState.showingState(tableHelper.tableModel)
+                }
+            }
+            else
+            {
+                withContext(Dispatchers.Main)
+                {
+                    viewState.showingState(null)
+                }
+            }
 
             withContext(Dispatchers.Main)
             {
-                viewState.showingState(tableHelper.tableModel)
                 viewState.setPeriod(month, year)
             }
         }

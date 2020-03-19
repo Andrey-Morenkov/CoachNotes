@@ -15,7 +15,7 @@ interface JournalView: MvpView
     fun waitingState()
 
     @StateStrategyType(SingleStateStrategy::class)
-    fun showingState(tableContent: TableModel)
+    fun showingState(tableContent: TableModel?)
 
     // Permanent state (level 1)
     @StateStrategyType(AddToEndSingleStrategy::class)

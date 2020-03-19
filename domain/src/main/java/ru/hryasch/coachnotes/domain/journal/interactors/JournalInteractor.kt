@@ -12,7 +12,7 @@ import ru.hryasch.coachnotes.domain.person.Person
 
 interface JournalInteractor
 {
-    suspend fun getJournal(period: YearMonth, groupId: GroupId): TableData
+    suspend fun getJournal(period: YearMonth, groupId: GroupId): TableData?
 
     suspend fun saveJournalChunk(chunk: JournalChunk)
 

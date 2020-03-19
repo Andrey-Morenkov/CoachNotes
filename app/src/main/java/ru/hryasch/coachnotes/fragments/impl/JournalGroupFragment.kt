@@ -14,6 +14,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 
@@ -21,16 +22,14 @@ import com.evrencoskun.tableview.TableView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.nabinbhandari.android.permissions.PermissionHandler
 import com.nabinbhandari.android.permissions.Permissions
-import com.pawegio.kandroid.IntentFor
-import com.pawegio.kandroid.i
-import com.pawegio.kandroid.runOnUiThread
-import com.pawegio.kandroid.visible
+import com.pawegio.kandroid.*
 import com.soywiz.klock.Date
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.DateTimeTz
 import com.tingyik90.snackprogressbar.SnackProgressBar
 import com.tingyik90.snackprogressbar.SnackProgressBarManager
 import kotlinx.android.synthetic.main.fragment_journal.*
+import kotlinx.coroutines.withContext
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.android.ext.android.get
@@ -58,6 +57,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     private lateinit var tableAdapter: TableAdapter
 
     private lateinit var spinnerLoadingTable: ProgressBar
+    private lateinit var noDataLabel: TextView
 
     private lateinit var buttonNextMonth: AppCompatImageButton
     private lateinit var buttonPrevMonth: AppCompatImageButton
@@ -65,10 +65,10 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     private lateinit var okJournalShareClickListener: JournalShareOkListener
     private lateinit var errorJournalShareClickListener: JournalShareErrorListener
+    private val snackProgressBarManager by lazy { SnackProgressBarManager(activity!!.findViewById(R.id.home_container), lifecycleOwner = this) }
 
     private val monthNames: Array<String> = get(named("months_RU"))
 
-    private val snackProgressBarManager by lazy { SnackProgressBarManager(activity!!.findViewById(R.id.home_container), lifecycleOwner = this) }
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -79,6 +79,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         buttonExportJournal = layout.findViewById(R.id.journalButtonShare)
 
         spinnerLoadingTable = layout.findViewById(R.id.journalProgressBar)
+        noDataLabel = layout.findViewById(R.id.journalTextViewNoData)
         viewJournalTable = layout.findViewById(R.id.journalTable)
 
         buttonNextMonth = layout.findViewById(R.id.journalButtonNextPeriod)
@@ -88,7 +89,11 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         okJournalShareClickListener = JournalShareOkListener(container!!)
         errorJournalShareClickListener = JournalShareErrorListener(container)
 
-        (activity as AppCompatActivity).setSupportActionBar(layout.findViewById(R.id.journalToolbar))
+        val toolbar: Toolbar = layout.findViewById(R.id.journalToolbar)
+        toolbar.title = "Демо версия"
+
+        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+
 
         buttonNextMonth.setOnClickListener {
             presenter.nextMonth()
@@ -101,11 +106,13 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         snackProgressBarManager
             .setMessageMaxLines(1)
             .setBackgroundColor(R.color.colorPrimaryDarkHighlight)
+            .setOverlayLayoutAlpha(0f)
             .setOnDisplayListener(object: SnackProgressBarManager.OnDisplayListener
             {
                 override fun onDismissed(snackProgressBar: SnackProgressBar, onDisplayId: Int)
                 {
                     presenter.onJournalSaveNotificationDismiss()
+                    snackProgressBarManager.dismissAll()
                     super.onDismissed(snackProgressBar, onDisplayId)
                 }
             })
@@ -117,8 +124,9 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     {
         i("-- Waiting State --")
         spinnerLoadingTable.visible = true
+        noDataLabel.visible = false
         viewJournalTable.visible = false
-        journalButtonShare.isEnabled = false
+        journalButtonShare.visible = false
     }
 
     override fun setPeriod(month: String, year: Int)
@@ -145,6 +153,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                 snackProgressBarManager.setActionTextColor(android.R.color.transparent)
                 SnackProgressBar(SnackProgressBar.TYPE_HORIZONTAL, "Журнал сохраняется...")
                     .setIsIndeterminate(true)
+                    .setAllowUserInput(true)
                     .setSwipeToDismiss(true)
                     .setAction("Открыть папку", object: SnackProgressBar.OnActionClickListener {
                         override fun onActionClick()
@@ -182,23 +191,41 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                         snackProgressBarManager.setActionTextColor(R.color.colorAccent)
                     }
                 }
+                if (currentShowing == null)
+                {
+                    runOnUiThread {
+                        toast("Журнал сохранен")
+                    }
+                }
             }
         }
     }
 
-    override fun showingState(tableContent: TableModel)
+    override fun showingState(tableContent: TableModel?)
     {
         i("-- Showing State --")
-        tableAdapter = get { parametersOf(context, tableContent) }
-        viewJournalTable.adapter = tableAdapter
-        viewJournalTable.tableViewListener = get { parametersOf(presenter) }
-        tableAdapter.renderTable()
 
-        journalButtonShare.isEnabled = true
-        checkShareButtonState()
+        if (tableContent != null)
+        {
+            tableAdapter = get { parametersOf(context, tableContent) }
+            viewJournalTable.adapter = tableAdapter
+            viewJournalTable.tableViewListener = get { parametersOf(presenter) }
+            tableAdapter.renderTable()
+
+            noDataLabel.visible = false
+            viewJournalTable.visible = true
+
+            journalButtonShare.visible = true
+            checkShareButtonState()
+        }
+        else
+        {
+            noDataLabel.visible = true
+            viewJournalTable.visible = false
+            journalButtonShare.visible = false
+        }
 
         spinnerLoadingTable.visible = false
-        viewJournalTable.visible = true
     }
 
     override fun refreshData()
@@ -224,17 +251,40 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         return false
     }
 
+    private fun isEmpty(): Boolean
+    {
+        tableAdapter.tableContent.cellContent.forEach {
+            it.forEach {
+                if (it.data != null)
+                {
+                    return@isEmpty false;
+                }
+            }
+        }
+        return true
+    }
+
     private fun checkShareButtonState()
     {
-        if (hasUnknownData())
+        when
         {
-            DrawableCompat.wrap(journalButtonShare.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
-            journalButtonShare.setOnClickListener(errorJournalShareClickListener)
-        }
-        else
-        {
-            DrawableCompat.wrap(journalButtonShare.drawable).setTint(Color.WHITE)
-            journalButtonShare.setOnClickListener(okJournalShareClickListener)
+            hasUnknownData() ->
+            {
+                DrawableCompat.wrap(journalButtonShare.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
+                journalButtonShare.setOnClickListener(errorJournalShareClickListener.apply { setMessage("Нужно задать данные для всех людей") })
+            }
+
+            isEmpty() ->
+            {
+                DrawableCompat.wrap(journalButtonShare.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
+                journalButtonShare.setOnClickListener(errorJournalShareClickListener.apply { setMessage("Журнал пуст") })
+            }
+
+            else ->
+            {
+                DrawableCompat.wrap(journalButtonShare.drawable).setTint(Color.WHITE)
+                journalButtonShare.setOnClickListener(okJournalShareClickListener)
+            }
         }
     }
 
@@ -262,22 +312,26 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
     }
 
-    inner class JournalShareErrorListener(private val container: ViewGroup): View.OnClickListener
+    inner class JournalShareErrorListener(private val container: ViewGroup, private var message: String = "Ошибка"): View.OnClickListener
     {
-        @SuppressLint("NewApi")
+        fun setMessage(message: String)
+        {
+            this.message = message
+        }
+
         override fun onClick(p0: View?)
         {
             i("clicked ERROR")
 
             val dialog = MaterialAlertDialogBuilder(this@JournalGroupFragment.context!!)
                             .setTitle("Невозможно экспортировать журнал")
-                            .setMessage("Нужно задать данные для всех людей")
+                            .setMessage(message)
                             .setPositiveButton("Ок") {
                                 dialog, id -> dialog.cancel()
                             }
                             .create()
             dialog.setOnShowListener {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(App.getCtx().getColor(R.color.colorAccent))
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
             }
 
             dialog.show()

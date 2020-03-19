@@ -13,13 +13,11 @@ import org.koin.core.get
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.journal.data.*
-import ru.hryasch.coachnotes.domain.person.Person
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.converters.daoDateFormat
 import ru.hryasch.coachnotes.repository.converters.fromDAO
-import ru.hryasch.coachnotes.repository.converters.toDAO
 import ru.hryasch.coachnotes.repository.dao.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -152,13 +150,13 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         val executionsDays: MutableList<Date> = LinkedList()
         val executionsCount = Random.nextInt(5..9)
 
-        val today = DateTimeTz.nowLocal()
+        val generationPeriod = DateTimeTz.nowLocal() - 1.months
         for (i in 1..executionsCount)
         {
             var exeDay: Date
             do
             {
-                exeDay = Date.invoke(today.year, today.month, Random.nextInt(1..today.yearMonth.days))
+                exeDay = Date.invoke(generationPeriod.year, generationPeriod.month, Random.nextInt(1..generationPeriod.yearMonth.days))
             }
             while (executionsDays.find { it == exeDay } != null)
             d("generated execution date: ${exeDay.format("dd/MM/yyyy")}")

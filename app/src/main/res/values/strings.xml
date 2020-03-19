@@ -12,6 +12,7 @@
     // Folders and files
     <string name="coachNotesSubdirectoryName">Тренерские журналы</string>
 
+    // Common
     <string name="menu">Меню</string>
     <string name="group">Группа</string>
     <string name="groups">Группы</string>
@@ -25,6 +26,7 @@
     <string name="general">Основное</string>
     <string name="phone">Телефон</string>
     <string name="available_soon">Еще не готово</string>
+    <string name="no_data">Нет данных</string>
 
     <string name="name">Имя</string>
     <string name="surname">Фамилия</string>
