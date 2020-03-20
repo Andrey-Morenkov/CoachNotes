@@ -152,7 +152,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     }
                 }
                 chunksStates.add(chunkState)
-                i("changeDataModel: chunk[$col]State = $chunkState")
+                //i("changeDataModel: chunk[$col]State = $chunkState")
             }
         }
 
@@ -192,7 +192,10 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     {
                         for (i in 0 until tableModel.cellContent.size) // for each row
                         {
-                            tableModel.cellContent[i][col].data = null
+                            if (tableModel.cellContent[i][col].data !is NoExistData)
+                            {
+                                tableModel.cellContent[i][col].data = null
+                            }
                         }
                     }
                     else
@@ -221,7 +224,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     i("chunksStates[$col] = ${chunksStates[col]}")
                     for (i in 0 until tableModel.cellContent.size) // for each row
                     {
-                        if (i != row)
+                        if (i != row && tableModel.cellContent[i][col].data !is NoExistData)
                         {
                             tableModel.cellContent[i][col].data = UnknownData()
                         }

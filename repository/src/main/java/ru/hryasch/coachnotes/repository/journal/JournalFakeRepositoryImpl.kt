@@ -13,6 +13,7 @@ import org.koin.core.get
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.journal.data.*
+import ru.hryasch.coachnotes.domain.person.Person
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
@@ -117,21 +118,64 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         val personsList = personRepo.getPersonsByGroup(1)!!
 
         val chunkList: MutableList<JournalChunkDAO> = LinkedList()
-
         for (exeDay in executionDays)
         {
-            val chunk = JournalChunkDAO(exeDay, 1)
-            for (person in personsList)
+            chunkList.add(JournalChunkDAO(exeDay, 1))
+        }
+
+        val leftPerson = Random.nextInt(personsList.indices)
+        var newPerson: Int
+
+        do
+        {
+            newPerson = Random.nextInt(personsList.indices)
+        }
+        while (newPerson == leftPerson)
+
+        for ((id, person) in personsList.withIndex())
+        {
+            when (id)
             {
-                chunk.data.add(JournalChunkDataDAO(person.surname, person.name, getRandomCellData()))
+                leftPerson -> generateRandomLeftPeopleData(person, chunkList, executionDays)
+                newPerson -> generateRandomNewPeopleData(person, chunkList, executionDays)
+                else -> generateCommonPeopleData(person, chunkList, executionDays)
             }
-            chunkList.add(chunk)
         }
 
         chunkList.forEach { chunk ->
             getDb().executeTransaction {
                 it.copyToRealm(chunk)
             }
+        }
+    }
+
+    private fun generateRandomLeftPeopleData(person: Person, chunkList: MutableList<JournalChunkDAO>, executionDays: List<Date>)
+    {
+        for (i in executionDays.indices)
+        {
+            if (i !in ((executionDays.indices.last - 2) .. executionDays.indices.last))
+            {
+                chunkList[i].data.add(JournalChunkDataDAO(person, getRandomCellData()))
+            }
+        }
+    }
+
+    private fun generateRandomNewPeopleData(person: Person, chunkList: MutableList<JournalChunkDAO>, executionDays: List<Date>)
+    {
+        for (i in executionDays.indices)
+        {
+            if (i !in 0..2)
+            {
+                chunkList[i].data.add(JournalChunkDataDAO(person, getRandomCellData()))
+            }
+        }
+    }
+
+    private fun generateCommonPeopleData(person: Person, chunkList: MutableList<JournalChunkDAO>, executionDays: List<Date>)
+    {
+        for (i in executionDays.indices)
+        {
+            chunkList[i].data.add(JournalChunkDataDAO(person, getRandomCellData()))
         }
     }
 
@@ -148,7 +192,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
     private fun generateExecutionDays(): List<Date>
     {
         val executionsDays: MutableList<Date> = LinkedList()
-        val executionsCount = Random.nextInt(5..9)
+        val executionsCount = Random.nextInt(5..10)
 
         val generationPeriod = DateTimeTz.nowLocal() - 1.months
         for (i in 1..executionsCount)

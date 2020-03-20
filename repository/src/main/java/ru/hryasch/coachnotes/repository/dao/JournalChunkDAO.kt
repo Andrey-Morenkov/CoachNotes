@@ -12,6 +12,7 @@ import io.realm.annotations.Required
 import ru.hryasch.coachnotes.domain.journal.data.CellData
 import ru.hryasch.coachnotes.domain.journal.data.ChunkPersonName
 import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
+import ru.hryasch.coachnotes.domain.person.Person
 
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.converters.daoDateFormat
@@ -35,6 +36,13 @@ open class JournalChunkDataDAO(): RealmObject()
     {
         this.name = name
         this.surname = surname
+        this.mark = mark.toDAO().serialize()
+    }
+
+    constructor(personInfo: Person, mark: CellData): this()
+    {
+        this.name = personInfo.name
+        this.surname = personInfo.surname
         this.mark = mark.toDAO().serialize()
     }
 

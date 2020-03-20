@@ -160,6 +160,8 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             }
         }
 
+        postProcessCells(cells)
+
         val cellsList: MutableList<MutableList<CellData?>> = ArrayList()
         cells.forEach {
             cellsList.add(it.toMutableList())
@@ -170,6 +172,68 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
     private fun generateEmptyCellData(): CellData? = null
     private fun generateNoExistData(): CellData = NoExistData()
+
+    private fun postProcessCells(cells: Array<Array<CellData?>>)
+    {
+        for (row in cells.indices)
+        {
+            val personHasNoExistData = cells[row].find { it is NoExistData }
+            if (personHasNoExistData == null)
+            {
+                e("cells[$row] has NO NoExist data")
+                continue
+            }
+
+            e("cells[$row] has NoExist data")
+
+            var firstDataIndex = -1
+            var lastDataIndex = -1
+            for (col in cells[row].indices)
+            {
+                if (cells[row][col] != null && cells[row][col] !is NoExistData)
+                {
+                    if (firstDataIndex == -1)
+                    {
+                        firstDataIndex = col
+                    }
+                    lastDataIndex = col
+                }
+            }
+
+            i("cells[$row]: first DataIndex = $firstDataIndex, last DataIndex = $lastDataIndex")
+
+            var firstNoExistDataIndex = -1
+            var lastNoExistDataIndex = -1
+            for (col in cells[row].indices)
+            {
+                if (cells[row][col] is NoExistData)
+                {
+                    if (firstNoExistDataIndex == -1)
+                    {
+                        firstNoExistDataIndex = col
+                    }
+                    lastNoExistDataIndex = col
+                }
+            }
+
+            i("cells[$row]: first NoExistDataIndex = $firstNoExistDataIndex, last NoExistDataIndex = $lastNoExistDataIndex")
+
+            if (firstNoExistDataIndex < firstDataIndex)
+            {
+                for (col in 0 until firstDataIndex)
+                {
+                    cells[row][col] = NoExistData()
+                }
+            }
+            if (lastDataIndex < lastNoExistDataIndex)
+            {
+                for (col in lastDataIndex + 1 until cells[row].size)
+                {
+                    cells[row][col] = NoExistData()
+                }
+            }
+        }
+    }
 }
 
 private fun YearMonth.isHistorical(): Boolean = this.month != DateTime.nowLocal().month
