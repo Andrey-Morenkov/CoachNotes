@@ -72,7 +72,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
 
         generateNames(chunks, groupPeople, period)?.also { tableData.rowHeadersData.addAll(it) } ?: return null
-        tableData.cellsData.addAll(generateCellData(chunks, tableData.rowHeadersData, tableData.columnHeadersData))
+        tableData.cellsData.addAll(generateCellData(chunks, tableData.rowHeadersData, tableData.columnHeadersData, period))
 
         return tableData
     }
@@ -127,7 +127,8 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
     private fun generateCellData(chunks: List<JournalChunk>?,
                                  allPeople: List<RowHeaderData>,
-                                 days: List<ColumnHeaderData>): MutableList<MutableList<CellData?>>
+                                 days: List<ColumnHeaderData>,
+                                 period: YearMonth): MutableList<MutableList<CellData?>>
     {
         val cells = Array(allPeople.size) { arrayOfNulls<CellData?>(days.size)}
 
@@ -160,7 +161,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             }
         }
 
-        postProcessCells(cells)
+        postProcessCells(cells, period, allPeople)
 
         val cellsList: MutableList<MutableList<CellData?>> = ArrayList()
         cells.forEach {
@@ -173,7 +174,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     private fun generateEmptyCellData(): CellData? = null
     private fun generateNoExistData(): CellData = NoExistData()
 
-    private fun postProcessCells(cells: Array<Array<CellData?>>)
+    private fun postProcessCells(cells: Array<Array<CellData?>>, period: YearMonth, allPeople: List<RowHeaderData>)
     {
         for (row in cells.indices)
         {
@@ -228,6 +229,15 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             if (lastDataIndex < lastNoExistDataIndex)
             {
                 for (col in lastDataIndex + 1 until cells[row].size)
+                {
+                    cells[row][col] = NoExistData()
+                }
+            }
+
+            if (!period.isHistorical() && allPeople[row].person.id == -1)
+            {
+                val startCol = DateTime.nowLocal().dayOfMonth - 1
+                for (col in startCol until cells[row].size)
                 {
                     cells[row][col] = NoExistData()
                 }

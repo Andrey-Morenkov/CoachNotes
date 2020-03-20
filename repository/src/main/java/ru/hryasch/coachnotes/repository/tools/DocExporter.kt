@@ -22,6 +22,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.math.BigInteger
 import java.util.*
+import kotlin.collections.HashSet
 import kotlin.math.roundToLong
 
 
@@ -147,7 +148,7 @@ private object XWPFHelper: KoinComponent
     suspend fun createTable(document: XWPFDocument, chunks: List<JournalChunk>)
     {
         val table = document.createTable()
-        createTableSkeleton(table, chunks.size, chunks[0].content.size) //hotfix
+        createTableSkeleton(table, chunks.size, calculatePeopleCount(chunks))
         tuneSkeletonTable(table, chunks.size)
         fillTunedTable(table, chunks)
     }
@@ -174,19 +175,19 @@ private object XWPFHelper: KoinComponent
 
         // Set custom № column width
         val widNum: CTTblWidth = table.getRow(0).getCell(0).ctTc.addNewTcPr().addNewTcW().apply { w = BigInteger.valueOf(0.75.cm().toTwip()) }
-        i("TableColumn(0): set width = ${widNum.w.toLong()}TWips")
+        d("TableColumn(0): set width = ${widNum.w.toLong()}TWips")
 
         // Set custom FullName column width
         val widFN : CTTblWidth = table.getRow(0).getCell(1).ctTc.addNewTcPr().addNewTcW().apply { w = BigInteger.valueOf(5.3.cm().toTwip()) }
-        i("TableColumn(1): set width = ${widFN.w.toLong()}TWips")
+        d("TableColumn(1): set width = ${widFN.w.toLong()}TWips")
 
         val chunkColumnsWidth = (table.ctTbl.tblPr.tblW.w.toLong() - widNum.w.toLong() - widFN.w.toLong()).toDouble() / chunksCount
 
-        i("TableWidth = ${table.ctTbl.tblPr.tblW.w.toLong()} tw: [№:${widNum.w}tw, FN:${widFN.w}tw, $chunksCount columns:${chunkColumnsWidth}tw]")
+        d("TableWidth = ${table.ctTbl.tblPr.tblW.w.toLong()} tw: [№:${widNum.w}tw, FN:${widFN.w}tw, $chunksCount columns:${chunkColumnsWidth}tw]")
 
         for (chunkColumn in 0 until chunksCount)
         {
-            i("TableColumn(${chunkColumn + 2}): set width = ${BigInteger.valueOf(chunkColumnsWidth.toLong())} TWips")
+            d("TableColumn(${chunkColumn + 2}): set width = ${BigInteger.valueOf(chunkColumnsWidth.toLong())} TWips")
             table.getRow(0).getCell(chunkColumn + 2).ctTc.addNewTcPr().addNewTcW().w = BigInteger.valueOf(chunkColumnsWidth.toLong())
         }
     }
@@ -280,7 +281,14 @@ private object XWPFHelper: KoinComponent
         val markStartColumn = 2
         val markStartRow = 4
 
-        for ((j, person) in chunksSorted[0].content.keys.withIndex())
+        val allPeople: MutableSet<ChunkPersonName> = HashSet()
+        chunks.forEach {
+            allPeople.addAll(it.content.keys)
+        }
+
+        val allPeopleSortedList = allPeople.toList().sorted()
+
+        for ((j, person) in allPeopleSortedList.withIndex())
         {
             table.getRow(fullNameStartRow + j).getCell(1).paragraphs[0]
                 .also { it.applyFullNameStyle() }
@@ -301,13 +309,42 @@ private object XWPFHelper: KoinComponent
                 .also { it.applyTableStyle() }
                 .apply { setText("${i + 1}") }
 
-            for ((j, entry) in chunk.content.values.withIndex())
+            for ((j, person) in allPeopleSortedList.withIndex())
             {
+                var mark = ""
+                val chunkEntry = chunk.content.filter { it.key == person }
+                if (chunkEntry.isEmpty())
+                {
+                    mark = "---"
+                }
+                else
+                {
+                    mark = chunkEntry.values.first()?.toDoc() ?: ""
+                }
+
                 table.getRow(markStartRow + j).getCell(markStartColumn + i).paragraphs[0]
                     .createRun()
                     .also { it.applyTableStyle() }
-                    .apply { setText( entry?.toDoc() ?: "") }
+                    .apply { setText(mark) }
             }
+
+            /*
+            for ((j, entry) in chunk.content.entries.withIndex())
+            {
+                var mark = ""
+                mark = if (entry.key == allPeopleSortedList[j])
+                        {
+                            entry.value?.toDoc() ?: ""
+                        }
+                        else "---"
+
+                table.getRow(markStartRow + j).getCell(markStartColumn + i).paragraphs[0]
+                    .createRun()
+                    .also { it.applyTableStyle() }
+                    .apply { setText(mark) }
+            }
+
+             */
         }
     }
 
@@ -322,6 +359,15 @@ private object XWPFHelper: KoinComponent
         pageMar.right  = BigInteger.valueOf(right.toTwip())
     }
      */
+
+    private fun calculatePeopleCount(chunks: List<JournalChunk>): Int
+    {
+        val allPeople: MutableSet<ChunkPersonName> = HashSet()
+        chunks.forEach {
+            allPeople.addAll(it.content.keys)
+        }
+        return allPeople.size
+    }
 }
 
 private fun CellData.toDoc(): String?
