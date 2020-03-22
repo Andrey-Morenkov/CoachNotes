@@ -111,16 +111,20 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
         chunks?.forEach {
             it.content.forEach { entry ->
-                allPeople.add(PersonImpl(entry.key.surname, entry.key.name, -1, -1))
+                if (allPeople.find { it.surname == entry.key.surname && it.name == entry.key.name } == null)
+                {
+                    allPeople.add(PersonImpl(entry.key.surname, entry.key.name, -1, -1))
+                }
             }
         }
 
         val headers: MutableList<RowHeaderData> = LinkedList()
-        allPeople.forEach {
-            headers.add(RowHeaderData(it))
-        }
 
-        headers.sortWith( compareBy { it.person } )
+        var number = 1
+        allPeople.toList().sorted().forEach {
+            headers.add(RowHeaderData(it, number))
+            number++
+        }
 
         return headers
     }

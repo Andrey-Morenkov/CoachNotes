@@ -313,14 +313,14 @@ private object XWPFHelper: KoinComponent
             {
                 var mark = ""
                 val chunkEntry = chunk.content.filter { it.key == person }
-                if (chunkEntry.isEmpty())
-                {
-                    mark = "---"
-                }
-                else
-                {
-                    mark = chunkEntry.values.first()?.toDoc() ?: ""
-                }
+                mark = if (chunkEntry.isEmpty())
+                       {
+                           "---"
+                       }
+                       else
+                       {
+                           chunkEntry.values.first()?.toDoc() ?: ""
+                       }
 
                 table.getRow(markStartRow + j).getCell(markStartColumn + i).paragraphs[0]
                     .createRun()

@@ -18,6 +18,6 @@ class ColumnHeaderViewHolder(columnHeaderItem: View) : AbstractViewHolder(column
     fun setModel(model: ColumnHeaderModel)
     {
         dayNumber.text = model.data.timestamp.day.toString()
-        dayOfWeek.text = daysOfWeek[model.data.timestamp.dayOfWeek.index0]
+        dayOfWeek.text = daysOfWeek[model.data.timestamp.dayOfWeek.index0Monday]
     }
 }

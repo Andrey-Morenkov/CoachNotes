@@ -60,6 +60,6 @@ class NoExistData(): CellData()
 }
 
 data class ColumnHeaderData(var timestamp: Date)
-data class RowHeaderData(val person: Person)
+data class RowHeaderData(val person: Person, val number: Int)
 
 

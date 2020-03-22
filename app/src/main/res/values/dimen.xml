@@ -36,7 +36,7 @@
     // Journal table
         <dimen name="journal_table_column_header_width">55dp</dimen>
         <dimen name="journal_table_column_header_height">80dp</dimen>
-        <dimen name="journal_table_row_header_width">160dp</dimen>
+        <dimen name="journal_table_row_header_width">180dp</dimen>
         <dimen name="journal_table_row_header_height">55dp</dimen>
 
         <dimen name="journal_table_separator_width">5px</dimen>
