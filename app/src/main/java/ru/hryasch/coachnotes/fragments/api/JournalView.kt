@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.fragments.api
 
+import com.soywiz.klock.Date
 import moxy.MvpView
 import moxy.viewstate.strategy.*
 
@@ -19,11 +20,17 @@ interface JournalView: MvpView
 
     // Permanent state (level 1)
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun setPeriod(month: String, year:Int)
+    fun setPeriod(month: String, year: Int)
+
+    @StateStrategyType(AddToEndSingleStrategy::class)
+    fun lockJournal(isLocked: Boolean? = true)
 
     // Timed events (level 2)
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun showSavingJournalNotification(isFinished: Boolean?) //hotfix with null to dismiss this
+    fun showSavingJournalNotification(isFinished: Boolean? = true) //hotfix with null to dismiss this
+
+    @StateStrategyType(AddToEndSingleStrategy::class)
+    fun showDeleteColNotification(dateString: String?, col: Int = -1)
 
     // Runtime events (level 3)
     @StateStrategyType(SkipStrategy::class)

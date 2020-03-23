@@ -30,6 +30,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     private val tableHelper: TableHelper = TableHelper()
     private lateinit var findingTableJob: Job
     private var chosenPeriod: YearMonth = DateTime.now().yearMonth
+    private var isJournalLocked: Boolean = true
 
     init
     {
@@ -40,6 +41,18 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     {
         tableHelper.onCellCLicked(col, row)
         viewState.refreshData()
+    }
+
+    override fun onCellLongPressed(col: Int, row: Int)
+    {
+        tableHelper.onCellLongPressed(col, row)
+        viewState.refreshData()
+    }
+
+    override fun onColumnLongPressed(col: Int)
+    {
+        val date = tableHelper.tableModel.columnHeaderContent[col].data.timestamp
+        viewState.showDeleteColNotification(date.format("dd/MM/yyyy"), col)
     }
 
     override fun onExportButtonClicked()
@@ -56,6 +69,12 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             journalInteractor.exportJournal(chosenPeriod, tableHelper.getGroupId())
             viewState.showSavingJournalNotification(true)
         }
+    }
+
+    override fun onLockUnlockJournal()
+    {
+        isJournalLocked = !isJournalLocked
+        viewState.lockJournal(isJournalLocked)
     }
 
     override fun onJournalSaveNotificationDismiss()
@@ -80,6 +99,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         //TODO: custom strategy
         viewState.waitingState()
         viewState.setPeriod(month, year)
+        viewState.lockJournal(null)
 
         tableHelper.onChangePeriod()
 
@@ -112,7 +132,23 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             withContext(Dispatchers.Main)
             {
                 viewState.setPeriod(month, year)
+
+                isJournalLocked = true
+                viewState.lockJournal(isJournalLocked)
             }
+        }
+    }
+
+    override fun deleteColumnData(col: Int?)
+    {
+        if (col == null)
+        {
+            viewState.showDeleteColNotification(null)
+        }
+        else
+        {
+            tableHelper.onColumnLongPressed(col)
+            viewState.refreshData()
         }
     }
 
@@ -173,15 +209,77 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         }
 
         @Synchronized
+        fun onColumnLongPressed(col: Int)
+        {
+            tableModel.cellContent.forEach {
+                val data = it[col].data
+                if (data !is NoExistData)
+                {
+                    it[col].data = null
+                }
+            }
+            chunksStates[col] = 0
+            saveChunkOnBackground(col)
+        }
+
+        @Synchronized
+        fun onCellLongPressed(col: Int, row: Int)
+        {
+            if (!isClickedTodayColumn(col) && isJournalLocked)
+            {
+                return
+            }
+
+            val cell = tableModel.cellContent[row][col]
+            when (cell.data)
+            {
+                is PresenceData,
+                is AbsenceData ->
+                {
+                    cell.data = AbsenceData("Б")
+                    saveChunkOnBackground(col)
+                }
+
+                is UnknownData ->
+                {
+                    chunksStates[col]++
+                    cell.data = AbsenceData("Б")
+                    saveChunkOnBackground(col)
+                }
+
+                is NoExistData -> { /* nothing */ }
+
+                else ->
+                {
+                    chunksStates[col] = 1
+                    for (i in 0 until tableModel.cellContent.size) // for each row
+                    {
+                        if (i != row && tableModel.cellContent[i][col].data !is NoExistData)
+                        {
+                            tableModel.cellContent[i][col].data = UnknownData()
+                        }
+                    }
+                    cell.data = AbsenceData("Б")
+                    saveChunkOnBackground(col)
+                }
+            }
+        }
+
+        @Synchronized
         fun onCellCLicked(col: Int, row: Int)
         {
+            if (!isClickedTodayColumn(col) && isJournalLocked)
+            {
+                return
+            }
+
             val cell = tableModel.cellContent[row][col]
             when (cell.data)
             {
                 is PresenceData ->
                 {
                     cell.data = AbsenceData()
-                    saveChunkOnBackground(col, row)
+                    saveChunkOnBackground(col)
                 }
 
                 is AbsenceData ->
@@ -202,26 +300,21 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     {
                         cell.data = UnknownData()
                     }
-                    saveChunkOnBackground(col, row)
+                    saveChunkOnBackground(col)
                 }
 
                 is UnknownData ->
                 {
                     chunksStates[col]++
-                    i("chunksStates[$col] = ${chunksStates[col]}")
                     cell.data = PresenceData()
-                    saveChunkOnBackground(col, row)
+                    saveChunkOnBackground(col)
                 }
 
-                is NoExistData ->
-                {
-                    //Nothing
-                }
+                is NoExistData -> { /* nothing */ }
 
                 else -> //null
                 {
                     chunksStates[col] = 1
-                    i("chunksStates[$col] = ${chunksStates[col]}")
                     for (i in 0 until tableModel.cellContent.size) // for each row
                     {
                         if (i != row && tableModel.cellContent[i][col].data !is NoExistData)
@@ -230,7 +323,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                         }
                     }
                     cell.data = PresenceData()
-                    saveChunkOnBackground(col, row)
+                    saveChunkOnBackground(col)
                 }
             }
         }
@@ -252,7 +345,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         }
 
         @Synchronized
-        private fun saveChunkOnBackground(col: Int, row: Int)
+        private fun saveChunkOnBackground(col: Int)
         {
             i("saveChunkOnBackground")
             val day = tableModel.columnHeaderContent[col].data.timestamp.day
@@ -344,5 +437,6 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             }
         }
 
+        private fun isClickedTodayColumn(col: Int): Boolean = tableModel.columnHeaderContent[col].data.timestamp == DateTime.nowLocal().local.date
     }
 }

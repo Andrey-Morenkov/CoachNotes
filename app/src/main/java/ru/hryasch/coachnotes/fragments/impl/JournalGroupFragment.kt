@@ -1,7 +1,6 @@
 package ru.hryasch.coachnotes.fragments.impl
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -23,13 +22,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.nabinbhandari.android.permissions.PermissionHandler
 import com.nabinbhandari.android.permissions.Permissions
 import com.pawegio.kandroid.*
+import com.soywiz.klock.*
 import com.soywiz.klock.Date
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.DateTimeTz
 import com.tingyik90.snackprogressbar.SnackProgressBar
 import com.tingyik90.snackprogressbar.SnackProgressBarManager
 import kotlinx.android.synthetic.main.fragment_journal.*
-import kotlinx.coroutines.withContext
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.android.ext.android.get
@@ -39,12 +36,14 @@ import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
+import ru.hryasch.coachnotes.domain.journal.data.NoExistData
 import ru.hryasch.coachnotes.domain.journal.data.UnknownData
 import ru.hryasch.coachnotes.fragments.api.JournalView
 import ru.hryasch.coachnotes.journal.table.TableAdapter
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.impl.JournalPresenterImpl
 import java.io.File
+import java.util.*
 
 class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 {
@@ -52,6 +51,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     lateinit var presenter: JournalPresenterImpl
 
     private lateinit var buttonExportJournal: AppCompatImageButton
+    private lateinit var buttonLock: AppCompatImageButton
 
     private lateinit var viewJournalTable: TableView
     private lateinit var tableAdapter: TableAdapter
@@ -68,6 +68,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     private val snackProgressBarManager by lazy { SnackProgressBarManager(activity!!.findViewById(R.id.home_container), lifecycleOwner = this) }
 
     private val monthNames: Array<String> = get(named("months_RU"))
+    private val dayOfWeekLongNames: Array<String> = get(named("daysOfWeekLong_RU"))
 
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -77,6 +78,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         val layout = inflater.inflate(R.layout.fragment_journal, container, false)
 
         buttonExportJournal = layout.findViewById(R.id.journalButtonShare)
+        buttonLock = layout.findViewById(R.id.journalButtonLock)
 
         spinnerLoadingTable = layout.findViewById(R.id.journalProgressBar)
         noDataLabel = layout.findViewById(R.id.journalTextViewNoData)
@@ -87,7 +89,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         textViewPeriod = layout.findViewById(R.id.journalTextViewPeriod)
 
         okJournalShareClickListener = JournalShareOkListener(container!!)
-        errorJournalShareClickListener = JournalShareErrorListener(container)
+        errorJournalShareClickListener = JournalShareErrorListener()
 
         val toolbar: Toolbar = layout.findViewById(R.id.journalToolbar)
         toolbar.title = "Демо версия"
@@ -117,7 +119,36 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                 }
             })
 
+        buttonLock.setOnClickListener {
+            presenter.onLockUnlockJournal()
+        }
+
         return layout
+    }
+
+    override fun lockJournal(isLocked: Boolean?)
+    {
+        when (isLocked)
+        {
+            true ->
+            {
+                buttonLock.visible = true
+                buttonLock.setImageResource(R.drawable.ic_lock)
+                DrawableCompat.wrap(buttonLock.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorText))
+            }
+
+            false ->
+            {
+                buttonLock.visible = true
+                buttonLock.setImageResource(R.drawable.ic_unlock)
+                DrawableCompat.wrap(buttonLock.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+            }
+
+            else ->
+            {
+                buttonLock.visible = false
+            }
+        }
     }
 
     override fun waitingState()
@@ -201,6 +232,36 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
     }
 
+    override fun showDeleteColNotification(dateString: String?, col: Int)
+    {
+        if (dateString == null)
+        {
+            return
+        }
+
+        val date = DateFormat("dd/MM/yyyy").parse(dateString)
+
+        val dialog = MaterialAlertDialogBuilder(this@JournalGroupFragment.context!!)
+            .setTitle("Удаление столбца")
+            .setMessage("Вы уверены, что хотите удалить данные за ${dayOfWeekLongNames[date.dayOfWeek.index0Monday].toLowerCase(Locale("ru"))}, ${date.format("dd.MM.yyyy")} ?")
+            .setPositiveButton("Ок") {
+                    dialog, _ ->
+                dialog.cancel()
+                presenter.deleteColumnData(col)
+            }
+            .setNegativeButton("Отмена") {
+                    dialog, _ -> dialog.cancel()
+            }
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
+        }
+
+        dialog.show()
+    }
+
     override fun showingState(tableContent: TableModel?)
     {
         i("-- Showing State --")
@@ -255,7 +316,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     {
         tableAdapter.tableContent.cellContent.forEach {
             it.forEach {
-                if (it.data != null)
+                if (it.data != null && it.data !is NoExistData)
                 {
                     return@isEmpty false;
                 }
@@ -294,7 +355,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         {
             i("clicked OK")
             Permissions
-                .check(container!!.context,
+                .check(container.context,
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
                     container.context.getString(R.string.permission_external_storage_rationale),
                     Permissions.Options()
@@ -312,7 +373,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
     }
 
-    inner class JournalShareErrorListener(private val container: ViewGroup, private var message: String = "Ошибка"): View.OnClickListener
+    inner class JournalShareErrorListener(private var message: String = "Ошибка"): View.OnClickListener
     {
         fun setMessage(message: String)
         {
@@ -327,7 +388,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                             .setTitle("Невозможно экспортировать журнал")
                             .setMessage(message)
                             .setPositiveButton("Ок") {
-                                dialog, id -> dialog.cancel()
+                                dialog, _ -> dialog.cancel()
                             }
                             .create()
             dialog.setOnShowListener {

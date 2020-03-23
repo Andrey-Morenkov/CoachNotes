@@ -311,9 +311,8 @@ private object XWPFHelper: KoinComponent
 
             for ((j, person) in allPeopleSortedList.withIndex())
             {
-                var mark = ""
                 val chunkEntry = chunk.content.filter { it.key == person }
-                mark = if (chunkEntry.isEmpty())
+                var mark = if (chunkEntry.isEmpty())
                        {
                            "---"
                        }

@@ -20,7 +20,7 @@
     <color name="colorJournalSelectedShadow">@color/colorPrimaryDarkHighlight</color>
     <color name="colorJournalSelected">@color/colorSelected</color>
 
-
+    <color name="colorJournalWeekend">#F44336</color>
 
     <color name="colorJournalAbsenceGeneral">#F86F65</color>
     <color name="colorJournalAbsenceSpecial">#F2CF65</color>
