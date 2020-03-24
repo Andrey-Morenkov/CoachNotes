@@ -85,6 +85,10 @@ dependencies
     implementation "org.koin:koin-android:$koin_version"
     implementation "org.koin:koin-androidx-scope:$koin_version"
 
+    // Navigation
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+
     // Circular Image View
     implementation "com.mikhaellopez:circularimageview:$circularimageview_version"
 

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragmentImpl">
+    <fragment
+        android:id="@+id/homeFragmentImpl"
+        android:name="ru.hryasch.coachnotes.fragments.impl.HomeFragmentImpl"
+        android:label="HomeFragmentImpl"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragmentImpl_to_personListFragment"
+            app:destination="@id/personListFragment" />
+        <action
+            android:id="@+id/action_homeFragmentImpl_to_journalGroupFragment3"
+            app:destination="@id/journalGroupFragment" />
+        <action
+            android:id="@+id/action_homeFragmentImpl_to_groupListFragment"
+            app:destination="@id/groupListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/groupListFragment"
+        android:name="ru.hryasch.coachnotes.fragments.impl.GroupListFragment"
+        android:label="GroupListFragment"
+        tools:layout="@layout/fragment_groups">
+        <action
+            android:id="@+id/action_groupListFragment2_to_groupInfoFragment"
+            app:destination="@id/groupInfoFragment" />
+        <action
+            android:id="@+id/action_groupListFragment2_to_groupEditFragment"
+            app:destination="@id/groupEditFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/groupInfoFragment"
+        android:name="ru.hryasch.coachnotes.fragments.impl.GroupInfoFragment"
+        android:label="GroupInfoFragment"
+        tools:layout="@layout/fragment_group_info">
+        <action
+            android:id="@+id/action_groupInfoFragment_to_groupEditFragment"
+            app:destination="@id/groupEditFragment" />
+        <action
+            android:id="@+id/action_groupInfoFragment_to_personEditFragment"
+            app:destination="@id/personEditFragment" />
+        <action
+            android:id="@+id/action_groupInfoFragment_to_personInfoFragment"
+            app:destination="@id/personInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/groupEditFragment"
+        android:name="ru.hryasch.coachnotes.fragments.impl.GroupEditFragment"
+        android:label="GroupEditFragment"
+        tools:layout="@layout/fragment_edit_group"/>
+    <fragment
+        android:id="@+id/personEditFragment"
+        android:name="ru.hryasch.coachnotes.fragments.impl.PersonEditFragment"
+        android:label="PersonEditFragment"
+        tools:layout="@layout/fragment_edit_person"/>
+    <fragment
+        android:id="@+id/personListFragment"
+        android:name="ru.hryasch.coachnotes.fragments.impl.PersonListFragment"
+        android:label="PersonListFragment"
+        tools:layout="@layout/fragment_persons">
+        <action
+            android:id="@+id/action_personListFragment_to_personEditFragment"
+            app:destination="@id/personEditFragment" />
+        <action
+            android:id="@+id/action_personListFragment_to_personInfoFragment"
+            app:destination="@id/personInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/personInfoFragment"
+        android:name="ru.hryasch.coachnotes.fragments.impl.PersonInfoFragment"
+        android:label="PersonInfoFragment"
+        tools:layout="@layout/fragment_person_info">
+        <action
+            android:id="@+id/action_personInfoFragment_to_personEditFragment"
+            app:destination="@id/personEditFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/journalGroupFragment"
+        android:name="ru.hryasch.coachnotes.fragments.impl.JournalGroupFragment"
+        android:label="JournalGroupFragment"
+        tools:layout="@layout/fragment_journal"/>
+</navigation>
