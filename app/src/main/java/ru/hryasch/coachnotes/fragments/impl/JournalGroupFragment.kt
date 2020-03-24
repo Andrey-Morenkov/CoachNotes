@@ -65,7 +65,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     private lateinit var okJournalShareClickListener: JournalShareOkListener
     private lateinit var errorJournalShareClickListener: JournalShareErrorListener
-    private val snackProgressBarManager by lazy { SnackProgressBarManager(activity!!.findViewById(R.id.home_container), lifecycleOwner = this) }
+    private val snackProgressBarManager by lazy { SnackProgressBarManager(activity!!.findViewById(R.id.nav_host_fragment), lifecycleOwner = this) }
 
     private val monthNames: Array<String> = get(named("months_RU"))
     private val dayOfWeekLongNames: Array<String> = get(named("daysOfWeekLong_RU"))

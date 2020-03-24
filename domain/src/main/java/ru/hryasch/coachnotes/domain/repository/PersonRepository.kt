@@ -8,4 +8,5 @@ interface PersonRepository
 {
     suspend fun getPerson(personId: PersonId): Person?
     suspend fun getPersonsByGroup(groupId: GroupId): List<Person>?
+    suspend fun getAllPeople(): List<Person>?
 }

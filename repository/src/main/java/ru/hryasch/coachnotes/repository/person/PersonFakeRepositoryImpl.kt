@@ -77,5 +77,23 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         }
     }
 
+    override suspend fun getAllPeople(): List<Person>?
+    {
+        if (initializingJob.isActive) { initializingJob.join() }
+
+        val db = getDb()
+        db.refresh()
+
+        val peopleList = db.where<PersonDAO>().findAll()
+        return if (peopleList.isEmpty())
+        {
+            null
+        }
+        else
+        {
+            peopleList.fromDAO()
+        }
+    }
+
     private fun getDb(): Realm = Realm.getInstance(get(named("persons_mock")))
 }

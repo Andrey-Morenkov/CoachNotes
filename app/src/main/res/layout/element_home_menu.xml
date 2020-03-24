@@ -22,11 +22,11 @@
         android:layout_marginBottom="8dp">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardView3"
+            android:id="@+id/homePersonsCard"
             android:layout_width="160dp"
             android:layout_height="100dp"
             app:cardBackgroundColor="@color/colorAccent"
-            app:layout_constraintEnd_toStartOf="@+id/cardView4"
+            app:layout_constraintEnd_toStartOf="@+id/homeGroupsCard"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -48,11 +48,11 @@
                     app:srcCompat="@drawable/ic_person" />
 
                 <TextView
-                    android:id="@+id/textView7"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/homeTextViewPersonsCount"
+                    android:layout_width="40dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/open_sans"
                     android:text="@string/home_screen_people_count_sample"
                     android:textColor="@color/colorText"
@@ -66,8 +66,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/people"
-                    app:layout_constraintStart_toStartOf="@+id/textView7"
-                    app:layout_constraintTop_toBottomOf="@+id/textView7" />
+                    app:layout_constraintStart_toStartOf="@+id/homeTextViewPersonsCount"
+                    app:layout_constraintTop_toBottomOf="@+id/homeTextViewPersonsCount" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guideline2"
@@ -82,18 +82,32 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     app:layout_constraintGuide_begin="72dp" />
+
+                <ProgressBar
+                    android:id="@+id/homeProgressBarPersonsCount"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="20dp"
+                    android:indeterminate="true"
+                    android:indeterminateTint="#FFFFFF"
+                    app:layout_constraintBottom_toTopOf="@+id/textView8"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardView4"
+            android:id="@+id/homeGroupsCard"
             android:layout_width="160dp"
             android:layout_height="100dp"
             app:cardBackgroundColor="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/cardView3"
+            app:layout_constraintStart_toEndOf="@+id/homePersonsCard"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -113,11 +127,11 @@
                     app:srcCompat="@drawable/ic_user_group" />
 
                 <TextView
-                    android:id="@+id/textView28"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/homeTextViewGroupsCount"
+                    android:layout_width="40dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/open_sans"
                     android:text="@string/home_screen_group_count_sample"
                     android:textColor="@color/colorText"
@@ -131,8 +145,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/groups"
-                    app:layout_constraintStart_toStartOf="@+id/textView28"
-                    app:layout_constraintTop_toBottomOf="@+id/textView28" />
+                    app:layout_constraintStart_toStartOf="@+id/homeTextViewGroupsCount"
+                    app:layout_constraintTop_toBottomOf="@+id/homeTextViewGroupsCount" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guideline9"
@@ -148,17 +162,32 @@
                     android:orientation="horizontal"
                     app:layout_constraintGuide_begin="29dp" />
 
+                <ProgressBar
+                    android:id="@+id/homeProgressBarGroupsCount"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:indeterminate="true"
+                    android:indeterminateTint="#FFFFFF"
+                    app:layout_constraintBottom_toTopOf="@+id/textView29"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/homeJournalsCard"
             android:layout_width="0dp"
             android:layout_height="100dp"
             android:layout_marginTop="12dp"
             app:cardBackgroundColor="@color/colorAccent"
-            app:layout_constraintEnd_toEndOf="@+id/cardView4"
-            app:layout_constraintStart_toStartOf="@+id/cardView4"
-            app:layout_constraintTop_toBottomOf="@+id/cardView4">
+            app:layout_constraintEnd_toEndOf="@+id/homeGroupsCard"
+            app:layout_constraintStart_toStartOf="@+id/homeGroupsCard"
+            app:layout_constraintTop_toBottomOf="@+id/homeGroupsCard">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

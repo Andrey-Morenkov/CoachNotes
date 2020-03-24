@@ -27,6 +27,7 @@
     <string name="phone">Телефон</string>
     <string name="available_soon">Еще не готово</string>
     <string name="no_data">Нет данных</string>
+    <string name="today">Сегодня</string>
 
     <string name="name">Имя</string>
     <string name="surname">Фамилия</string>
@@ -42,6 +43,7 @@
 
         // Home screen
         <string name="home_screen_my_schedule">График занятий</string>
+        <string name="home_screen_today_schedule_date">Сегодня:   %1$s, %2$d %3$s %4$d</string>
             // Samples
             <string name="home_screen_sample_name">Кондратьев Александр</string>
             <string name="home_screen_sample_position">Тренер</string>

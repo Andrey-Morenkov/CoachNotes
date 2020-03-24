@@ -34,6 +34,8 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
 
     override suspend fun getGroup(groupId: GroupId): Group?
     {
+        if (initializingJob.isActive) { initializingJob.join() }
+
         val db = getDb()
         db.refresh()
 
@@ -46,6 +48,7 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
     override suspend fun getAllGroups(): List<Group>?
     {
         if (initializingJob.isActive) { initializingJob.join() }
+
         val db = getDb()
         db.refresh()
 

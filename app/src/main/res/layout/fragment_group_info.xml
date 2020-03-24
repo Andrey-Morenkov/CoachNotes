@@ -49,6 +49,7 @@
                 android:layout_margin="@dimen/default_indent"
                 android:gravity="center"
                 android:text="@string/preview_group_name_sample"
+                android:textAlignment="center"
                 android:textSize="@dimen/group_info_user_input_text_size" />
 
             <include

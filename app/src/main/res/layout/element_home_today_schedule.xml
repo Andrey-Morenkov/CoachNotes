@@ -29,7 +29,7 @@
                 android:textSize="@dimen/home_screen_submenu_text_size" />
 
             <TextView
-                android:id="@+id/txtTodayScheduleDate"
+                android:id="@+id/homeTextViewTodayScheduleDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/home_screen_sample_today_date"
