@@ -8,35 +8,47 @@
     android:orientation="vertical"
     android:theme="@style/AppThemeDarkStatusBar">
 
-    <FrameLayout
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/groupsToolbar"
+        style="@style/DefaultToolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <include
-            android:id="@+id/toolbarGroupsScreen"
-            layout="@layout/toolbar_with_subtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:subtitleTextColor="@color/colorPrimaryLight"
-            app:title="@string/groups_screen_toolbar_title"
-            app:titleTextColor="@color/colorText" />
+        android:layout_height="wrap_content"
+        android:background="@color/colorBackground"
+        android:elevation="4dp"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:title="@string/groups_screen_toolbar_title">
 
         <ImageButton
-            android:id="@+id/buttonGroupsScreenAddGroup"
+            android:id="@+id/groupsButtonAddGroup"
             style="@style/ToolbarImageButton"
             app:srcCompat="@drawable/ic_group_add" />
-    </FrameLayout>
+
+    </androidx.appcompat.widget.Toolbar>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewGroupsScreenGroupsList"
+            android:id="@+id/groupsRecyclerViewGroupsList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:layout_editor_absoluteY="735dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="-16dp"
             tools:listitem="@layout/preview_group" />
+
+        <ProgressBar
+            android:id="@+id/groupsProgressBarLoading"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:layout_constraintBottom_toBottomOf="@+id/groupsRecyclerViewGroupsList"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/groupsRecyclerViewGroupsList"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.appbar.AppBarLayout>

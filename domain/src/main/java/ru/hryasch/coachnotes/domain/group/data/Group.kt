@@ -7,6 +7,7 @@ interface Group
 {
     val id: GroupId
     var name: String
-    var availableAge: Byte?
+    var availableAbsoluteAge: IntRange?
     val membersList: List<PersonId>
+    val isPaid: Boolean
 }

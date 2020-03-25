@@ -6,7 +6,8 @@ import java.util.*
 
 class GroupImpl(override val id: GroupId,
                 override var name: String,
-                override var availableAge: Byte? = null) : Group
+                override var availableAbsoluteAge: IntRange? = null,
+                override val isPaid: Boolean = false) : Group
 {
     override val membersList: MutableList<PersonId> = LinkedList()
 }

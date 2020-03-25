@@ -82,7 +82,7 @@ private class JournalDocument(val period: YearMonth,
 
     private suspend fun generateDocument(chunks: List<JournalChunk>): XWPFDocument
     {
-        return XWPFDocument().also { XWPFHelper.createHeader(it, period, group.availableAge!!.toInt(), coachName) }
+        return XWPFDocument().also { XWPFHelper.createHeader(it, period, 6, coachName) }
                              .also { XWPFHelper.createTable(it, chunks) }
                              .also { XWPFHelper.createFooter(it, coachName) }
     }
@@ -92,7 +92,7 @@ private class JournalDocument(val period: YearMonth,
         val monthNames: Array<String> by inject(named("months_RU"))
 
         val periodInfo = "${monthNames[period.month.index0].toLowerCase(Locale("ru"))} ${period.yearInt}"
-        val groupInfo = "${group.availableAge} лет"
+        val groupInfo = "${group.availableAbsoluteAge} лет"
 
         // "Кондратьев Январь 2020 6 лет.docx"
         val outputFile = File(saveDirectory, "$coachName $periodInfo $groupInfo.$fileExtension")

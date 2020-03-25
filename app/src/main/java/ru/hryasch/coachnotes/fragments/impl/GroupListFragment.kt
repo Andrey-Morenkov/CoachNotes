@@ -4,17 +4,65 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ProgressBar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import org.koin.core.KoinComponent
+import org.koin.core.get
+import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.domain.group.data.Group
+import ru.hryasch.coachnotes.fragments.api.GroupsView
+import ru.hryasch.coachnotes.groups.GroupsAdapter
+import ru.hryasch.coachnotes.groups.presenters.impl.GroupsPresenterImpl
 
-class GroupListFragment: MvpAppCompatFragment()
+class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
 {
+    @InjectPresenter
+    lateinit var presenter: GroupsPresenterImpl
+
+    private lateinit var groupsAdapter: GroupsAdapter
+
+    private lateinit var groupsView: RecyclerView
+    private lateinit var groupsLoading: ProgressBar
+    private lateinit var addNewGroup: ImageButton
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_groups, container, false)
 
+        groupsView = layout.findViewById(R.id.groupsRecyclerViewGroupsList)
+        groupsLoading = layout.findViewById(R.id.groupsProgressBarLoading)
+        addNewGroup = layout.findViewById(R.id.groupsButtonAddGroup)
+
         return layout
+    }
+
+    override fun setGroupsList(groupsList: List<Group>?)
+    {
+        if (groupsList == null)
+        {
+            groupsView.visibility = View.INVISIBLE
+            groupsLoading.visibility = View.VISIBLE
+        }
+        else
+        {
+            groupsView.visibility = View.VISIBLE
+            groupsLoading.visibility = View.INVISIBLE
+
+            groupsAdapter = get { parametersOf(groupsList) }
+            groupsView.adapter = groupsAdapter
+            groupsView.layoutManager = LinearLayoutManager(context)
+        }
+    }
+
+    override fun refreshData()
+    {
+        groupsAdapter.notifyDataSetChanged()
     }
 }

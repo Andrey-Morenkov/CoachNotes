@@ -31,6 +31,7 @@ class App : Application()
                     journalModule,
                     journalRepositoryModule,
                     realmRepositoriesModule,
+                    groupsModule,
                     toolsModule)
         }
 

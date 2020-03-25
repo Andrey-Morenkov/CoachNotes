@@ -73,6 +73,10 @@
         // Previews
 
             // Preview group
+            <string name="group_absolute_age_range_pattern">%1$s-%2$s г.р</string>
+            <string name="group_absolute_age_single_pattern">%1$s г.р</string>
+            <string name="group_relative_age_range_pattern">%1$s-%2$s\nлет</string>
+            <string name="group_relative_age_single_pattern">%1$s\nлет</string>
                 // Samples
                 <string name="preview_group_name_sample">Группа #1</string>
                 <string name="preview_group_group_size_sample">24</string>

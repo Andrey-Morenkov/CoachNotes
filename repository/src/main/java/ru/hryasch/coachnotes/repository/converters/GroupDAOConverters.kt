@@ -17,7 +17,7 @@ fun List<GroupDAO>.fromDAO(): List<Group>
 
 fun GroupDAO.fromDAO(): Group
 {
-    val group = GroupImpl(this.id!!, this.name!!, this.availableAge?.toByte())
+    val group = GroupImpl(this.id!!, this.name!!)
     this.members.forEach {
         group.membersList.add(it)
     }
