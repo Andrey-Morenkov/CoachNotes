@@ -6,6 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ProgressBar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import moxy.MvpAppCompatFragment
@@ -30,6 +34,8 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
     private lateinit var groupsLoading: ProgressBar
     private lateinit var addNewGroup: ImageButton
 
+    lateinit var navController: NavController
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
@@ -39,6 +45,17 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
         groupsView = layout.findViewById(R.id.groupsRecyclerViewGroupsList)
         groupsLoading = layout.findViewById(R.id.groupsProgressBarLoading)
         addNewGroup = layout.findViewById(R.id.groupsButtonAddGroup)
+
+        navController = container!!.findNavController()
+
+        val toolbar: Toolbar = layout.findViewById(R.id.groupsToolbar)
+        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
+
+        toolbar.setNavigationOnClickListener {
+            navController.navigateUp()
+        }
 
         return layout
     }

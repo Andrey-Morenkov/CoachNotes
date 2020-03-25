@@ -13,6 +13,7 @@ import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
+import ru.hryasch.coachnotes.repository.common.toAbsolute
 import ru.hryasch.coachnotes.repository.converters.fromDAO
 import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import kotlin.random.Random
@@ -67,7 +68,7 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
     {
         val db = getDb()
 
-        val group = GroupDAO(1, "платники", 6)
+        val group = GroupDAO(1, "Платники", true, 6.toAbsolute())
 
         repeat(20)
         {

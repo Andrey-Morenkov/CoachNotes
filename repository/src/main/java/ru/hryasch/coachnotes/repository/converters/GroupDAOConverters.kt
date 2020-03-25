@@ -17,7 +17,17 @@ fun List<GroupDAO>.fromDAO(): List<Group>
 
 fun GroupDAO.fromDAO(): Group
 {
-    val group = GroupImpl(this.id!!, this.name!!)
+    val lowAge = this.availableAgeLow
+    val highAge = this.availableAgeHigh
+
+    val group = GroupImpl(this.id!!, this.name!!, isPaid = this.isPaid)
+    if (lowAge != null)
+    {
+        val ageRange = IntRange(lowAge, highAge ?: lowAge)
+        group.availableAbsoluteAge = ageRange
+    }
+
+
     this.members.forEach {
         group.membersList.add(it)
     }
