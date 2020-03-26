@@ -1,8 +1,7 @@
 package ru.hryasch.coachnotes.domain.journal.data
 
 import com.soywiz.klock.Date
-import ru.hryasch.coachnotes.domain.common.PersonId
-import ru.hryasch.coachnotes.domain.person.Person
+import ru.hryasch.coachnotes.domain.person.data.Person
 
 sealed class CellData(val mark: String? = null)
 {

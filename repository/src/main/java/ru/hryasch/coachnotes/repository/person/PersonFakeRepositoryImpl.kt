@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.repository.person
 
+import com.github.javafaker.Bool
 import com.github.javafaker.Faker
 import com.pawegio.kandroid.d
 import io.realm.Realm
@@ -9,7 +10,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.inject
 import org.koin.core.qualifier.named
-import ru.hryasch.coachnotes.domain.person.Person
+import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
@@ -40,8 +41,8 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         {
             for (personId in group.membersList)
             {
-
-                val newPerson = PersonDAO(personId, group.id, faker.name().firstName(), faker.name().lastName())
+                val isPaid: Boolean = group.isPaid
+                val newPerson = PersonDAO(personId, faker.name().firstName(), faker.name().lastName(), group.id, isPaid)
                 d("Generated person: ${newPerson.name} ${newPerson.surname} (id: ${newPerson.id} / groupId: ${newPerson.groupId})")
 
                 getDb().executeTransaction {

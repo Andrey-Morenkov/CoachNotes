@@ -15,17 +15,19 @@ open class PersonDAO(): RealmObject()
     var id: PersonId? = null
 
     @Required
-    var groupId: GroupId? = null
-    @Required
     var name: String? = null
     @Required
     var surname: String? = null
 
-    constructor(id: PersonId, groupId: GroupId, name: String, surname: String): this()
+    var groupId: GroupId? = null
+    var isPaid: Boolean = false
+
+    constructor(id: PersonId, name: String, surname: String, groupId: GroupId? = null, isPaid: Boolean = false): this()
     {
         this.id = id
         this.groupId = groupId
         this.name = name
         this.surname = surname
+        this.isPaid = isPaid
     }
 }

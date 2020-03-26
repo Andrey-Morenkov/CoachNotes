@@ -27,8 +27,8 @@
             android:layout_width="@dimen/card_default_avatar_size"
             android:layout_height="@dimen/card_default_avatar_size"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="@dimen/card_default_avatar_to_corner_margin"
-            android:layout_marginBottom="@dimen/card_default_avatar_to_corner_margin"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             app:civ_border="false"
             app:civ_border_width="0dp"
             app:civ_circle_color="#1A000000"
@@ -41,37 +41,24 @@
             tools:srcCompat="@drawable/ic_person" />
 
         <TextView
-            android:id="@+id/textView14"
+            android:id="@+id/personTextViewFullName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/card_default_avatar_to_text_margin"
             android:text="@string/preview_person_name_sample"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline"
-            app:layout_constraintStart_toEndOf="@+id/circularImageView" />
+            android:textSize="18sp"
+            app:layout_constraintStart_toEndOf="@+id/circularImageView"
+            app:layout_constraintTop_toTopOf="@+id/circularImageView" />
 
         <TextView
-            android:id="@+id/textView16"
+            android:id="@+id/personTextViewGroupName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/preview_person_group_name_sample"
             android:textColor="@color/colorPrimaryLight"
-            app:layout_constraintBottom_toTopOf="@+id/guideline4"
-            app:layout_constraintStart_toStartOf="@+id/textView14" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="36dp" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="56dp" />
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/circularImageView"
+            app:layout_constraintStart_toStartOf="@+id/personTextViewFullName" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

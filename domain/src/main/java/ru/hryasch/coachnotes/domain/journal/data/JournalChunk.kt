@@ -2,7 +2,7 @@ package ru.hryasch.coachnotes.domain.journal.data
 
 import com.soywiz.klock.Date
 import ru.hryasch.coachnotes.domain.common.GroupId
-import ru.hryasch.coachnotes.domain.person.Person
+import ru.hryasch.coachnotes.domain.person.data.Person
 import java.util.*
 
 data class ChunkPersonName(val surname: String, val name: String): Comparable<ChunkPersonName>

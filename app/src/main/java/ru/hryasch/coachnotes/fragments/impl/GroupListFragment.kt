@@ -12,6 +12,7 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SortedList
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent

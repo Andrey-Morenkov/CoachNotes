@@ -2,7 +2,7 @@ package ru.hryasch.coachnotes.domain.repository
 
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
-import ru.hryasch.coachnotes.domain.person.Person
+import ru.hryasch.coachnotes.domain.person.data.Person
 
 interface PersonRepository
 {

@@ -13,7 +13,7 @@ import org.koin.core.get
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.journal.data.*
-import ru.hryasch.coachnotes.domain.person.Person
+import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.repository.common.GroupId

@@ -29,9 +29,9 @@ class App : Application()
             androidContext(this@App)
             modules(appModule,
                     journalModule,
-                    journalRepositoryModule,
                     realmRepositoriesModule,
                     groupsModule,
+                    peopleModule,
                     toolsModule)
         }
 

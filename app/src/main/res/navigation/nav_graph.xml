@@ -58,7 +58,7 @@
         tools:layout="@layout/fragment_edit_person"/>
     <fragment
         android:id="@+id/personListFragment"
-        android:name="ru.hryasch.coachnotes.fragments.impl.PersonListFragment"
+        android:name="ru.hryasch.coachnotes.fragments.impl.PeopleListFragment"
         android:label="PersonListFragment"
         tools:layout="@layout/fragment_persons">
         <action

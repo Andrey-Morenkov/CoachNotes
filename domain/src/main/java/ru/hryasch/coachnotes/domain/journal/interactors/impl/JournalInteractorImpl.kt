@@ -12,8 +12,8 @@ import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
-import ru.hryasch.coachnotes.domain.person.Person
-import ru.hryasch.coachnotes.domain.person.PersonImpl
+import ru.hryasch.coachnotes.domain.person.data.Person
+import ru.hryasch.coachnotes.domain.person.data.PersonImpl
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
@@ -113,7 +113,14 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             it.content.forEach { entry ->
                 if (allPeople.find { it.surname == entry.key.surname && it.name == entry.key.name } == null)
                 {
-                    allPeople.add(PersonImpl(entry.key.surname, entry.key.name, -1, -1))
+                    allPeople.add(
+                        PersonImpl(
+                            entry.key.surname,
+                            entry.key.name,
+                            -1,
+                            -1
+                        )
+                    )
                 }
             }
         }

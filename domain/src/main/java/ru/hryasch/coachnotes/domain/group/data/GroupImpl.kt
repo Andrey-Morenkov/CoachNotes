@@ -10,4 +10,11 @@ class GroupImpl(override val id: GroupId,
                 override val isPaid: Boolean = false) : Group
 {
     override val membersList: MutableList<PersonId> = LinkedList()
+
+    override fun compareTo(other: Group): Int
+    {
+        return "$id $name $isPaid".compareTo("${other.id} ${other.name} ${other.isPaid}")
+    }
+
+    override fun toString(): String = "$id: [$name ages = ${availableAbsoluteAge?.first} - ${availableAbsoluteAge?.last}]"
 }

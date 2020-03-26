@@ -67,6 +67,10 @@
             // Samples
             <string name="group_journal_screen_date_sample">Март 2020</string>
 
+        // Persons screen
+        <string name="persons_screen_toolbar_title">Мои ученики</string>
+        <string name="person_full_name_pattern">%1$s %2$s</string>
+
 
     // Items
 

@@ -6,12 +6,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SortedList
 import com.soywiz.klock.DateTime
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.group.data.Group
 
-class GroupsAdapter(private val groupsList: List<Group>): RecyclerView.Adapter<GroupViewHolder>()
+class GroupsAdapter(groupsList: List<Group>): RecyclerView.Adapter<GroupViewHolder>()
 {
+    private val groupsList: List<Group> = groupsList.sorted()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupViewHolder
     {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.preview_group, parent, false)
