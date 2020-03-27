@@ -71,6 +71,9 @@
         <string name="persons_screen_toolbar_title">Мои ученики</string>
         <string name="person_full_name_pattern">%1$s %2$s</string>
 
+        // Person info screen
+        <string name="person_info_screen_toolbar_title">Профиль ученика</string>
+
 
     // Items
 
@@ -111,6 +114,8 @@
                 <string name="group_members_people_count_sample">21</string>
     
             // Person header element
+            <string name="person_info_header_name_surname_pattern">%1$s %2$s</string>
+            <string name="person_info_header_age_pattern">%1$d лет</string>
                 // Samples
                 <string name="person_header_name_surname_sample">Иван Иванович</string>
                 <string name="person_header_patronymic_sample">Иванов</string>
@@ -125,6 +130,9 @@
 
             // Person parent info element
                 <string name="person_parent_info_label">Ответственные лица</string>
+
+            // Person common info element
+                <string name="person_common_info_birthday_sample">05/10/2010</string>
 
             // Single parent info element
                 // Samples

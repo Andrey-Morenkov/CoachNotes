@@ -11,7 +11,7 @@
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragmentImpl_to_personListFragment"
-            app:destination="@id/personListFragment" />
+            app:destination="@id/peopleListFragment" />
         <action
             android:id="@+id/action_homeFragmentImpl_to_journalGroupFragment3"
             app:destination="@id/journalGroupFragment" />
@@ -57,15 +57,15 @@
         android:label="PersonEditFragment"
         tools:layout="@layout/fragment_edit_person"/>
     <fragment
-        android:id="@+id/personListFragment"
+        android:id="@+id/peopleListFragment"
         android:name="ru.hryasch.coachnotes.fragments.impl.PeopleListFragment"
-        android:label="PersonListFragment"
+        android:label="PeopleListFragment"
         tools:layout="@layout/fragment_persons">
         <action
             android:id="@+id/action_personListFragment_to_personEditFragment"
             app:destination="@id/personEditFragment" />
         <action
-            android:id="@+id/action_personListFragment_to_personInfoFragment"
+            android:id="@+id/action_peopleListFragment_to_personInfoFragment"
             app:destination="@id/personInfoFragment" />
     </fragment>
     <fragment
@@ -76,6 +76,9 @@
         <action
             android:id="@+id/action_personInfoFragment_to_personEditFragment"
             app:destination="@id/personEditFragment" />
+        <argument
+            android:name="personData"
+            app:argType="ru.hryasch.coachnotes.domain.person.data.Person" />
     </fragment>
     <fragment
         android:id="@+id/journalGroupFragment"

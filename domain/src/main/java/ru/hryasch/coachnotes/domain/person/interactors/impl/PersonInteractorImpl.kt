@@ -4,6 +4,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.common.GroupId
+import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
@@ -29,5 +30,16 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
             res[it.id] = it.name
         }
         return res
+    }
+
+    override suspend fun addOrUpdatePerson(person: Person)
+    {
+        peopleRepository.addOrUpdatePerson(person)
+    }
+
+    override suspend fun getMaxPersonId(): PersonId
+    {
+        val maxId = peopleRepository.getAllPeople()?.map { it.id }?.max()
+        return maxId ?: 0
     }
 }

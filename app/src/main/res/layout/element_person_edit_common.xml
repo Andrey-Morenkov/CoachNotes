@@ -35,6 +35,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editPersonEditTextSurname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/surname" />
@@ -54,6 +55,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textInput1">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editPersonEditTextName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/name" />
@@ -71,6 +73,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textInput2">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editPersonEditTextPatronymic"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/patronymic" />
@@ -90,6 +93,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textInput3">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editPersonEditTextBirthday"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/birthday" />
@@ -108,6 +112,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textInput4">
 
             <com.google.android.material.textview.MaterialAutoCompleteTextView
+                android:id="@+id/editPersonTextViewGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/group" />

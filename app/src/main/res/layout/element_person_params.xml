@@ -40,7 +40,8 @@
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/personInfoViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDarkHighlight"/>
+        android:background="@android:color/transparent" />
 </LinearLayout>

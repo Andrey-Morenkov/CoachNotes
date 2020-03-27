@@ -14,20 +14,26 @@ open class PersonDAO(): RealmObject()
     @PrimaryKey
     var id: PersonId? = null
 
+    // Common params
     @Required
     var name: String? = null
     @Required
     var surname: String? = null
-
+    var patronymic: String? = null
+    @Required
+    var birthday: String? = null
     var groupId: GroupId? = null
     var isPaid: Boolean = false
 
-    constructor(id: PersonId, name: String, surname: String, groupId: GroupId? = null, isPaid: Boolean = false): this()
+    // Parents params
+    var parentFullName: String? = null
+    var parentPhone: String? = null
+
+    constructor(id: PersonId, name: String, surname: String, birthday: String): this()
     {
         this.id = id
-        this.groupId = groupId
         this.name = name
         this.surname = surname
-        this.isPaid = isPaid
+        this.birthday = birthday
     }
 }

@@ -13,12 +13,14 @@
         android:padding="@dimen/default_indent">
 
         <TextView
+            android:id="@+id/personInfoTextViewParentName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/single_parent_info_full_name_sample"
             android:textSize="20sp" />
 
         <TextView
+            android:id="@+id/personInfoTextViewParentType"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/single_parent_info_type_sample"
@@ -31,7 +33,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/textView24"
+                android:id="@+id/personInfoTextViewParentPhone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -46,7 +48,7 @@
                 app:drawableTint="@color/colorAccent" />
 
             <ImageButton
-                android:id="@+id/imageButton5"
+                android:id="@+id/personInfoImageButtonSendSms"
                 style="@style/TransparentBackgroundImageButton"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

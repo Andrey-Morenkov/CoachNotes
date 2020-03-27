@@ -39,8 +39,8 @@ open class JournalChunkDataDAO(): RealmObject()
 
     constructor(personInfo: Person, mark: CellData): this()
     {
-        this.name = personInfo.name
-        this.surname = personInfo.surname
+        this.name = personInfo.name!!
+        this.surname = personInfo.surname!!
         this.mark = mark.toDAO().serialize()
     }
 

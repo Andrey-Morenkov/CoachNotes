@@ -1,7 +1,7 @@
 package ru.hryasch.coachnotes.people.presenters.impl
 
-import androidx.recyclerview.widget.SortedList
 import kotlinx.coroutines.*
+import moxy.InjectViewState
 import moxy.MvpPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -10,6 +10,7 @@ import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
 import ru.hryasch.coachnotes.fragments.api.PeopleView
 import ru.hryasch.coachnotes.people.presenters.PeoplePresenter
 
+@InjectViewState
 class PeoplePresenterImpl: MvpPresenter<PeopleView>(), PeoplePresenter, KoinComponent
 {
     private val peopleInteractor: PersonInteractor by inject()

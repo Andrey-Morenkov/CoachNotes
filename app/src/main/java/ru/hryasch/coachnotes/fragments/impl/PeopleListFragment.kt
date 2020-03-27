@@ -21,23 +21,24 @@ import org.koin.core.KoinComponent
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.common.GroupId
+import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.api.PeopleView
 import ru.hryasch.coachnotes.people.PeopleAdapter
 import ru.hryasch.coachnotes.people.presenters.impl.PeoplePresenterImpl
 
-class PeopleListFragment : MvpAppCompatFragment(), PeopleView, KoinComponent
+class PeopleListFragment : MvpAppCompatFragment(), PeopleView
 {
     @InjectPresenter
     lateinit var presenter: PeoplePresenterImpl
 
     private lateinit var peopleAdapter: PeopleAdapter
+    private lateinit var navController: NavController
+
+    private lateinit var addNewPerson: ImageButton
 
     private lateinit var peopleView: RecyclerView
     private lateinit var peopleLoading: ProgressBar
-    private lateinit var addNewPerson: ImageButton
-
-    lateinit var navController: NavController
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -75,10 +76,20 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView, KoinComponent
             peopleView.visibility = View.VISIBLE
             peopleLoading.visibility = View.INVISIBLE
 
-            peopleAdapter = get { parametersOf(peopleList, groupNames) }
+            val listener =  object: PeopleAdapter.PersonClickListener {
+                override fun onPersonClick(person: Person)
+                {
+                    val action = PeopleListFragmentDirections.actionPeopleListFragmentToPersonInfoFragment(person)
+                    navController.navigate(action)
+                }
+            }
+
+            peopleAdapter = get { parametersOf(peopleList, groupNames, listener) }
             peopleView.adapter = peopleAdapter
             peopleView.layoutManager = LinearLayoutManager(context)
             peopleView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
+
         }
     }
 

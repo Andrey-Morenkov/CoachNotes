@@ -11,9 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.common.GroupId
+import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.person.data.Person
 
-class PeopleAdapter(peopleList: List<Person>, private val groupNames: Map<GroupId, String>): RecyclerView.Adapter<PersonViewHolder>()
+class PeopleAdapter(peopleList: List<Person>, private val groupNames: Map<GroupId, String>, private val listener: PersonClickListener): RecyclerView.Adapter<PersonViewHolder>()
 {
     private val peopleList: List<Person> = peopleList.sorted()
 
@@ -30,7 +31,7 @@ class PeopleAdapter(peopleList: List<Person>, private val groupNames: Map<GroupI
 
         card.requestLayout()
 
-        return PersonViewHolder(view)
+        return PersonViewHolder(view, listener)
     }
 
     override fun getItemCount(): Int = peopleList.size
@@ -39,16 +40,30 @@ class PeopleAdapter(peopleList: List<Person>, private val groupNames: Map<GroupI
     {
         holder.bind(peopleList[position], groupNames[peopleList[position].groupId])
     }
+
+    interface PersonClickListener
+    {
+        fun onPersonClick(person: Person)
+    }
 }
 
-class PersonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+class PersonViewHolder(itemView: View, private val listener: PeopleAdapter.PersonClickListener) : RecyclerView.ViewHolder(itemView), View.OnClickListener
 {
     private var fullName:  TextView  = itemView.findViewById(R.id.personTextViewFullName)
     private var groupName: TextView  = itemView.findViewById(R.id.personTextViewGroupName)
     private var paidLabel: ImageView = itemView.findViewById(R.id.label_paid)
 
+    private lateinit var person: Person
+
+    init
+    {
+        itemView.setOnClickListener(this)
+    }
+
     fun bind(person: Person, group: String?)
     {
+        this.person = person
+
         fullName.text = itemView.context.getString(R.string.person_full_name_pattern, person.surname, person.name)
         groupName.text =
             if (person.groupId == null)
@@ -68,5 +83,10 @@ class PersonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         {
             paidLabel.visibility = View.INVISIBLE
         }
+    }
+
+    override fun onClick(p0: View?)
+    {
+        listener.onPersonClick(person)
     }
 }

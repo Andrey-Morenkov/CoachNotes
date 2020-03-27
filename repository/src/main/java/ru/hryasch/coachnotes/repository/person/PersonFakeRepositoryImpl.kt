@@ -16,6 +16,7 @@ import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.common.PersonId
 import ru.hryasch.coachnotes.repository.converters.fromDAO
+import ru.hryasch.coachnotes.repository.converters.toDao
 import ru.hryasch.coachnotes.repository.dao.PersonDAO
 import java.util.*
 
@@ -23,15 +24,11 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
 {
     private val faker: Faker = Faker(Locale("ru"))
     private val groupRepo: GroupRepository by inject(named("mock"))
-    private var initializingJob: Job
 
     init
     {
-        d("PersonFakeRepositoryImpl INIT START")
-        initializingJob = GlobalScope.launch(Dispatchers.Default)
-        {
+        runBlocking {
             generatePersonDb()
-            d("PersonFakeRepositoryImpl INIT FINISH")
         }
     }
 
@@ -41,8 +38,12 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         {
             for (personId in group.membersList)
             {
-                val isPaid: Boolean = group.isPaid
-                val newPerson = PersonDAO(personId, faker.name().firstName(), faker.name().lastName(), group.id, isPaid)
+                val newPerson = PersonDAO(personId, faker.name().firstName(), faker.name().lastName(), "01/01/2014")
+                    .apply {
+                        groupId = group.id
+                        isPaid = group.isPaid
+                    }
+
                 d("Generated person: ${newPerson.name} ${newPerson.surname} (id: ${newPerson.id} / groupId: ${newPerson.groupId})")
 
                 getDb().executeTransaction {
@@ -59,11 +60,9 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
 
     override suspend fun getPersonsByGroup(groupId: GroupId): List<Person>?
     {
-        if (initializingJob.isActive) { initializingJob.join() }
         val db = getDb()
         db.refresh()
 
-        val personsList: MutableList<Person> = LinkedList()
         val personsDao = db.where<PersonDAO>()
                         .equalTo("groupId", groupId)
                         .findAll()
@@ -80,8 +79,6 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
 
     override suspend fun getAllPeople(): List<Person>?
     {
-        if (initializingJob.isActive) { initializingJob.join() }
-
         val db = getDb()
         db.refresh()
 
@@ -94,6 +91,14 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         {
             peopleList.fromDAO()
         }
+    }
+
+    override suspend fun addOrUpdatePerson(person: Person)
+    {
+        val db = getDb()
+        db.refresh()
+
+        db.copyToRealmOrUpdate(person.toDao())
     }
 
     private fun getDb(): Realm = Realm.getInstance(get(named("persons_mock")))

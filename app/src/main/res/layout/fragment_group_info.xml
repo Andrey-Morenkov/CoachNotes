@@ -17,7 +17,7 @@
             android:elevation="4dp" />
 
         <ImageButton
-            android:id="@+id/imageButton4"
+            android:id="@+id/personInfoImageButtonEditPerson"
             style="@style/ToolbarImageButton"
             app:srcCompat="@drawable/ic_settings" />
     </FrameLayout>

@@ -117,7 +117,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                         PersonImpl(
                             entry.key.surname,
                             entry.key.name,
-                            -1,
+                            Date.Companion.invoke(2014,1,1),
                             -1
                         )
                     )

@@ -16,6 +16,7 @@
             android:layout_height="wrap_content" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/editPersonButtonEditOrCreate"
             style="@style/FilledButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,6 +54,12 @@
 
             <include
                 layout="@layout/element_person_edit_common"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/default_indent" />
+
+            <include
+                layout="@layout/element_person_edit_parents"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/default_indent" />

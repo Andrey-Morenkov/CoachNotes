@@ -12,7 +12,7 @@ data class ChunkPersonName(val surname: String, val name: String): Comparable<Ch
         return "$surname $name".compareTo("${other.surname} ${other.name}")
     }
 
-    constructor(person: Person): this(person.surname, person.name)
+    constructor(person: Person): this(person.surname!!, person.name!!)
 }
 
 data class JournalChunk(val date: Date,
