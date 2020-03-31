@@ -57,6 +57,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     private lateinit var membersCount: TextView
     private lateinit var fullMembersList: MaterialButton
     private lateinit var shortMembersList: RecyclerView
+    private lateinit var noMembersData: TextView
     private lateinit var addMember: MaterialButton
     private lateinit var paymentType: TextView
     private lateinit var isPaid: ImageView
@@ -80,12 +81,15 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         membersCount = layout.findViewById(R.id.groupInfoTextViewMembersCount)
         fullMembersList = layout.findViewById(R.id.groupInfoButtonAllMembersList)
         shortMembersList = layout.findViewById(R.id.groupInfoRecyclerViewMembers)
+        noMembersData = layout.findViewById(R.id.groupInfoTextViewNoData)
         addMember = layout.findViewById(R.id.groupInfoButtonAddMember)
         paymentType = layout.findViewById(R.id.groupInfoTextViewIsPaid)
         isPaid = layout.findViewById(R.id.groupImageViewIsPaid)
 
         contentView = layout.findViewById(R.id.groupInfoContentView)
         loadingBar = layout.findViewById(R.id.groupInfoProgressBarLoading)
+
+        noMembersData.visibility = View.INVISIBLE
 
         loadingState()
 
@@ -126,8 +130,6 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             age2.visibility = View.GONE
             ageRange.visibility = View.GONE
         }
-
-        val adapter =
 
         if (group.isPaid)
         {
@@ -174,11 +176,14 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         membersAdapter = get { parametersOf(members, groupNames, listener) }
         shortMembersList.adapter = membersAdapter
         shortMembersList.layoutManager = LinearLayoutManager(context)
+
+        noMembersData.visible = ( membersAdapter.itemCount == 0 )
     }
 
     override fun loadingState()
     {
         contentView.visible = false
         loadingBar.visible = true
+        noMembersData.visible = false
     }
 }

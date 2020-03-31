@@ -22,6 +22,7 @@
     <string name="age_type_relative">лет</string>
     <string name="edit">Редактировать</string>
     <string name="create">Создать</string>
+    <string name="save">Сохранить</string>
     <string name="required_helper">* обязательно</string>
     <string name="general">Основное</string>
     <string name="phone">Телефон</string>
@@ -36,11 +37,6 @@
     <string name="parents">Родители</string>
     <string name="full_name">ФИО</string>
     <string name="tags">Особенности</string>
-
-    <string-array name="age_types">
-        <item>г.р</item>
-        <item>лет</item>
-    </string-array>
 
 
     // Screens
@@ -65,11 +61,16 @@
 
         // Groups screen
         <string name="groups_screen_toolbar_title">Мои группы</string>
+        <string name="groups_screen_no_data">Нет групп</string>
             // Samples
             <string name="groups_screen_toolbar_subtitle_sample">5 шт</string>
 
         // Group info screen
         <string name="group_info_screen_toolbar_title">Профиль группы</string>
+
+        // Group edit screen
+        <string name="group_edit_screen_toolbar_title">Редактор группы</string>
+        <string name="group_edit_screen_delete_group">Удалить группу</string>
 
         // Group journal screen
             // Samples
@@ -78,12 +79,14 @@
         // Persons screen
         <string name="persons_screen_toolbar_title">Мои ученики</string>
         <string name="person_full_name_pattern">%1$s %2$s</string>
+        <string name="persons_screen_no_data">Нет учеников</string>
 
         // Person info screen
         <string name="person_info_screen_toolbar_title">Профиль ученика</string>
 
         // Person edit screen
-    <string name="person_edit_screen_delete_person">Удалить ученика</string>
+        <string name="person_edit_screen_toolbar_title">Редактор ученика</string>
+        <string name="person_edit_screen_delete_person">Удалить ученика</string>
 
 
     // Items

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
@@ -24,8 +25,7 @@ import ru.hryasch.coachnotes.fragments.PeopleView
 import ru.hryasch.coachnotes.people.PeopleAdapter
 import ru.hryasch.coachnotes.people.presenters.impl.PeoplePresenterImpl
 
-class PeopleListFragment : MvpAppCompatFragment(),
-    PeopleView
+class PeopleListFragment : MvpAppCompatFragment(), PeopleView
 {
     @InjectPresenter
     lateinit var presenter: PeoplePresenterImpl
@@ -37,6 +37,7 @@ class PeopleListFragment : MvpAppCompatFragment(),
 
     private lateinit var peopleView: RecyclerView
     private lateinit var peopleLoading: ProgressBar
+    private lateinit var noPeopleLabel: TextView
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -47,6 +48,7 @@ class PeopleListFragment : MvpAppCompatFragment(),
         peopleView = layout.findViewById(R.id.peopleRecyclerViewPeopleList)
         peopleLoading = layout.findViewById(R.id.peopleProgressBarLoading)
         addNewPerson = layout.findViewById(R.id.peopleButtonAddPerson)
+        noPeopleLabel = layout.findViewById(R.id.peopleTextViewNoData)
 
         navController = container!!.findNavController()
 
@@ -55,8 +57,15 @@ class PeopleListFragment : MvpAppCompatFragment(),
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
+        noPeopleLabel.visibility = View.INVISIBLE
+
         toolbar.setNavigationOnClickListener {
             navController.navigateUp()
+        }
+
+        addNewPerson.setOnClickListener {
+            val action = PeopleListFragmentDirections.actionPersonListFragmentToPersonEditFragment()
+            navController.navigate(action)
         }
 
         return layout
@@ -68,6 +77,7 @@ class PeopleListFragment : MvpAppCompatFragment(),
         {
             peopleView.visibility = View.INVISIBLE
             peopleLoading.visibility = View.VISIBLE
+            noPeopleLabel.visibility = View.INVISIBLE
         }
         else
         {
@@ -86,11 +96,20 @@ class PeopleListFragment : MvpAppCompatFragment(),
             peopleView.adapter = peopleAdapter
             peopleView.layoutManager = LinearLayoutManager(context)
             peopleView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
+            if (peopleAdapter.itemCount == 0)
+            {
+                noPeopleLabel.visibility = View.VISIBLE
+            }
+            else
+            {
+                noPeopleLabel.visibility = View.INVISIBLE
+            }
         }
     }
 
     override fun refreshData()
     {
-        TODO("Not yet implemented")
+        peopleAdapter.notifyDataSetChanged()
     }
 }

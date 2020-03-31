@@ -49,6 +49,19 @@
             app:layout_constraintStart_toStartOf="@+id/groupsRecyclerViewGroupsList"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/groupsTextViewNoData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/groups_screen_no_data"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.appbar.AppBarLayout>

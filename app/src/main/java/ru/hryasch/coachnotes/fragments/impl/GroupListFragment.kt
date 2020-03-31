@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
@@ -34,6 +35,7 @@ class GroupListFragment: MvpAppCompatFragment(),
     private lateinit var groupsView: RecyclerView
     private lateinit var groupsLoading: ProgressBar
     private lateinit var addNewGroup: ImageButton
+    private lateinit var noGroupsLabel: TextView
 
     lateinit var navController: NavController
 
@@ -46,6 +48,7 @@ class GroupListFragment: MvpAppCompatFragment(),
         groupsView = layout.findViewById(R.id.groupsRecyclerViewGroupsList)
         groupsLoading = layout.findViewById(R.id.groupsProgressBarLoading)
         addNewGroup = layout.findViewById(R.id.groupsButtonAddGroup)
+        noGroupsLabel = layout.findViewById(R.id.groupsTextViewNoData)
 
         navController = container!!.findNavController()
 
@@ -53,6 +56,8 @@ class GroupListFragment: MvpAppCompatFragment(),
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
+
+        noGroupsLabel.visibility = View.INVISIBLE
 
         toolbar.setNavigationOnClickListener {
             navController.navigateUp()
@@ -67,6 +72,7 @@ class GroupListFragment: MvpAppCompatFragment(),
         {
             groupsView.visibility = View.INVISIBLE
             groupsLoading.visibility = View.VISIBLE
+            noGroupsLabel.visibility = View.INVISIBLE
         }
         else
         {
@@ -84,6 +90,15 @@ class GroupListFragment: MvpAppCompatFragment(),
             groupsAdapter = get { parametersOf(groupsList, listener) }
             groupsView.adapter = groupsAdapter
             groupsView.layoutManager = LinearLayoutManager(context)
+
+            if (groupsAdapter.itemCount == 0)
+            {
+                noGroupsLabel.visibility = View.VISIBLE
+            }
+            else
+            {
+                noGroupsLabel.visibility = View.INVISIBLE
+            }
         }
     }
 
