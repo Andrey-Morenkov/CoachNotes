@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     style="@style/CardSettingElement"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -35,7 +35,7 @@
 
             <TextView
                 android:id="@+id/groupInfoTextViewAge1"
-                android:layout_width="wrap_content"
+                android:layout_width="70dp"
                 android:layout_height="match_parent"
                 android:editable="false"
                 android:paddingStart="8dp"
@@ -45,7 +45,7 @@
 
             <ImageView
                 android:id="@+id/groupInfoImageViewRangeAges"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
@@ -53,7 +53,7 @@
 
             <TextView
                 android:id="@+id/groupInfoTextViewAge2"
-                android:layout_width="wrap_content"
+                android:layout_width="70dp"
                 android:layout_height="match_parent"
                 android:editable="false"
                 android:gravity="center"
@@ -71,7 +71,10 @@
                 android:paddingEnd="8dp"
                 android:textSize="@dimen/group_info_user_input_text_size"
                 app:spinner_arrow_padding="8dp"
-                app:spinner_popup_animation="dropdown">
+                app:spinner_popup_animation="dropdown"
+                app:spinner_popup_background="@color/colorPrimaryDarkHighlight"
+                app:spinner_popup_height="70dp"
+                app:spinner_popup_width="100dp">
 
             </com.skydoves.powerspinner.PowerSpinnerView>
 

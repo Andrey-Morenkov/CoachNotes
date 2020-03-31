@@ -37,6 +37,11 @@
     <string name="full_name">ФИО</string>
     <string name="tags">Особенности</string>
 
+    <string-array name="age_types">
+        <item>г.р</item>
+        <item>лет</item>
+    </string-array>
+
 
     // Screens
 

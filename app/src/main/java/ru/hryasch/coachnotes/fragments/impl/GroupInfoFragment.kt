@@ -123,9 +123,11 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
         if (group.availableAbsoluteAge!!.isSingle())
         {
-            age2.visibility = View.INVISIBLE
-            ageRange.visibility = View.INVISIBLE
+            age2.visibility = View.GONE
+            ageRange.visibility = View.GONE
         }
+
+        val adapter =
 
         if (group.isPaid)
         {
@@ -144,14 +146,14 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             when(position)
             {
                 0 -> {
-                    if (age1.text.toString().toInt() > 1000)
+                    if (age1.text.toString().toInt() < 1000)
                     {
                         age1.text = age1.text.toString().toInt().toAbsolute().toString()
                         age2.text = age2.text.toString().toInt().toAbsolute().toString()
                     }
                 }
                 1 -> {
-                    if (age1.text.toString().toInt() < 1000)
+                    if (age1.text.toString().toInt() > 1000)
                     {
                         age1.text = age1.text.toString().toInt().toRelative().toString()
                         age2.text = age2.text.toString().toInt().toRelative().toString()
