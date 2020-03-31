@@ -63,6 +63,9 @@
             // Samples
             <string name="groups_screen_toolbar_subtitle_sample">5 шт</string>
 
+        // Group info screen
+        <string name="group_info_screen_toolbar_title">Профиль группы</string>
+
         // Group journal screen
             // Samples
             <string name="group_journal_screen_date_sample">Март 2020</string>
@@ -73,6 +76,9 @@
 
         // Person info screen
         <string name="person_info_screen_toolbar_title">Профиль ученика</string>
+
+        // Person edit screen
+    <string name="person_edit_screen_delete_person">Удалить ученика</string>
 
 
     // Items

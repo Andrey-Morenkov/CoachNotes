@@ -9,7 +9,7 @@ import org.koin.core.inject
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.data.PersonImpl
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
-import ru.hryasch.coachnotes.fragments.api.PersonView
+import ru.hryasch.coachnotes.fragments.PersonView
 import ru.hryasch.coachnotes.people.presenters.PersonPresenter
 
 @InjectViewState

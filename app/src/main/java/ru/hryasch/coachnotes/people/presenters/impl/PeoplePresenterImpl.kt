@@ -7,7 +7,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
-import ru.hryasch.coachnotes.fragments.api.PeopleView
+import ru.hryasch.coachnotes.fragments.PeopleView
 import ru.hryasch.coachnotes.people.presenters.PeoplePresenter
 
 @InjectViewState

@@ -34,16 +34,17 @@
             app:layout_constraintTop_toBottomOf="@+id/textView12">
 
             <TextView
-                android:id="@+id/textView22"
+                android:id="@+id/groupInfoTextViewAge1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:editable="false"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:text="@string/group_param_age1_sample"
                 android:textSize="@dimen/group_info_user_input_text_size" />
 
             <ImageView
-                android:id="@+id/imageView5"
+                android:id="@+id/groupInfoImageViewRangeAges"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:paddingStart="8dp"
@@ -51,9 +52,10 @@
                 app:srcCompat="@drawable/ic_remove" />
 
             <TextView
-                android:id="@+id/textView23"
+                android:id="@+id/groupInfoTextViewAge2"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:editable="false"
                 android:gravity="center"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
@@ -61,13 +63,15 @@
                 android:textSize="@dimen/group_info_user_input_text_size" />
 
             <com.skydoves.powerspinner.PowerSpinnerView
-                android:layout_width="120dp"
+                android:id="@+id/groupInfoSpinnerAgeType"
+                android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:hint="@string/age_type_absolute"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:textSize="@dimen/group_info_user_input_text_size"
-                app:spinner_arrow_padding="8dp">
+                app:spinner_arrow_padding="8dp"
+                app:spinner_popup_animation="dropdown">
 
             </com.skydoves.powerspinner.PowerSpinnerView>
 
@@ -85,12 +89,13 @@
             app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
         <TextView
-            android:id="@+id/textView26"
+            android:id="@+id/groupInfoTextViewIsPaid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="2dp"
             android:drawableStart="@drawable/ic_money"
+            android:editable="false"
             android:gravity="center"
             android:paddingEnd="8dp"
             android:text="@string/group_param_payment_free"

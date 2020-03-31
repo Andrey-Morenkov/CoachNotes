@@ -10,7 +10,7 @@ import org.koin.core.inject
 import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.converters.toModel
-import ru.hryasch.coachnotes.fragments.api.JournalView
+import ru.hryasch.coachnotes.fragments.JournalView
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
 import ru.hryasch.coachnotes.domain.common.GroupId

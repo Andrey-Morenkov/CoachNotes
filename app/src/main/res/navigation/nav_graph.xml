@@ -45,6 +45,9 @@
         <action
             android:id="@+id/action_groupInfoFragment_to_personInfoFragment"
             app:destination="@id/personInfoFragment" />
+        <argument
+            android:name="groupData"
+            app:argType="ru.hryasch.coachnotes.domain.group.data.Group" />
     </fragment>
     <fragment
         android:id="@+id/groupEditFragment"

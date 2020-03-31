@@ -1,17 +1,16 @@
-package ru.hryasch.coachnotes.fragments.api
+package ru.hryasch.coachnotes.fragments
 
 import androidx.recyclerview.widget.SortedList
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.OneExecutionStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
-import ru.hryasch.coachnotes.domain.common.GroupId
-import ru.hryasch.coachnotes.domain.person.data.Person
+import ru.hryasch.coachnotes.domain.group.data.Group
 
-interface PeopleView: MvpView
+interface GroupsView: MvpView
 {
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun setPeopleList(peopleList: List<Person>?, groupNames: Map<GroupId, String>? = null)
+    fun setGroupsList(groupsList: List<Group>?)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun refreshData()

@@ -13,21 +13,19 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.android.ext.android.get
-import org.koin.core.KoinComponent
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.common.GroupId
-import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.person.data.Person
-import ru.hryasch.coachnotes.fragments.api.PeopleView
+import ru.hryasch.coachnotes.fragments.PeopleView
 import ru.hryasch.coachnotes.people.PeopleAdapter
 import ru.hryasch.coachnotes.people.presenters.impl.PeoplePresenterImpl
 
-class PeopleListFragment : MvpAppCompatFragment(), PeopleView
+class PeopleListFragment : MvpAppCompatFragment(),
+    PeopleView
 {
     @InjectPresenter
     lateinit var presenter: PeoplePresenterImpl
@@ -88,8 +86,6 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
             peopleView.adapter = peopleAdapter
             peopleView.layoutManager = LinearLayoutManager(context)
             peopleView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-
-
         }
     }
 

@@ -9,7 +9,7 @@ import moxy.MvpPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import ru.hryasch.coachnotes.domain.home.HomeInteractor
-import ru.hryasch.coachnotes.fragments.api.HomeView
+import ru.hryasch.coachnotes.fragments.HomeView
 import ru.hryasch.coachnotes.home.HomePresenter
 
 @InjectViewState

@@ -4,22 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.NestedScrollView
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import com.soywiz.klock.DateTime
-import com.soywiz.klock.DateTimeSpan
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -29,7 +24,7 @@ import org.koin.core.KoinComponent
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.person.data.Person
-import ru.hryasch.coachnotes.fragments.api.PersonView
+import ru.hryasch.coachnotes.fragments.PersonView
 import ru.hryasch.coachnotes.people.PersonParamsAdapter
 import ru.hryasch.coachnotes.people.presenters.impl.PersonPresenterImpl
 
@@ -62,6 +57,7 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
         i("PersonInfoFragment onCreateView")
 
         editPerson = layout.findViewById(R.id.personInfoImageButtonEditPerson)
+
         surnameName = layout.findViewById(R.id.personInfoTextViewNameSurname)
         patronymic = layout.findViewById(R.id.personInfoTextViewPatronymic)
         isPaid = layout.findViewById(R.id.personInfoImageViewIsPaid)

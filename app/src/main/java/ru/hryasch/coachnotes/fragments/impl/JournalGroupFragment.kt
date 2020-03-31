@@ -23,7 +23,6 @@ import com.nabinbhandari.android.permissions.PermissionHandler
 import com.nabinbhandari.android.permissions.Permissions
 import com.pawegio.kandroid.*
 import com.soywiz.klock.*
-import com.soywiz.klock.Date
 import com.tingyik90.snackprogressbar.SnackProgressBar
 import com.tingyik90.snackprogressbar.SnackProgressBarManager
 import kotlinx.android.synthetic.main.fragment_journal.*
@@ -38,14 +37,15 @@ import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.journal.data.NoExistData
 import ru.hryasch.coachnotes.domain.journal.data.UnknownData
-import ru.hryasch.coachnotes.fragments.api.JournalView
+import ru.hryasch.coachnotes.fragments.JournalView
 import ru.hryasch.coachnotes.journal.table.TableAdapter
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.impl.JournalPresenterImpl
 import java.io.File
 import java.util.*
 
-class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
+class JournalGroupFragment : MvpAppCompatFragment(),
+    JournalView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: JournalPresenterImpl

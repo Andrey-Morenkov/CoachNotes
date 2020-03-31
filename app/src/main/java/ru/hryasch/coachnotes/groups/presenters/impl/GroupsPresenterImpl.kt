@@ -10,7 +10,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
-import ru.hryasch.coachnotes.fragments.api.GroupsView
+import ru.hryasch.coachnotes.fragments.GroupsView
 import ru.hryasch.coachnotes.groups.presenters.GroupsPresenter
 
 @InjectViewState

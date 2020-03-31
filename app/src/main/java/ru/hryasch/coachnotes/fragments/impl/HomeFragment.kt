@@ -19,11 +19,12 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.fragments.api.HomeView
+import ru.hryasch.coachnotes.fragments.HomeView
 import ru.hryasch.coachnotes.home.impl.HomePresenterImpl
 import java.util.*
 
-class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
+class HomeFragment : MvpAppCompatFragment(),
+    HomeView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: HomePresenterImpl

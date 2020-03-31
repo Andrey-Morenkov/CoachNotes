@@ -12,7 +12,6 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
@@ -20,11 +19,12 @@ import org.koin.core.get
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.group.data.Group
-import ru.hryasch.coachnotes.fragments.api.GroupsView
+import ru.hryasch.coachnotes.fragments.GroupsView
 import ru.hryasch.coachnotes.groups.GroupsAdapter
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupsPresenterImpl
 
-class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
+class GroupListFragment: MvpAppCompatFragment(),
+    GroupsView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: GroupsPresenterImpl
@@ -73,7 +73,15 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
             groupsView.visibility = View.VISIBLE
             groupsLoading.visibility = View.INVISIBLE
 
-            groupsAdapter = get { parametersOf(groupsList) }
+            val listener =  object: GroupsAdapter.GroupClickListener {
+                override fun onGroupClick(group: Group)
+                {
+                    val action = GroupListFragmentDirections.actionGroupListFragment2ToGroupInfoFragment(group)
+                    navController.navigate(action)
+                }
+            }
+
+            groupsAdapter = get { parametersOf(groupsList, listener) }
             groupsView.adapter = groupsAdapter
             groupsView.layoutManager = LinearLayoutManager(context)
         }

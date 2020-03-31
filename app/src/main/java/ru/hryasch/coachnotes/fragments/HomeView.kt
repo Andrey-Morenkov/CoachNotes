@@ -1,4 +1,4 @@
-package ru.hryasch.coachnotes.fragments.api
+package ru.hryasch.coachnotes.fragments
 
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy
