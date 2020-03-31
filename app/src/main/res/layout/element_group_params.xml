@@ -92,9 +92,8 @@
             android:id="@+id/groupInfoTextViewIsPaid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="24dp"
             android:layout_marginTop="2dp"
-            android:drawableStart="@drawable/ic_money"
             android:editable="false"
             android:gravity="center"
             android:paddingEnd="8dp"
@@ -102,6 +101,15 @@
             android:textSize="@dimen/group_info_user_input_text_size"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView13" />
+
+        <ImageView
+            android:id="@+id/groupImageViewIsPaid"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/groupInfoTextViewIsPaid"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/groupInfoTextViewIsPaid"
+            app:srcCompat="@drawable/ic_money" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

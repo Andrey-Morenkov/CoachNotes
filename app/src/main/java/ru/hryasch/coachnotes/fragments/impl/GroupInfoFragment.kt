@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.fragments.impl
 
+import android.graphics.ColorFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +18,6 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
-import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import com.skydoves.powerspinner.PowerSpinnerView
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +58,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     private lateinit var fullMembersList: MaterialButton
     private lateinit var shortMembersList: RecyclerView
     private lateinit var addMember: MaterialButton
-    private lateinit var isPaid: TextView
+    private lateinit var paymentType: TextView
+    private lateinit var isPaid: ImageView
 
     private lateinit var contentView: NestedScrollView
     private lateinit var loadingBar: ProgressBar
@@ -80,7 +81,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         fullMembersList = layout.findViewById(R.id.groupInfoButtonAllMembersList)
         shortMembersList = layout.findViewById(R.id.groupInfoRecyclerViewMembers)
         addMember = layout.findViewById(R.id.groupInfoButtonAddMember)
-        isPaid = layout.findViewById(R.id.groupInfoTextViewIsPaid)
+        paymentType = layout.findViewById(R.id.groupInfoTextViewIsPaid)
+        isPaid = layout.findViewById(R.id.groupImageViewIsPaid)
 
         contentView = layout.findViewById(R.id.groupInfoContentView)
         loadingBar = layout.findViewById(R.id.groupInfoProgressBarLoading)
@@ -127,15 +129,15 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
         if (group.isPaid)
         {
-            isPaid.text = context!!.getString(R.string.group_param_payment_paid)
-            isPaid.setTextColor(ContextCompat.getColor(context!!, R.color.colorPaid))
-            isPaid.compoundDrawables[0].setTint(ContextCompat.getColor(context!!, R.color.colorPaid))
+            paymentType.text = context!!.getString(R.string.group_param_payment_paid)
+            paymentType.setTextColor(ContextCompat.getColor(context!!, R.color.colorPaid))
+            isPaid.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_money_active))
         }
         else
         {
-            isPaid.text = context!!.getString(R.string.group_param_payment_free)
-            isPaid.setTextColor(ContextCompat.getColor(context!!, R.color.colorText))
-            isPaid.compoundDrawables[0].setTint(ContextCompat.getColor(context!!, R.color.colorText))
+            paymentType.text = context!!.getString(R.string.group_param_payment_free)
+            paymentType.setTextColor(ContextCompat.getColor(context!!, R.color.colorText))
+            isPaid.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_money))
         }
 
         ageType.setOnSpinnerItemSelectedListener<String> { position, text ->

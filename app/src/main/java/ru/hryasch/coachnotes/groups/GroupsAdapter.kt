@@ -43,7 +43,7 @@ class GroupViewHolder(itemView: View, private val listener: GroupsAdapter.GroupC
     private var peopleCount: TextView       = itemView.findViewById(R.id.groupTextViewPeopleCount)
     private var peopleAbsoluteAge: TextView = itemView.findViewById(R.id.groupTextViewAbsoluteAge)
     private var peopleRelativeAge: TextView = itemView.findViewById(R.id.groupTextViewRelativeAge)
-    private var paidLabel: LinearLayout = itemView.findViewById(R.id.label_paid)
+    private var paidLabel: ImageView = itemView.findViewById(R.id.label_paid)
 
     private lateinit var currentGroup: Group
 
