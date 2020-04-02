@@ -25,15 +25,25 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
     private val faker: Faker = Faker(Locale("ru"))
     private val groupRepo: GroupRepository by inject(named("mock"))
 
+    private val initializingJob: Job
+
     init
     {
-        runBlocking {
+        initializingJob = GlobalScope.launch(Dispatchers.Default)
+        {
             generatePersonDb()
         }
     }
 
     private suspend fun generatePersonDb()
     {
+        val db = getDb()
+        db.refresh()
+
+        db.executeTransaction {
+            it.deleteAll()
+        }
+
         for (group in groupRepo.getAllGroups()!!)
         {
             for (personId in group.membersList)
@@ -79,6 +89,8 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
 
     override suspend fun getAllPeople(): List<Person>?
     {
+        if (initializingJob.isActive) initializingJob.join()
+
         val db = getDb()
         db.refresh()
 

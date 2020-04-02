@@ -16,9 +16,10 @@
         android:background="@color/colorBackground"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:title="@string/group_edit_screen_toolbar_title">
+        app:title="@string/group_edit_screen_toolbar_new_title">
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/groupEditButtonCreateOrSave"
             style="@style/FilledButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,6 +41,7 @@
             android:layout_gravity="center" />
 
         <androidx.core.widget.NestedScrollView
+            android:id="@+id/groupEditContent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">

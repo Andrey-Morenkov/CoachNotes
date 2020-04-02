@@ -3,10 +3,7 @@ package ru.hryasch.coachnotes.repository.group
 import com.pawegio.kandroid.d
 import io.realm.Realm
 import io.realm.kotlin.where
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
@@ -15,28 +12,25 @@ import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.common.toAbsolute
 import ru.hryasch.coachnotes.repository.converters.fromDAO
+import ru.hryasch.coachnotes.repository.converters.toDao
 import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import kotlin.random.Random
 
 class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
 {
-    private var initializingJob: Job
+    private val initializingJob: Job
 
     init
     {
-        d("GroupRepo INIT START")
         initializingJob = GlobalScope.launch(Dispatchers.Default)
         {
             generateGroupDb()
-            d("GroupRepo INIT FINISH")
         }
     }
 
 
     override suspend fun getGroup(groupId: GroupId): Group?
     {
-        if (initializingJob.isActive) { initializingJob.join() }
-
         val db = getDb()
         db.refresh()
 
@@ -48,7 +42,7 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
 
     override suspend fun getAllGroups(): List<Group>?
     {
-        if (initializingJob.isActive) { initializingJob.join() }
+        if (initializingJob.isActive) initializingJob.join()
 
         val db = getDb()
         db.refresh()
@@ -64,9 +58,22 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
         }
     }
 
+    override suspend fun addOrUpdateGroup(group: Group)
+    {
+        val db = getDb()
+        db.refresh()
+
+        db.copyToRealmOrUpdate(group.toDao())
+    }
+
     private suspend fun generateGroupDb()
     {
         val db = getDb()
+        db.refresh()
+
+        db.executeTransaction {
+            it.deleteAll()
+        }
 
         val group = GroupDAO(1, "Платники", true, 6.toAbsolute())
 

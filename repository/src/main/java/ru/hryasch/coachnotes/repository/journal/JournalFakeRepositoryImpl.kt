@@ -114,6 +114,13 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
 
     private suspend fun generateJournalDb()
     {
+        val db = getDb()
+        db.refresh()
+
+        db.executeTransaction {
+            it.deleteAll()
+        }
+
         val executionDays = generateExecutionDays().sorted()
         val personsList = personRepo.getPersonsByGroup(1)!!
 
@@ -143,7 +150,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         }
 
         chunkList.forEach { chunk ->
-            getDb().executeTransaction {
+            db.executeTransaction {
                 it.copyToRealm(chunk)
             }
         }

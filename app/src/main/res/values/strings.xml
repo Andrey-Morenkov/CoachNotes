@@ -70,7 +70,9 @@
 
         // Group edit screen
         <string name="group_edit_screen_toolbar_title">Редактор группы</string>
+        <string name="group_edit_screen_toolbar_new_title">Новая группа</string>
         <string name="group_edit_screen_delete_group">Удалить группу</string>
+        <string name="group_edit_screen_age_type">Возраст</string>
 
         // Group journal screen
             // Samples

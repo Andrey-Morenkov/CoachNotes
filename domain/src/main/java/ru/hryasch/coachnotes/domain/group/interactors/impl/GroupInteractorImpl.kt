@@ -41,4 +41,9 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
     {
         return peopleRepository.getPersonsByGroup(groupId) ?: LinkedList<Person>()
     }
+
+    override suspend fun addOrUpdateGroup(group: Group)
+    {
+        groupRepository.addOrUpdateGroup(group)
+    }
 }

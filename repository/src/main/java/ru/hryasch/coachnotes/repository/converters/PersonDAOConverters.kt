@@ -1,7 +1,5 @@
 package ru.hryasch.coachnotes.repository.converters
 
-import com.soywiz.klock.Date
-import com.soywiz.klock.DateTime
 import com.soywiz.klock.parse
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.data.PersonImpl
@@ -26,7 +24,7 @@ fun List<PersonDAO>.fromDAO(): List<Person>
 
 fun Person.toDao(): PersonDAO
 {
-    val dao = PersonDAO(this.id, this.name!!, this.surname!!, this.birthday!!.format(daoDateFormat))
+    val dao = PersonDAO(this.id, this.name, this.surname, this.birthday!!.format(daoDateFormat))
 
     dao.isPaid = isPaid
     dao.groupId = groupId

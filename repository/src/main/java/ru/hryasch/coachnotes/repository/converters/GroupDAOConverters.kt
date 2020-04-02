@@ -33,3 +33,17 @@ fun GroupDAO.fromDAO(): Group
     }
     return group
 }
+
+fun Group.toDao(): GroupDAO
+{
+    val dao = GroupDAO(this.id, this.name, availableAgeLow = this.availableAbsoluteAge!!.first)
+
+    dao.isPaid = isPaid
+
+    if (this.availableAbsoluteAge!!.first != this.availableAbsoluteAge!!.last)
+    {
+        dao.availableAgeHigh = this.availableAbsoluteAge!!.last
+    }
+
+    return dao
+}

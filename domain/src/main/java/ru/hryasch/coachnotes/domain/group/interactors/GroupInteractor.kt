@@ -13,4 +13,6 @@ interface GroupInteractor
     suspend fun getGroupNames(): Map<GroupId, String>
 
     suspend fun getPeopleListByGroup(groupId: GroupId): List<Person>
+
+    suspend fun addOrUpdateGroup(group: Group)
 }

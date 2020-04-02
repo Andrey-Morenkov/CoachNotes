@@ -26,10 +26,10 @@
         android:label="GroupListFragment"
         tools:layout="@layout/fragment_groups">
         <action
-            android:id="@+id/action_groupListFragment2_to_groupInfoFragment"
+            android:id="@+id/action_groupListFragment_to_groupInfoFragment"
             app:destination="@id/groupInfoFragment" />
         <action
-            android:id="@+id/action_groupListFragment2_to_groupEditFragment"
+            android:id="@+id/action_groupListFragment_to_groupEditFragment"
             app:destination="@id/groupEditFragment" />
     </fragment>
     <fragment

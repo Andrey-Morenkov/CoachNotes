@@ -23,7 +23,11 @@ open class GroupDAO(): RealmObject()
     var isPaid: Boolean = false
     var members: RealmList<PersonId> = RealmList()
 
-    constructor(id: GroupId, name: String, isPaid: Boolean = false, availableAgeLow: AbsoluteAge, availableAgeHigh: AbsoluteAge? = null): this()
+    constructor(id: GroupId,
+                name: String,
+                isPaid: Boolean = false,
+                availableAgeLow: AbsoluteAge,
+                availableAgeHigh: AbsoluteAge? = null): this()
     {
         this.id = id
         this.name = name

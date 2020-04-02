@@ -24,8 +24,7 @@ import ru.hryasch.coachnotes.fragments.GroupsView
 import ru.hryasch.coachnotes.groups.GroupsAdapter
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupsPresenterImpl
 
-class GroupListFragment: MvpAppCompatFragment(),
-    GroupsView, KoinComponent
+class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: GroupsPresenterImpl
@@ -63,6 +62,11 @@ class GroupListFragment: MvpAppCompatFragment(),
             navController.navigateUp()
         }
 
+        addNewGroup.setOnClickListener {
+            val action = GroupListFragmentDirections.actionGroupListFragmentToGroupEditFragment()
+            navController.navigate(action)
+        }
+
         return layout
     }
 
@@ -82,7 +86,7 @@ class GroupListFragment: MvpAppCompatFragment(),
             val listener =  object: GroupsAdapter.GroupClickListener {
                 override fun onGroupClick(group: Group)
                 {
-                    val action = GroupListFragmentDirections.actionGroupListFragment2ToGroupInfoFragment(group)
+                    val action = GroupListFragmentDirections.actionGroupListFragmentToGroupInfoFragment(group)
                     navController.navigate(action)
                 }
             }

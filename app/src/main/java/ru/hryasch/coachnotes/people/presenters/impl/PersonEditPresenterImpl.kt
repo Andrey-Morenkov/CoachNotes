@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import moxy.InjectViewState
 import moxy.MvpPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -15,6 +16,7 @@ import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
 import ru.hryasch.coachnotes.fragments.PersonEditView
 import ru.hryasch.coachnotes.people.presenters.PersonEditPresenter
 
+@InjectViewState
 class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresenter, KoinComponent
 {
     private val peopleInteractor: PersonInteractor by inject()
@@ -24,7 +26,6 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
 
     init
     {
-        i("onCreate PersonPresenterImpl")
         viewState.loadingState()
     }
 

@@ -73,6 +73,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         patronymic = layout.findViewById(R.id.editPersonEditTextPatronymic)
         birthday = layout.findViewById(R.id.editPersonEditTextBirthday)
         groupChooser = layout.findViewById(R.id.personEditSpinnerGroup)
+
         contentView = layout.findViewById(R.id.personEditContent)
         loadingBar = layout.findViewById(R.id.personEditProgressBarLoading)
 

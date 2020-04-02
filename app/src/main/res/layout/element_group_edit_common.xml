@@ -35,78 +35,69 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/groupEditTextInputName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/new_group_screen_group_name_label" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInput2"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        <com.tiper.MaterialSpinner
+            android:id='@+id/groupEditSpinnerPaymentType'
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
+            android:hint="@string/group_param_payment_method"
+            app:boxBackgroundMode="outline"
+            app:helperText="@string/required_helper"
             app:helperTextTextColor="@color/colorAccent"
             app:hintTextColor="@color/colorAccent"
-            app:layout_constraintTop_toBottomOf="@+id/textInput1">
-
-            <com.google.android.material.textview.MaterialAutoCompleteTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/group_param_payment_method" />
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInput1"
+            app:spinnerMode="dropdown" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/textInput2">
+            app:layout_constraintTop_toBottomOf="@+id/groupEditSpinnerPaymentType">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInput3"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
+            <com.tiper.MaterialSpinner
+                android:id='@+id/groupEditSpinnerAge1'
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                app:boxBackgroundMode="outline"
+                app:helperText="@string/required_helper"
                 app:helperTextTextColor="@color/colorAccent"
-                app:hintTextColor="@color/colorAccent">
+                app:hintTextColor="@color/colorAccent"
+                app:spinnerMode="dropdown" />
 
-                <com.google.android.material.textview.MaterialAutoCompleteTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/group_param_age1_sample" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInput4"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
+            <com.tiper.MaterialSpinner
+                android:id='@+id/groupEditSpinnerAge2'
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                app:boxBackgroundMode="outline"
                 app:helperTextTextColor="@color/colorAccent"
-                app:hintTextColor="@color/colorAccent">
+                app:hintTextColor="@color/colorAccent"
+                app:spinnerMode="dropdown" />
 
-                <com.google.android.material.textview.MaterialAutoCompleteTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/group_param_age2_sample" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInput5"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
+            <com.tiper.MaterialSpinner
+                android:id='@+id/groupEditSpinnerAgeType'
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:hint="@string/group_edit_screen_age_type"
+                app:boxBackgroundMode="outline"
                 app:helperTextTextColor="@color/colorAccent"
-                app:hintTextColor="@color/colorAccent">
-
-                <com.google.android.material.textview.MaterialAutoCompleteTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/age_type_absolute" />
-            </com.google.android.material.textfield.TextInputLayout>
+                app:hintTextColor="@color/colorAccent"
+                app:spinnerMode="dropdown" />
 
         </LinearLayout>
 
