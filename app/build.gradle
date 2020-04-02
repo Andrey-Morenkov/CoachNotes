@@ -95,6 +95,7 @@ dependencies
 
     // Material
     implementation "com.google.android.material:material:$material_version"
+    implementation "com.github.tiper:MaterialSpinner:$material_spinner_version"
 
     // Spinner
     implementation "com.github.skydoves:powerspinner:$spinner_version"

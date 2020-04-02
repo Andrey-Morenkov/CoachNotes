@@ -144,7 +144,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             isPaid.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_money))
         }
 
-        ageType.setOnSpinnerItemSelectedListener<String> { position, text ->
+        ageType.setOnSpinnerItemSelectedListener<String> { position, _ ->
             when(position)
             {
                 0 -> {

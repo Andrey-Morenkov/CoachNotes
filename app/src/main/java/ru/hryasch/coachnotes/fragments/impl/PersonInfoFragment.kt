@@ -54,8 +54,6 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
     {
         val layout = inflater.inflate(R.layout.fragment_person_info, container, false)
 
-        i("PersonInfoFragment onCreateView")
-
         editPerson = layout.findViewById(R.id.personInfoImageButtonEditPerson)
 
         surnameName = layout.findViewById(R.id.personInfoTextViewNameSurname)
@@ -94,8 +92,6 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 
     override fun setPersonData(person: Person, groupNames: Map<GroupId, String>)
     {
-        i("setPersonData")
-
         contentView.visible = true
         loadingBar.visible = false
 

@@ -14,9 +14,10 @@
         android:background="@color/colorBackground"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:title="@string/person_edit_screen_toolbar_title">
+        app:title="@string/person_edit_screen_toolbar_new_title">
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/personEditButtonCreateOrSave"
             style="@style/FilledButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -26,57 +27,71 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <androidx.core.widget.NestedScrollView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <ProgressBar
+            android:id="@+id/personEditProgressBarLoading"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_gravity="center" />
 
-            <com.mikhaellopez.circularimageview.CircularImageView
-                android:id="@+id/circularImageView"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/default_indent"
-                android:tint="@color/colorPrimaryLight"
-                app:civ_border="false"
-                app:civ_border_width="0dp"
-                app:civ_circle_color="@android:color/transparent"
-                app:civ_shadow="false"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/avatar_sample"
-                tools:srcCompat="@drawable/ic_person" />
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/personEditContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/personEditButtonRemovePerson"
-                style="@style/OutlinedButton"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="@dimen/default_indent"
-                android:layout_marginEnd="32dp"
-                android:text="@string/person_edit_screen_delete_person"
-                android:textColor="@color/colorJournalAbsenceGeneral"
-                app:strokeColor="@color/colorJournalAbsenceGeneral" />
+                android:orientation="vertical">
 
-            <include
-                layout="@layout/element_person_edit_common"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/default_indent" />
+                <com.mikhaellopez.circularimageview.CircularImageView
+                    android:id="@+id/circularImageView"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/default_indent"
+                    android:tint="@color/colorPrimaryLight"
+                    app:civ_border="false"
+                    app:civ_border_width="0dp"
+                    app:civ_circle_color="@android:color/transparent"
+                    app:civ_shadow="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/avatar_sample"
+                    tools:srcCompat="@drawable/ic_person" />
 
-            <include
-                layout="@layout/element_person_edit_parents"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/default_indent" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/personEditButtonRemovePerson"
+                    style="@style/OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginTop="@dimen/default_indent"
+                    android:layout_marginEnd="32dp"
+                    android:text="@string/person_edit_screen_delete_person"
+                    android:textColor="@color/colorJournalAbsenceGeneral"
+                    app:strokeColor="@color/colorJournalAbsenceGeneral" />
 
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+                <include
+                    layout="@layout/element_person_edit_common"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/default_indent" />
+
+                <include
+                    layout="@layout/element_person_edit_parents"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/default_indent" />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
+
 </com.google.android.material.appbar.AppBarLayout>

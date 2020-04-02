@@ -28,7 +28,10 @@ buildscript
         viewpager2_version = '1.0.0'
 
         circularimageview_version = '4.2.0'
+
         spinner_version = '1.0.4'
+        material_spinner_version = '1.4.1'
+
         tableview_version = '0.8.9'
         faker_version = "1.0.2"
         snack_progressbar_version = "6.2.1"

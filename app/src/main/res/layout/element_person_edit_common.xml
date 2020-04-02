@@ -99,24 +99,19 @@
                 android:hint="@string/birthday" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInput5"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
+        <com.tiper.MaterialSpinner
+            android:id='@+id/personEditSpinnerGroup'
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:helperTextTextColor="@color/colorAccent"
+            android:layout_marginTop="8dp"
+            android:hint="@string/group"
+            app:boxBackgroundMode="outline"
             app:hintTextColor="@color/colorAccent"
-            app:layout_constraintEnd_toEndOf="@id/textInput4"
-            app:layout_constraintStart_toStartOf="@id/textInput4"
-            app:layout_constraintTop_toBottomOf="@+id/textInput4">
-
-            <com.google.android.material.textview.MaterialAutoCompleteTextView
-                android:id="@+id/editPersonTextViewGroup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/group" />
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInput4"
+            app:spinnerMode="dropdown" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
