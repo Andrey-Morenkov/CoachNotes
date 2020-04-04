@@ -1,6 +1,5 @@
 package ru.hryasch.coachnotes.di
 
-import io.realm.Realm
 import io.realm.RealmConfiguration
 import org.koin.core.qualifier.named
 import org.koin.dsl.module

@@ -32,7 +32,8 @@ class App : Application()
                     realmRepositoriesModule,
                     groupsModule,
                     peopleModule,
-                    toolsModule)
+                    toolsModule,
+                    channelsModule)
         }
 
         Realm.init(applicationContext)

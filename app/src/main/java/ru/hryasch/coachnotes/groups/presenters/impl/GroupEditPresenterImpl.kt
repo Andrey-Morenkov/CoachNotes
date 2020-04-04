@@ -43,4 +43,19 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
             groupInteractor.addOrUpdateGroup(currentGroup)
         }
     }
+
+    override fun deleteGroup(group: Group)
+    {
+        viewState.loadingState()
+
+        GlobalScope.launch(Dispatchers.Main)
+        {
+            groupInteractor.deleteGroup(group)
+
+            withContext(Dispatchers.Main)
+            {
+                viewState.deleteGroupFinished()
+            }
+        }
+    }
 }

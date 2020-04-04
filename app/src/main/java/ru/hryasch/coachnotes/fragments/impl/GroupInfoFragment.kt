@@ -62,6 +62,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     private lateinit var paymentType: TextView
     private lateinit var isPaid: ImageView
 
+    private lateinit var currentGroup: Group
+
     private lateinit var contentView: NestedScrollView
     private lateinit var loadingBar: ProgressBar
 
@@ -121,6 +123,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         contentView.visible = true
         loadingBar.visible = false
 
+        currentGroup = group
+
         name.text = group.name
         age1.text = group.availableAbsoluteAge!!.first.toString()
         age2.text = group.availableAbsoluteAge!!.last.toString()
@@ -171,6 +175,11 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             {
                 // тут поменять группу id у чела на null и все заапдейтить
             }
+        }
+
+        editGroup.setOnClickListener {
+            val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToGroupEditFragment(currentGroup)
+            navController.navigate(action)
         }
 
         membersAdapter = get { parametersOf(members, groupNames, listener) }

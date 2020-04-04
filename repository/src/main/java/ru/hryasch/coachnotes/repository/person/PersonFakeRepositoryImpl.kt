@@ -16,6 +16,7 @@ import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.common.PersonId
 import ru.hryasch.coachnotes.repository.converters.fromDAO
+import ru.hryasch.coachnotes.repository.converters.fromDao
 import ru.hryasch.coachnotes.repository.converters.toDao
 import ru.hryasch.coachnotes.repository.dao.PersonDAO
 import java.util.*
@@ -65,7 +66,14 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
 
     override suspend fun getPerson(personId: PersonId): Person?
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val db = getDb()
+        db.refresh()
+
+        val personDao = db.where<PersonDAO>()
+                          .equalTo("id", personId)
+                          .findFirst()
+
+        return personDao?.fromDao()
     }
 
     override suspend fun getPersonsByGroup(groupId: GroupId): List<Person>?

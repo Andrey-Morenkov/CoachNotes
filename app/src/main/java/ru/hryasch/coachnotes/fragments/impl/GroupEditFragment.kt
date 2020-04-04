@@ -202,14 +202,29 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         loadingBar.visible = true
     }
 
+    override fun deleteGroupFinished()
+    {
+        navController.popBackStack()
+        navController.popBackStack()
+        navController.navigateUp()
+    }
+
     private fun setExistGroupData()
     {
+        deleteGroup.visible = true
+        (activity as AppCompatActivity).supportActionBar!!.setTitle(R.string.group_edit_screen_toolbar_title)
+        saveOrCreateGroup.text = context!!.getString(R.string.save)
+
         name.text = SpannableStringBuilder(currentGroup.name)
         paymentType.selection = currentGroup.isPaid.toInt()
 
         currentGroup.availableAbsoluteAge?.let {
             age1.selection = it.first.toRelative()
             age2.selection = it.last.toRelative()
+        }
+
+        deleteGroup.setOnClickListener {
+            presenter.deleteGroup(currentGroup)
         }
     }
 

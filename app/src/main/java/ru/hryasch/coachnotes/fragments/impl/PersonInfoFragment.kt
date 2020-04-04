@@ -45,6 +45,8 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
     private lateinit var tagsLayout: LinearLayout
     private lateinit var viewPager: ViewPager2
 
+    private lateinit var currentPerson: Person
+
     private lateinit var contentView: NestedScrollView
     private lateinit var loadingBar: ProgressBar
 
@@ -95,6 +97,8 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
         contentView.visible = true
         loadingBar.visible = false
 
+        currentPerson = person
+
         viewPager.adapter = PersonParamsAdapter(this, person)
 
         surnameName.text = context!!.getString(R.string.person_info_header_name_surname_pattern, person.surname, person.name)
@@ -123,6 +127,11 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 
         relativeAge.text = context!!.getString(R.string.person_info_header_age_pattern, timeSpan)
         groupName.text = groupNames[person.groupId]
+
+        editPerson.setOnClickListener {
+            val action = PersonInfoFragmentDirections.actionPersonInfoFragmentToPersonEditFragment(currentPerson)
+            navController.navigate(action)
+        }
     }
 
     override fun loadingState()

@@ -11,15 +11,18 @@ fun List<PersonDAO>.fromDAO(): List<Person>
 {
     val personList: MutableList<Person> = LinkedList()
 
-    this.forEach {
-        personList.add(PersonImpl(it.surname!!, it.name!!, daoDateFormat.parse(it.birthday!!).local.date, it.id!!)
-            .apply {
-                isPaid = it.isPaid
-                groupId = it.groupId
-            })
-    }
+    this.forEach { personList.add(it.fromDao()) }
 
     return personList
+}
+
+fun PersonDAO.fromDao(): Person
+{
+    val person = PersonImpl(this.surname!!, this.name!!, daoDateFormat.parse(this.birthday!!).local.date, this.id!!)
+    person.isPaid = this.isPaid
+    person.groupId = this.groupId
+
+    return person
 }
 
 fun Person.toDao(): PersonDAO

@@ -46,4 +46,14 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
     {
         groupRepository.addOrUpdateGroup(group)
     }
+
+    override suspend fun deleteGroup(group: Group)
+    {
+        group.membersList.forEach {
+            val person = peopleRepository.getPerson(it)
+            person?.groupId = null
+        }
+
+        groupRepository.deleteGroup(group)
+    }
 }

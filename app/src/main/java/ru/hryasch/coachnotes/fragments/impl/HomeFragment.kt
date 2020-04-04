@@ -13,34 +13,37 @@ import com.pawegio.kandroid.visible
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.KlockLocale
 import com.soywiz.klock.locale.russian
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.domain.group.data.Group
+import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.HomeView
 import ru.hryasch.coachnotes.home.impl.HomePresenterImpl
 import java.util.*
 
-class HomeFragment : MvpAppCompatFragment(),
-    HomeView, KoinComponent
+class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: HomePresenterImpl
 
-    lateinit var personsButton:  CardView
-    lateinit var groupsButton:   CardView
-    lateinit var journalsButton: CardView
+    private lateinit var personsButton:  CardView
+    private lateinit var groupsButton:   CardView
+    private lateinit var journalsButton: CardView
 
-    lateinit var personsCount:      TextView
-    lateinit var groupsCount:       TextView
-    lateinit var todayScheduleDate: TextView
+    private lateinit var personsCount:      TextView
+    private lateinit var groupsCount:       TextView
+    private lateinit var todayScheduleDate: TextView
 
-    lateinit var personsCountLoading: ProgressBar
-    lateinit var groupsCountLoading:  ProgressBar
+    private lateinit var personsCountLoading: ProgressBar
+    private lateinit var groupsCountLoading:  ProgressBar
 
-    lateinit var navController: NavController
+    private lateinit var navController: NavController
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,

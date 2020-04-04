@@ -9,4 +9,5 @@ interface GroupRepository
     suspend fun getAllGroups(): List<Group>?
 
     suspend fun addOrUpdateGroup(group: Group)
+    suspend fun deleteGroup(group: Group)
 }

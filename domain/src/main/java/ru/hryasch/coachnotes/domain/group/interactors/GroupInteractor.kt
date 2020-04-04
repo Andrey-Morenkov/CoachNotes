@@ -15,4 +15,6 @@ interface GroupInteractor
     suspend fun getPeopleListByGroup(groupId: GroupId): List<Person>
 
     suspend fun addOrUpdateGroup(group: Group)
+
+    suspend fun deleteGroup(group: Group)
 }

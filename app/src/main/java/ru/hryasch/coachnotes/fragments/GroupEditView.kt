@@ -12,4 +12,7 @@ interface GroupEditView: MvpView
 
     @StateStrategyType(SingleStateStrategy::class)
     fun loadingState()
+
+    @StateStrategyType(SingleStateStrategy::class)
+    fun deleteGroupFinished()
 }
