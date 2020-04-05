@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.groups.presenters.impl
 
+import com.pawegio.kandroid.i
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -38,9 +39,16 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
 
     override fun updateOrCreateGroup()
     {
+        i("updateOrCreateGroup: $currentGroup")
+
         GlobalScope.launch(Dispatchers.Main)
         {
             groupInteractor.addOrUpdateGroup(currentGroup)
+
+            withContext(Dispatchers.Main)
+            {
+                viewState.updateOrCreateGroupFinished()
+            }
         }
     }
 

@@ -10,6 +10,7 @@ import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.inject
+import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
@@ -60,7 +61,7 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
                         isPaid = group.isPaid
                     }
 
-                d("Generated person: ${newPerson.name} ${newPerson.surname} (id: ${newPerson.id} / groupId: ${newPerson.groupId})")
+                d("Generated person: ${newPerson.name} ${newPerson.surname} (id: ${newPerson.id} groupId: ${newPerson.groupId})")
 
                 getDb().executeTransaction {
                     it.copyToRealm(newPerson)
@@ -127,15 +128,18 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
             it.copyToRealmOrUpdate(person.toDao())
         }
 
-        val broadcastChannel: ConflatedBroadcastChannel<Person> = get(named("sendSpecificPerson"))
-        val personGroupBroadcastChannel: ConflatedBroadcastChannel<Group> = get(named("sendSpecificGroup"))
+        val broadcastSpecificChannel: ConflatedBroadcastChannel<Person> = get(named("sendSpecificPerson")) { parametersOf(person.id)}
+        val broadcastChannel: ConflatedBroadcastChannel<List<Person>> = get(named("sendPeopleList"))
 
         val personDb = db.where<PersonDAO>().equalTo("id", person.id).findFirst()
+        val peopleDb = db.where<PersonDAO>().findAll()
 
         personDb?.let {
             i("channel <sendSpecificPerson>: SEND")
-            broadcastChannel.send(it.fromDao())
+            broadcastSpecificChannel.send(it.fromDao())
         }
+
+        broadcastChannel.send(peopleDb.fromDAO())
     }
 
     override suspend fun deletePerson(person: Person)
@@ -152,16 +156,17 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         }
 
         val allBroadcastChannel: ConflatedBroadcastChannel<List<Person>> = get(named("sendPeopleList"))
-        val specificBroadcastChannel: ConflatedBroadcastChannel<List<Person>> = get(named("sendPeopleByGroup"))
-
         val allPeople = db.where<PersonDAO>().findAll()
-        val specificPeople = db.where<PersonDAO>().equalTo("groupId", person.groupId).findAll()
-
         i("channel <sendPeopleList>: SEND")
         allBroadcastChannel.send(allPeople.fromDAO())
 
-        i("channel <sendPeopleByGroup[${person.groupId}]>: SEND")
-        specificBroadcastChannel.send(specificPeople.fromDAO())
+        if (person.groupId != null)
+        {
+            val specificBroadcastChannel: ConflatedBroadcastChannel<List<Person>> = get(named("sendPeopleByGroup")) { parametersOf(person.groupId)}
+            val specificPeople = db.where<PersonDAO>().equalTo("groupId", person.groupId).findAll()
+            i("channel <sendPeopleByGroup[${person.groupId}]>: SEND")
+            specificBroadcastChannel.send(specificPeople.fromDAO())
+        }
     }
 
     @ExperimentalCoroutinesApi

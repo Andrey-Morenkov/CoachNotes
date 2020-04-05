@@ -7,7 +7,7 @@ import java.util.*
 class GroupImpl(override val id: GroupId,
                 override var name: String,
                 override var availableAbsoluteAge: IntRange? = null,
-                override val isPaid: Boolean = false) : Group
+                override var isPaid: Boolean = false) : Group
 {
     override val membersList: MutableList<PersonId> = LinkedList()
 
@@ -16,5 +16,5 @@ class GroupImpl(override val id: GroupId,
         return "$id $name $isPaid".compareTo("${other.id} ${other.name} ${other.isPaid}")
     }
 
-    override fun toString(): String = "$id: [$name ages = ${availableAbsoluteAge?.first} - ${availableAbsoluteAge?.last}]"
+    override fun toString(): String = "$id: [$name, isPaid = $isPaid, ages = ${availableAbsoluteAge?.first} - ${availableAbsoluteAge?.last}, members count = ${membersList.size}]"
 }

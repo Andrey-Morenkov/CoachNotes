@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.domain.person.interactors.impl
 
+import com.pawegio.kandroid.i
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.koin.core.qualifier.named
@@ -34,6 +35,34 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
 
     override suspend fun addOrUpdatePerson(person: Person)
     {
+        person.groupId?.let {
+            val group = groupRepository.getGroup(it)
+            if (group != null)
+            {
+                val isExisted = group.membersList.find { personId -> personId == person.id }
+                if (isExisted == null)
+                {
+                    group.membersList.add(person.id)
+                    i("added person $person to group ${group.id}")
+                    groupRepository.addOrUpdateGroup(group)
+                }
+            }
+        }
+
+        //hotfix for delete person
+        val groups = groupRepository.getAllGroups()
+        groups?.forEach {
+            if (it.id != person.groupId)
+            {
+                val isExisted = it.membersList.find { personId -> personId == person.id }
+                if (isExisted != null)
+                {
+                    it.membersList.remove(person.id)
+                    groupRepository.addOrUpdateGroup(it)
+                }
+            }
+        }
+
         peopleRepository.addOrUpdatePerson(person)
     }
 
@@ -50,6 +79,7 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
             if (group != null)
             {
                 group.membersList.remove(person.id)
+                i("membersList size after remove = ${group.membersList.size}")
                 groupRepository.addOrUpdateGroup(group)
             }
         }

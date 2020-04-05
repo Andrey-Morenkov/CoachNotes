@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.domain.group.interactors.impl
 
+import com.pawegio.kandroid.i
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.koin.core.qualifier.named
@@ -18,7 +19,13 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
 
     override suspend fun getGroupsList(): List<Group>
     {
-        return groupRepository.getAllGroups() ?: LinkedList()
+        val groups = groupRepository.getAllGroups() ?: LinkedList()
+
+        groups.forEach {
+            i("group[${it.name} ${it.id}]: people count = ${it.membersList.size}")
+        }
+
+        return groups
     }
 
     override suspend fun getMaxGroupId(): GroupId

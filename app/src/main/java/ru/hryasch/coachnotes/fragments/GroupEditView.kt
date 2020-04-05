@@ -15,4 +15,7 @@ interface GroupEditView: MvpView
 
     @StateStrategyType(SingleStateStrategy::class)
     fun deleteGroupFinished()
+
+    @StateStrategyType(SingleStateStrategy::class)
+    fun updateOrCreateGroupFinished()
 }

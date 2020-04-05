@@ -39,6 +39,8 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
     private lateinit var peopleLoading: ProgressBar
     private lateinit var noPeopleLabel: TextView
 
+    private lateinit var currentGroupNames: Map<GroupId, String>
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
@@ -92,7 +94,19 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
                 }
             }
 
-            peopleAdapter = get { parametersOf(peopleList, groupNames, listener) }
+            if (::currentGroupNames.isInitialized)
+            {
+                if (groupNames != null)
+                {
+                    currentGroupNames = groupNames
+                }
+            }
+            else
+            {
+                currentGroupNames = groupNames ?: HashMap()
+            }
+            peopleAdapter = get { parametersOf(peopleList, currentGroupNames, listener) }
+
             peopleView.adapter = peopleAdapter
             peopleView.layoutManager = LinearLayoutManager(context)
             peopleView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))

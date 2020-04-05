@@ -45,5 +45,9 @@ fun Group.toDao(): GroupDAO
         dao.availableAgeHigh = this.availableAbsoluteAge!!.last
     }
 
+    this.membersList.forEach {
+        dao.members.add(it)
+    }
+
     return dao
 }

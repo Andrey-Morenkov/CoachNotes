@@ -42,9 +42,16 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
 
     override fun updateOrCreatePerson()
     {
+        i("updateOrCreatePerson: $currentPerson")
+
         GlobalScope.launch(Dispatchers.Main)
         {
             peopleInteractor.addOrUpdatePerson(currentPerson)
+
+            withContext(Dispatchers.Main)
+            {
+                viewState.updateOrCreatePersonFinished()
+            }
         }
     }
 

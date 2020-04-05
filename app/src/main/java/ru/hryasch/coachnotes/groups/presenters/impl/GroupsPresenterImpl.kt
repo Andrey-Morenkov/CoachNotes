@@ -32,6 +32,10 @@ class GroupsPresenterImpl: MvpPresenter<GroupsView>(), GroupsPresenter, KoinComp
         GlobalScope.launch(Dispatchers.Default)
         {
             val groupsList = groupsInteractor.getGroupsList()
+            groupsList.forEach {
+                i("group info: $it")
+            }
+
             withContext(Dispatchers.Main)
             {
                 viewState.setGroupsList(groupsList)
@@ -61,7 +65,7 @@ class GroupsPresenterImpl: MvpPresenter<GroupsView>(), GroupsPresenter, KoinComp
             while (true)
             {
                 val newData = groupsRecvChannel.receive()
-                i("GroupsPresenterImpl <sendGroupsList>: RECEIVED")
+                i("GroupsPresenterImpl <recvGroupsList>: RECEIVED")
 
                 withContext(Dispatchers.Main)
                 {

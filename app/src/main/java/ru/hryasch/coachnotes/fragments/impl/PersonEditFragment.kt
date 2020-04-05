@@ -19,6 +19,8 @@ import com.google.android.material.textfield.TextInputEditText
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import com.skydoves.powerspinner.PowerSpinnerView
+import com.soywiz.klock.DateFormat
+import com.soywiz.klock.parse
 import com.tiper.MaterialSpinner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -51,7 +53,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private lateinit var birthday: TextInputEditText
     private lateinit var groupChooser: MaterialSpinner
 
-    private val groupIdByPosition: MutableMap<Int, GroupId?> = HashMap()
+    private val groupIdByPosition: MutableMap<Int, Pair<GroupId?, Boolean>> = HashMap()
     private val groupPositionById: MutableMap<GroupId?, Int> = HashMap()
 
     private lateinit var contentView: NestedScrollView
@@ -120,7 +122,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                                         position: Int,
                                         id: Long)
             {
-                currentPerson.groupId = groupIdByPosition[position]
+                currentPerson.groupId = groupIdByPosition[position]?.first
             }
 
             override fun onNothingSelected(parent: MaterialSpinner)
@@ -130,10 +132,34 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         i("person.groupId = ${person.groupId}")
 
-        person.groupId?.let {
-            groupChooser.selection = groupPositionById[it]!!
-        } ?: let {
-            groupChooser.selection = ListView.INVALID_POSITION
+        groupChooser.selection = groupPositionById[person.groupId]!!
+
+        saveOrCreatePerson.setOnClickListener {
+            currentPerson.surname = surname.text.toString()
+            currentPerson.name = name.text.toString()
+            currentPerson.patronymic = patronymic.text?.toString()
+
+            if (birthday.text != null)
+            {
+                currentPerson.birthday = DateFormat("dd.MM.yyyy").parse(birthday.text!!.toString()).local.date
+            }
+            else
+            {
+                currentPerson.birthday = null
+            }
+
+            if (groupChooser.selection == MaterialSpinner.INVALID_POSITION)
+            {
+                currentPerson.groupId = null
+                currentPerson.isPaid = false
+            }
+            else
+            {
+                currentPerson.groupId = groupIdByPosition[groupChooser.selection]!!.first
+                currentPerson.isPaid = groupIdByPosition[groupChooser.selection]!!.second
+            }
+
+            presenter.updateOrCreatePerson()
         }
     }
 
@@ -146,6 +172,11 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     override fun deletePersonFinished()
     {
         navController.popBackStack()
+        navController.navigateUp()
+    }
+
+    override fun updateOrCreatePersonFinished()
+    {
         navController.navigateUp()
     }
 
@@ -175,13 +206,13 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     {
         val groupsListItems = LinkedList<String>()
         groupsListItems.add("Нет группы")
-        groupIdByPosition[0] = null
+        groupIdByPosition[0] = Pair(null, false)
         groupPositionById[null] = 0
 
         val groupListSorted = groups.sorted()
         for ((i, group) in groupListSorted.withIndex())
         {
-            groupIdByPosition[i+1] = group.id
+            groupIdByPosition[i+1] = Pair(group.id, group.isPaid)
             groupPositionById[group.id] = i+1
 
             var age1 = "?"

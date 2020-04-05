@@ -194,6 +194,33 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             {
             }
         }
+
+        saveOrCreateGroup.setOnClickListener {
+            currentGroup.name = name.text.toString()
+            currentGroup.isPaid = paymentType.selection.toBoolean()
+
+            ageType.selection = 0
+            val ageStart = age1.selectedItem?.toString()?.toInt()
+            val ageFinish = age2.selectedItem?.toString()?.toInt()
+
+            if (ageStart != null)
+            {
+                if (ageFinish != null)
+                {
+                    currentGroup.availableAbsoluteAge = ageStart .. ageFinish
+                }
+                else
+                {
+                    currentGroup.availableAbsoluteAge = ageStart .. ageStart
+                }
+            }
+            else
+            {
+                currentGroup.availableAbsoluteAge = null
+            }
+
+            presenter.updateOrCreateGroup()
+        }
     }
 
     override fun loadingState()
@@ -205,6 +232,11 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
     override fun deleteGroupFinished()
     {
         navController.popBackStack()
+        navController.navigateUp()
+    }
+
+    override fun updateOrCreateGroupFinished()
+    {
         navController.navigateUp()
     }
 
@@ -258,3 +290,5 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 }
 
 private fun Boolean.toInt(): Int = if (this) 1 else 0
+
+private fun Int.toBoolean(): Boolean = this != 0

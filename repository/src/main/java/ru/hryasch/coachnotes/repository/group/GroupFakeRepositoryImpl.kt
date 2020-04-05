@@ -8,6 +8,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import org.koin.core.KoinComponent
 import org.koin.core.get
+import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
@@ -73,13 +74,22 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
             it.copyToRealmOrUpdate(group.toDao())
         }
 
-        val broadcastChannel: ConflatedBroadcastChannel<Group> = get(named("sendSpecificGroup"))
-        val specificBroadcastChannel: ConflatedBroadcastChannel<List<Person>> = get(named("sendPeopleByGroup"))
+        val groups = db.where<GroupDAO>().findAll()
+        groups.forEach {
+            i("group after update: ${it.fromDAO()}")
+        }
 
-        val groupDb  = db.where<GroupDAO>().equalTo("id", group.id).findFirst()
-
+        val specificBroadcastChannel: ConflatedBroadcastChannel<Group> = get(named("sendSpecificGroup")) { parametersOf(group.id) }
+        val groupDb = db.where<GroupDAO>().equalTo("id", group.id).findFirst()
         groupDb?.let {
-            i("channel <sendSpecificGroup>: SEND")
+            i("channel <sendSpecificGroup[${group.id}]>: SEND")
+            specificBroadcastChannel.send(it.fromDAO())
+        }
+
+        val broadcastChannel: ConflatedBroadcastChannel<List<Group>> = get(named("sendGroupsList"))
+        val groupsDb = db.where<GroupDAO>().findAll()
+        groupsDb?.let {
+            i("channel <sendGroupsList>: SEND")
             broadcastChannel.send(it.fromDAO())
         }
     }
