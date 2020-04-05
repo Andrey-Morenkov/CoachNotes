@@ -126,7 +126,7 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
         }
 
         relativeAge.text = context!!.getString(R.string.person_info_header_age_pattern, timeSpan)
-        groupName.text = groupNames[person.groupId]
+        groupName.text = groupNames[person.groupId] ?: "Нет группы"
 
         editPerson.setOnClickListener {
             val action = PersonInfoFragmentDirections.actionPersonInfoFragmentToPersonEditFragment(currentPerson)

@@ -128,6 +128,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             }
         }
 
+        i("person.groupId = ${person.groupId}")
+
         person.groupId?.let {
             groupChooser.selection = groupPositionById[it]!!
         } ?: let {
@@ -139,6 +141,12 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     {
         contentView.visible = false
         loadingBar.visible = true
+    }
+
+    override fun deletePersonFinished()
+    {
+        navController.popBackStack()
+        navController.navigateUp()
     }
 
     private fun setExistPersonData()
@@ -156,6 +164,10 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         currentPerson.birthday?.let {
             birthday.text = SpannableStringBuilder(it.format("dd.MM.yyyy"))
+        }
+
+        deletePerson.setOnClickListener {
+            presenter.deletePerson(currentPerson)
         }
     }
 

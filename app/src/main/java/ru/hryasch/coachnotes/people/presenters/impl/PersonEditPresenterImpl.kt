@@ -47,4 +47,19 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
             peopleInteractor.addOrUpdatePerson(currentPerson)
         }
     }
+
+    override fun deletePerson(person: Person)
+    {
+        viewState.loadingState()
+
+        GlobalScope.launch(Dispatchers.Main)
+        {
+            peopleInteractor.deletePerson(person)
+
+            withContext(Dispatchers.Main)
+            {
+                viewState.deletePersonFinished()
+            }
+        }
+    }
 }

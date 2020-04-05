@@ -13,4 +13,6 @@ interface PersonInteractor
     suspend fun addOrUpdatePerson(person: Person)
 
     suspend fun getMaxPersonId(): PersonId
+
+    suspend fun deletePerson(person: Person)
 }

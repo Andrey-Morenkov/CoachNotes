@@ -22,8 +22,8 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
 {
     private val homeInteractor: HomeInteractor by inject()
 
-    private val groupsRecvChannel: ReceiveChannel<List<Person>> = get(named("recvGroupsList"))
-    private val peopleRecvChannel: ReceiveChannel<List<Group>>  = get(named("recvPeopleList"))
+    private val groupsRecvChannel: ReceiveChannel<List<Group>> = get(named("recvGroupsList"))
+    private val peopleRecvChannel: ReceiveChannel<List<Person>>  = get(named("recvPeopleList"))
 
     private val subscriptions: Job = Job()
 
@@ -53,6 +53,16 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
 
     }
 
+    override fun onDestroy()
+    {
+        subscriptions.cancel()
+
+        peopleRecvChannel.cancel()
+        groupsRecvChannel.cancel()
+
+        super.onDestroy()
+    }
+
     private fun loadingState()
     {
         viewState.setGroupsCount(null)
@@ -66,9 +76,8 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
         {
             while (true)
             {
-                i("channel <sendPeopleList>: WAITING TO RECEIVE")
                 val newData = peopleRecvChannel.receive()
-                i("channel <sendPeopleList>: RECEIVED")
+                i("HomePresenterImpl <sendPeopleList>: RECEIVED")
 
                 withContext(Dispatchers.Main)
                 {
@@ -85,9 +94,8 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
         {
             while (true)
             {
-                i("channel <sendGroupsList>: WAITING TO RECEIVE")
                 val newData = groupsRecvChannel.receive()
-                i("channel <sendGroupsList>: RECEIVED")
+                i("HomePresenterImpl <sendGroupsList>: RECEIVED")
 
                 withContext(Dispatchers.Main)
                 {
@@ -95,15 +103,5 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
                 }
             }
         }
-    }
-
-    override fun onDestroy()
-    {
-        subscriptions.cancel()
-
-        peopleRecvChannel.cancel()
-        groupsRecvChannel.cancel()
-
-        super.onDestroy()
     }
 }

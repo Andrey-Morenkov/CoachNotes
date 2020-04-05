@@ -10,6 +10,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.group.data.Group
+import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.common.toAbsolute
@@ -68,7 +69,19 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
         val db = getDb()
         db.refresh()
 
-        db.copyToRealmOrUpdate(group.toDao())
+        db.executeTransaction {
+            it.copyToRealmOrUpdate(group.toDao())
+        }
+
+        val broadcastChannel: ConflatedBroadcastChannel<Group> = get(named("sendSpecificGroup"))
+        val specificBroadcastChannel: ConflatedBroadcastChannel<List<Person>> = get(named("sendPeopleByGroup"))
+
+        val groupDb  = db.where<GroupDAO>().equalTo("id", group.id).findFirst()
+
+        groupDb?.let {
+            i("channel <sendSpecificGroup>: SEND")
+            broadcastChannel.send(it.fromDAO())
+        }
     }
 
     override suspend fun deleteGroup(group: Group)
@@ -129,8 +142,6 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
     private suspend fun setAllGroupsChangesTrigger()
     {
         val broadcastChannel: ConflatedBroadcastChannel<List<Group>> = get(named("sendGroupsList"))
-
-        i("channel <sendGroupsList>: setAllGroupsChangesTrigger")
 
         withContext(Dispatchers.Main)
         {

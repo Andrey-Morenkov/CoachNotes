@@ -11,6 +11,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
+import com.pawegio.kandroid.i
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
@@ -42,6 +43,7 @@ class PeopleAdapter(peopleList: List<Person>,
 
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int)
     {
+        i("bing people: groupId: ${peopleList[position].groupId}")
         holder.bind(peopleList[position], groupNames[peopleList[position].groupId])
     }
 

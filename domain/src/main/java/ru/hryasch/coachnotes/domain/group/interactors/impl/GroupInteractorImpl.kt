@@ -51,7 +51,10 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
     {
         group.membersList.forEach {
             val person = peopleRepository.getPerson(it)
-            person?.groupId = null
+            person?.apply {
+                    groupId = null
+                    isPaid = false }
+                  ?.let   { peopleRepository.addOrUpdatePerson(it) }
         }
 
         groupRepository.deleteGroup(group)

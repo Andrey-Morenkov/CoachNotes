@@ -13,4 +13,7 @@ interface PersonEditView: MvpView
 
     @StateStrategyType(SingleStateStrategy::class)
     fun loadingState()
+
+    @StateStrategyType(SingleStateStrategy::class)
+    fun deletePersonFinished()
 }

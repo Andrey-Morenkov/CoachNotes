@@ -1,11 +1,16 @@
 package ru.hryasch.coachnotes.people.presenters.impl
 
+import com.pawegio.kandroid.i
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import org.koin.core.KoinComponent
+import org.koin.core.get
 import org.koin.core.inject
+import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.common.PersonId
+import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
 import ru.hryasch.coachnotes.fragments.PeopleView
 import ru.hryasch.coachnotes.people.presenters.PeoplePresenter
@@ -14,6 +19,9 @@ import ru.hryasch.coachnotes.people.presenters.PeoplePresenter
 class PeoplePresenterImpl: MvpPresenter<PeopleView>(), PeoplePresenter, KoinComponent
 {
     private val peopleInteractor: PersonInteractor by inject()
+
+    private val peopleRecvChannel: ReceiveChannel<List<Group>> = get(named("recvPeopleList"))
+    private val subscriptions: Job = Job()
 
     init
     {
@@ -36,5 +44,13 @@ class PeoplePresenterImpl: MvpPresenter<PeopleView>(), PeoplePresenter, KoinComp
     private fun loadingState()
     {
         viewState.setPeopleList(null)
+    }
+
+    override fun onDestroy()
+    {
+        subscriptions.cancel()
+        peopleRecvChannel.cancel()
+
+        super.onDestroy()
     }
 }

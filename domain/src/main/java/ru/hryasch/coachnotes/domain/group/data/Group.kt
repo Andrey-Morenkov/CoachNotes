@@ -9,7 +9,7 @@ interface Group: Comparable<Group>, Serializable
     val id: GroupId
     var name: String
     var availableAbsoluteAge: IntRange?
-    val membersList: List<PersonId>
+    val membersList: MutableList<PersonId>
     val isPaid: Boolean
 
     override fun toString(): String

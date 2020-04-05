@@ -42,4 +42,17 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
         val maxId = peopleRepository.getAllPeople()?.map { it.id }?.max()
         return maxId ?: 0
     }
+
+    override suspend fun deletePerson(person: Person)
+    {
+        person.groupId?.let {
+            val group = groupRepository.getGroup(it)
+            if (group != null)
+            {
+                group.membersList.remove(person.id)
+                groupRepository.addOrUpdateGroup(group)
+            }
+        }
+        peopleRepository.deletePerson(person)
+    }
 }

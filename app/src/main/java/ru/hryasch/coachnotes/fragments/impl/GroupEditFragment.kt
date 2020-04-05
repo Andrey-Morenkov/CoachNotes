@@ -205,7 +205,6 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
     override fun deleteGroupFinished()
     {
         navController.popBackStack()
-        navController.popBackStack()
         navController.navigateUp()
     }
 

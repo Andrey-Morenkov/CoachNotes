@@ -4,5 +4,5 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 
 interface GroupsPresenter
 {
-    fun onGroupClicked(groupId: GroupId)
+
 }

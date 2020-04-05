@@ -11,4 +11,5 @@ interface PersonRepository
     suspend fun getAllPeople(): List<Person>?
 
     suspend fun addOrUpdatePerson(person: Person)
+    suspend fun deletePerson(person: Person)
 }
