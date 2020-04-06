@@ -12,11 +12,14 @@ import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.person.data.Person
 
-class GroupMembersAdapter(peopleList: List<Person>,
+class GroupMembersAdapter(private val peopleList: MutableList<Person>,
                           private val groupNames: Map<GroupId, String>,
                           private val listener: RemovePersonListener): RecyclerView.Adapter<GroupMemberViewHolder>()
 {
-    private val peopleList: List<Person> = peopleList.sorted()
+    init
+    {
+        peopleList.sort()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupMemberViewHolder
     {

@@ -21,7 +21,7 @@ class PeopleAdapter(peopleList: List<Person>,
                     private val groupNames: Map<GroupId, String>,
                     private val listener: PersonClickListener): RecyclerView.Adapter<PersonViewHolder>()
 {
-    private val peopleList: List<Person> = peopleList.sorted()
+    private val peopleList: List<Person> = peopleList.sorted().toMutableList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder
     {

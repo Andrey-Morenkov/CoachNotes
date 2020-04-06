@@ -15,4 +15,6 @@ interface PersonInteractor
     suspend fun getMaxPersonId(): PersonId
 
     suspend fun deletePerson(person: Person)
+
+    suspend fun deletePersonFromGroup(personId: PersonId, groupId: GroupId)
 }

@@ -1,8 +1,12 @@
 package ru.hryasch.coachnotes.domain.person.interactors.impl
 
 import com.pawegio.kandroid.i
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import org.koin.core.KoinComponent
+import org.koin.core.get
 import org.koin.core.inject
+import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
@@ -33,6 +37,7 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
         return res
     }
 
+    @ExperimentalCoroutinesApi
     override suspend fun addOrUpdatePerson(person: Person)
     {
         person.groupId?.let {
@@ -59,6 +64,11 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
                 {
                     it.membersList.remove(person.id)
                     groupRepository.addOrUpdateGroup(it)
+
+                    //hotfix
+                    val broadcast: ConflatedBroadcastChannel<List<Person>> = get(named("sendPeopleByGroup")) { parametersOf(it.id) }
+                    i("channel <sendPeopleByGroup[${it.id}]>: SEND")
+                    broadcast.send(peopleRepository.getPersonsByGroup(it.id)!!)
                 }
             }
         }
@@ -84,5 +94,17 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
             }
         }
         peopleRepository.deletePerson(person)
+    }
+
+    @ExperimentalCoroutinesApi
+    override suspend fun deletePersonFromGroup(personId: PersonId, groupId: GroupId)
+    {
+        val person = peopleRepository.getPersonsByGroup(groupId)?.find { person -> person.id == personId }
+
+        person?.let {
+            it.groupId = null
+            it.isPaid = false
+            addOrUpdatePerson(it)
+        }
     }
 }

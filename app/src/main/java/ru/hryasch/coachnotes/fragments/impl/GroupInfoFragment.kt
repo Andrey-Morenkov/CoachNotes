@@ -1,6 +1,5 @@
 package ru.hryasch.coachnotes.fragments.impl
 
-import android.graphics.ColorFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -18,9 +18,12 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import com.skydoves.powerspinner.PowerSpinnerView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import moxy.MvpAppCompatFragment
@@ -29,6 +32,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
@@ -63,10 +67,12 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     private lateinit var isPaid: ImageView
 
     private lateinit var currentGroup: Group
+    private lateinit var currentMembers: MutableList<Person>
 
     private lateinit var contentView: NestedScrollView
     private lateinit var loadingBar: ProgressBar
 
+    @ExperimentalCoroutinesApi
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
@@ -124,6 +130,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         loadingBar.visible = false
 
         currentGroup = group
+        currentMembers = members.toMutableList()
 
         name.text = group.name
         age1.text = group.availableAbsoluteAge!!.first.toString()
@@ -173,7 +180,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         val listener =  object: GroupMembersAdapter.RemovePersonListener {
             override fun onPersonRemoveFromGroup(person: Person)
             {
-                // тут поменять группу id у чела на null и все заапдейтить
+                presenter.onDeletePersonFromCurrentGroupClicked(person)
             }
         }
 
@@ -182,11 +189,15 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             navController.navigate(action)
         }
 
-        membersAdapter = get { parametersOf(members, groupNames, listener) }
+        membersAdapter = get { parametersOf(currentMembers, groupNames, listener) }
         shortMembersList.adapter = membersAdapter
         shortMembersList.layoutManager = LinearLayoutManager(context)
 
         noMembersData.visible = ( membersAdapter.itemCount == 0 )
+
+        addMember.setOnClickListener {
+
+        }
     }
 
     override fun loadingState()
@@ -194,5 +205,37 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         contentView.visible = false
         loadingBar.visible = true
         noMembersData.visible = false
+    }
+
+    override fun showDeletePersonFromGroupNotification(person: Person?)
+    {
+        if (person == null)
+        {
+            return
+        }
+
+        val dialog = MaterialAlertDialogBuilder(this@GroupInfoFragment.context!!)
+            .setTitle("Удалене ученика из группы")
+            .setMessage("Вы уверены что хотите удалить ${person.surname} ${person.name} из группы ${currentGroup.name} ?")
+            .setPositiveButton("Удалить") { dialog, _ ->
+                dialog.cancel()
+                currentMembers.remove(person)
+                i("members after remove: ${currentMembers.size}")
+                membersAdapter.notifyDataSetChanged()
+                membersCount.text = membersCount.text.toString().toInt().dec().toString()
+
+                presenter.deletePersonFromCurrentGroup(person.id)
+            }
+            .setNegativeButton("Отмена") {
+                    dialog, _ -> dialog.cancel()
+            }
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
+        }
+
+        dialog.show()
     }
 }

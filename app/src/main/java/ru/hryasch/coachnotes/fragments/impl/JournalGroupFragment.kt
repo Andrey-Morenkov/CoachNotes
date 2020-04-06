@@ -244,8 +244,7 @@ class JournalGroupFragment : MvpAppCompatFragment(),
         val dialog = MaterialAlertDialogBuilder(this@JournalGroupFragment.context!!)
             .setTitle("Удаление столбца")
             .setMessage("Вы уверены, что хотите удалить данные за ${dayOfWeekLongNames[date.dayOfWeek.index0Monday].toLowerCase(Locale("ru"))}, ${date.format("dd.MM.yyyy")} ?")
-            .setPositiveButton("Ок") {
-                    dialog, _ ->
+            .setPositiveButton("Удалить") { dialog, _ ->
                 dialog.cancel()
                 presenter.deleteColumnData(col)
             }

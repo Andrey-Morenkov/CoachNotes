@@ -9,5 +9,5 @@ import ru.hryasch.coachnotes.people.PeopleAdapter
 val peopleModule = module {
 
     factory { (peopleList: List<Person>, groupsNames: Map<GroupId, String>, listener: PeopleAdapter.PersonClickListener) -> PeopleAdapter(peopleList, groupsNames, listener) }
-    factory { (peopleList: List<Person>, groupsNames: Map<GroupId, String>, listener: GroupMembersAdapter.RemovePersonListener) -> GroupMembersAdapter(peopleList, groupsNames, listener) }
+    factory { (peopleList: MutableList<Person>, groupsNames: Map<GroupId, String>, listener: GroupMembersAdapter.RemovePersonListener) -> GroupMembersAdapter(peopleList, groupsNames, listener) }
 }
