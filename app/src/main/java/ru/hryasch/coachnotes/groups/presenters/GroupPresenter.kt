@@ -11,4 +11,8 @@ interface GroupPresenter
     fun onDeletePersonFromCurrentGroupClicked(person: Person)
 
     fun deletePersonFromCurrentGroup(personId: PersonId)
+
+    fun onAddPeopleToGroupClicked()
+
+    fun addPeopleToGroup(people: List<Person>)
 }

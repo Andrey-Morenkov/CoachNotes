@@ -17,4 +17,6 @@ interface PersonInteractor
     suspend fun deletePerson(person: Person)
 
     suspend fun deletePersonFromGroup(personId: PersonId, groupId: GroupId)
+
+    suspend fun getPeopleWithoutGroup(): List<Person>?
 }

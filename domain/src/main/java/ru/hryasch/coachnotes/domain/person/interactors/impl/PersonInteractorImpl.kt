@@ -107,4 +107,9 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
             addOrUpdatePerson(it)
         }
     }
+
+    override suspend fun getPeopleWithoutGroup(): List<Person>?
+    {
+        return peopleRepository.getAllPeople()?.filter { person -> person.groupId == null }
+    }
 }

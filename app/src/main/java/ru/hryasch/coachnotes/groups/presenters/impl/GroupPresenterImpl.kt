@@ -2,13 +2,10 @@ package ru.hryasch.coachnotes.groups.presenters.impl
 
 import com.pawegio.kandroid.i
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ReceiveChannel
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.inject
-import org.koin.core.parameter.parametersOf
-import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.group.data.Group
@@ -60,5 +57,35 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
         }
 
         viewState.showDeletePersonFromGroupNotification(null)
+    }
+
+    override fun onAddPeopleToGroupClicked()
+    {
+        GlobalScope.launch(Dispatchers.Default)
+        {
+            val peopleWithoutGroup = peopleInteractor.getPeopleWithoutGroup()?.sorted()
+
+            withContext(Dispatchers.Main)
+            {
+                viewState.showAddPeopleToGroupNotification(peopleWithoutGroup)
+            }
+        }
+    }
+
+    override fun addPeopleToGroup(people: List<Person>)
+    {
+        people.forEach {
+            i("addPeopleToGroup: $it -> ${currentGroup.id}")
+        }
+
+        GlobalScope.launch(Dispatchers.Default)
+        {
+            people.forEach {
+                peopleInteractor.addOrUpdatePerson(it)
+            }
+            groupInteractor.addOrUpdateGroup(currentGroup)
+        }
+
+        viewState.showAddPeopleToGroupNotification(null)
     }
 }

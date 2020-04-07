@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.fragments.impl
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,10 +23,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import com.skydoves.powerspinner.PowerSpinnerView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
@@ -42,6 +41,8 @@ import ru.hryasch.coachnotes.groups.isSingle
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupPresenterImpl
 import ru.hryasch.coachnotes.repository.common.toAbsolute
 import ru.hryasch.coachnotes.repository.common.toRelative
+import java.util.*
+import kotlin.collections.ArrayList
 
 class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 {
@@ -196,7 +197,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         noMembersData.visible = ( membersAdapter.itemCount == 0 )
 
         addMember.setOnClickListener {
-
+            presenter.onAddPeopleToGroupClicked()
         }
     }
 
@@ -222,14 +223,111 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
                 currentMembers.remove(person)
                 i("members after remove: ${currentMembers.size}")
                 membersAdapter.notifyDataSetChanged()
+                noMembersData.visible = ( membersAdapter.itemCount == 0 )
                 membersCount.text = membersCount.text.toString().toInt().dec().toString()
 
                 presenter.deletePersonFromCurrentGroup(person.id)
             }
-            .setNegativeButton("Отмена") {
-                    dialog, _ -> dialog.cancel()
+            .setNegativeButton("Отмена") { dialog, _ ->
+                dialog.cancel()
             }
             .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
+        }
+
+        dialog.show()
+    }
+
+    @ExperimentalCoroutinesApi
+    override fun showAddPeopleToGroupNotification(people: List<Person>?)
+    {
+        if (people == null)
+        {
+            return
+        }
+
+        val checkedCountSendChannel = ConflatedBroadcastChannel<Int>()
+        val checkedCountRecvChannel = checkedCountSendChannel.openSubscription()
+        val channels = Job()
+
+        val peopleItems = Array<String>(people.size) {""}
+        val checkedItems: BooleanArray = BooleanArray(people.size) {false}
+        var checkedCount = 0
+
+        for ((i, person) in people.withIndex())
+        {
+            peopleItems[i] = "${person.surname} ${person.name}"
+            checkedItems[i] = false
+        }
+
+        val dialog = MaterialAlertDialogBuilder(this@GroupInfoFragment.context!!)
+            .setTitle("Добавить учеников в группу")
+            .setMultiChoiceItems(peopleItems, checkedItems) { _, pos, isChecked ->
+                checkedItems[pos] = isChecked
+                if (isChecked)
+                {
+                    checkedCount++
+                }
+                else
+                {
+                    checkedCount--
+                }
+
+                GlobalScope.launch(Dispatchers.Main + channels)
+                {
+                    checkedCountSendChannel.send(checkedCount)
+                }
+            }
+            .setPositiveButton("Добавить ($checkedCount)") { dialog, _ ->
+                dialog.cancel()
+                checkedCountRecvChannel.cancel()
+                checkedCountSendChannel.cancel()
+                channels.cancel()
+
+                val peopleList: MutableList<Person> = LinkedList()
+                for ((i, item) in checkedItems.withIndex())
+                {
+                    if (item)
+                    {
+                        val newPerson = people[i].apply {
+                            groupId = currentGroup.id
+                            isPaid = currentGroup.isPaid
+                        }
+                        peopleList.add(newPerson)
+                        currentMembers.add(newPerson)
+                    }
+                }
+                currentMembers.sort()
+                membersAdapter.notifyDataSetChanged()
+                noMembersData.visible = ( membersAdapter.itemCount == 0 )
+                membersCount.text = currentMembers.size.toString()
+
+                presenter.addPeopleToGroup(peopleList)
+            }
+            .setNegativeButton("Отмена") { dialog, _ ->
+                dialog.cancel()
+
+                checkedCountRecvChannel.cancel()
+                checkedCountSendChannel.cancel()
+                channels.cancel()
+            }
+            .create()
+
+        GlobalScope.launch(Dispatchers.Main + channels)
+        {
+            while (true)
+            {
+                val text = "Добавить учеников (${checkedCountRecvChannel.receive()})"
+                val button = dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                button.text = text
+
+                button.isEnabled = checkedCount != 0
+            }
+        }
+
 
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
