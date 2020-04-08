@@ -10,22 +10,30 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
+import ru.hryasch.coachnotes.repository.common.GroupChannelsStorage
+import ru.hryasch.coachnotes.repository.common.PeopleChannelsStorage
+import ru.hryasch.coachnotes.repository.common.StorageCellResults
+import ru.hryasch.coachnotes.repository.common.StorageCellSingle
+import ru.hryasch.coachnotes.repository.dao.GroupDAO
+import ru.hryasch.coachnotes.repository.dao.PersonDAO
 
 @ExperimentalCoroutinesApi
 val channelsModule = module {
 
-    single(named("sendGroupsList"))  { GroupChannelsStorage.allGroupsListChannel as ConflatedBroadcastChannel<List<Group>> }
+    // AllGroups
+    single(named("sendGroupsList"))  { GroupChannelsStorage.allGroups.channel }
     factory(named("recvGroupsList")) { get<ConflatedBroadcastChannel<List<Group>>>(named("sendGroupsList")).openSubscription() as ReceiveChannel<List<Group>> }
 
+    // Specific group
     factory(named("sendSpecificGroup")) { (groupId: GroupId) ->
-        var groupChannel = GroupChannelsStorage.groupChannelById[groupId]
-        if (groupChannel == null)
+        var groupEntry = GroupChannelsStorage.groupById[groupId]
+        if (groupEntry == null)
         {
-            groupChannel = ConflatedBroadcastChannel<Group>()
-            GroupChannelsStorage.groupChannelById[groupId] = groupChannel
+            GroupChannelsStorage.groupById[groupId] = StorageCellSingle<GroupDAO>()
+            groupEntry = GroupChannelsStorage.groupById[groupId]
         }
 
-        return@factory groupChannel as ConflatedBroadcastChannel<Group>
+        return@factory groupEntry!!.channel
     }
     factory (named("recvSpecificGroup")) { (groupId: GroupId) ->
         get<ConflatedBroadcastChannel<Group>>(named("sendSpecificGroup")) { parametersOf(groupId) }.openSubscription() as ReceiveChannel<Group>
@@ -33,55 +41,43 @@ val channelsModule = module {
 
 
 
-    single(named("sendPeopleList"))  { PeopleChannelsStorage.allPeopleListChannel as ConflatedBroadcastChannel<List<Person>>}
+    //AllPeople
+    single(named("sendPeopleList"))  { PeopleChannelsStorage.allPeople.channel }
     factory(named("recvPeopleList")) { get<ConflatedBroadcastChannel<List<Person>>>(named("sendPeopleList")).openSubscription() as ReceiveChannel<List<Person>>}
 
+    //Specific person
     factory(named("sendSpecificPerson")) { (personId: PersonId) ->
-        var personChannel = PeopleChannelsStorage.personChannelById[personId]
-        if (personChannel == null)
+        var personEntry = PeopleChannelsStorage.personById[personId]
+        if (personEntry == null)
         {
-            personChannel = ConflatedBroadcastChannel<Person>()
-            PeopleChannelsStorage.personChannelById[personId] = personChannel
+            PeopleChannelsStorage.personById[personId] = StorageCellSingle<PersonDAO>()
+            personEntry = PeopleChannelsStorage.personById[personId]
         }
 
-        return@factory personChannel as ConflatedBroadcastChannel<Person>
+        return@factory personEntry!!.channel
     }
     factory(named("recvSpecificPerson")) { (personId: PersonId) ->
         get<ConflatedBroadcastChannel<Person>>(named("sendSpecificPerson")) { parametersOf(personId)}.openSubscription() as ReceiveChannel<Person>
     }
 
+    //People by group
     factory(named("sendPeopleByGroup")) { (groupId: GroupId) ->
-        var personsByGroupChannel = PeopleChannelsStorage.groupPeopleListChannelByGroupId[groupId]
-        if (personsByGroupChannel == null)
+        var personsByGroupEntry = PeopleChannelsStorage.groupPeopleByGroupId[groupId]
+        if (personsByGroupEntry == null)
         {
-            personsByGroupChannel = ConflatedBroadcastChannel<List<Person>>()
-            PeopleChannelsStorage.groupPeopleListChannelByGroupId[groupId] = personsByGroupChannel
+            PeopleChannelsStorage.groupPeopleByGroupId[groupId] = StorageCellResults<PersonDAO>()
+            personsByGroupEntry = PeopleChannelsStorage.groupPeopleByGroupId[groupId]
         }
 
-        return@factory personsByGroupChannel as ConflatedBroadcastChannel<List<Person>>
+        return@factory personsByGroupEntry!!.channel
     }
     factory(named("recvPeopleByGroup")) { (groupId: GroupId) ->
         get<ConflatedBroadcastChannel<List<Person>>>(named("sendPeopleByGroup")) { parametersOf(groupId)}.openSubscription() as ReceiveChannel<List<Person>>
     }
+
+    single { GroupChannelsStorage }
+    single { PeopleChannelsStorage }
 }
 
-object GroupChannelsStorage
-{
-    @ExperimentalCoroutinesApi
-    val allGroupsListChannel = ConflatedBroadcastChannel<List<Group>>()
 
-    @ExperimentalCoroutinesApi
-    val groupChannelById: MutableMap<GroupId, ConflatedBroadcastChannel<Group>> = HashMap()
-}
 
-object PeopleChannelsStorage
-{
-    @ExperimentalCoroutinesApi
-    val allPeopleListChannel = ConflatedBroadcastChannel<List<Person>>()
-
-    @ExperimentalCoroutinesApi
-    val personChannelById: MutableMap<PersonId, ConflatedBroadcastChannel<Person>> = HashMap()
-
-    @ExperimentalCoroutinesApi
-    val groupPeopleListChannelByGroupId: MutableMap<GroupId, ConflatedBroadcastChannel<List<Person>>> = HashMap()
-}

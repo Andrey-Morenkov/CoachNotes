@@ -1,7 +1,9 @@
 package ru.hryasch.coachnotes.repository.group
 
 import com.pawegio.kandroid.d
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
+import io.realm.ObjectChangeSet
 import io.realm.Realm
 import io.realm.kotlin.where
 import kotlinx.coroutines.*
@@ -11,8 +13,8 @@ import org.koin.core.get
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.group.data.Group
-import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
+import ru.hryasch.coachnotes.repository.common.GroupChannelsStorage
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.common.toAbsolute
 import ru.hryasch.coachnotes.repository.converters.fromDAO
@@ -30,145 +32,158 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
         initializingJob = GlobalScope.launch(Dispatchers.Default)
         {
             generateGroupDb()
-            setChangesTriggers()
         }
     }
 
 
     override suspend fun getGroup(groupId: GroupId): Group?
     {
+        var groupDAO: GroupDAO? = null
         val db = getDb()
-        db.refresh()
 
-        val group = db.where<GroupDAO>()
-                      .equalTo("id", groupId)
-                      .findFirst()
+        db.executeTransaction {
+            val result = it.where<GroupDAO>()
+                           .equalTo("id", groupId)
+                           .findFirst()
+            result?.let { res ->
+                groupDAO = it.copyFromRealm(res)
+            }
+        }
 
-        return group?.fromDAO()
+        return groupDAO?.fromDAO()
     }
 
     override suspend fun getAllGroups(): List<Group>?
     {
         if (initializingJob.isActive) initializingJob.join()
 
+        var groupsList: List<GroupDAO>? = null
         val db = getDb()
-        db.refresh()
 
-        val groupsList = db.where<GroupDAO>().findAll()
-        return if (groupsList.isEmpty())
-        {
-            null
+        db.executeTransaction {
+            val result = db.where<GroupDAO>()
+                           .findAll()
+            result?.let { res ->
+                groupsList = it.copyFromRealm(res)
+            }
         }
-        else
-        {
-            groupsList.fromDAO()
-        }
+
+        return groupsList?.fromDAO()
     }
 
     override suspend fun addOrUpdateGroup(group: Group)
     {
-        val db = getDb()
-        db.refresh()
+        GlobalScope.launch(Dispatchers.Main)
+        {
+            val db = getDb()
+            db.executeTransaction {
+                val existGroup = it.where<GroupDAO>()
+                                   .equalTo("id", group.id)
+                                   .findFirst()
+                if (existGroup == null)
+                {
+                    setSpecificGroupTrigger(group.id)
+                }
 
-        db.executeTransaction {
-            it.copyToRealmOrUpdate(group.toDao())
-        }
+                it.copyToRealmOrUpdate(group.toDao())
+            }
 
-        val groups = db.where<GroupDAO>().findAll()
-        groups.forEach {
-            i("group after update: ${it.fromDAO()}")
-        }
-
-        val specificBroadcastChannel: ConflatedBroadcastChannel<Group> = get(named("sendSpecificGroup")) { parametersOf(group.id) }
-        val groupDb = db.where<GroupDAO>().equalTo("id", group.id).findFirst()
-        groupDb?.let {
-            i("channel <sendSpecificGroup[${group.id}]>: SEND")
-            specificBroadcastChannel.send(it.fromDAO())
-        }
-
-        val broadcastChannel: ConflatedBroadcastChannel<List<Group>> = get(named("sendGroupsList"))
-        val groupsDb = db.where<GroupDAO>().findAll()
-        groupsDb?.let {
-            i("channel <sendGroupsList>: SEND")
-            broadcastChannel.send(it.fromDAO())
-        }
+        }.join()
     }
 
     override suspend fun deleteGroup(group: Group)
     {
         val db = getDb()
-        db.refresh()
-
-        val target = db.where<GroupDAO>()
-                       .equalTo("id", group.id)
-                       .findAll()
-
         db.executeTransaction {
-            target.deleteAllFromRealm()
+            val target = db.where<GroupDAO>()
+                           .equalTo("id", group.id)
+                           .findFirst()
+
+            GroupChannelsStorage.groupById[group.id]!!.observable?.removeAllChangeListeners()
+            GroupChannelsStorage.groupById[group.id]!!.observable = null
+            target?.deleteFromRealm()
         }
-
-        val broadcastChannel: ConflatedBroadcastChannel<List<Group>> = get(named("sendGroupsList"))
-        val allGroups = db.where<GroupDAO>().findAll()
-
-        i("channel <sendGroupsList>: SEND")
-        broadcastChannel.send(allGroups.fromDAO())
     }
 
     private suspend fun generateGroupDb()
     {
-        val db = getDb()
-        db.refresh()
-
-        db.executeTransaction {
-            it.deleteAll()
-        }
-
-        val group = GroupDAO(1, "Платники", true, 6.toAbsolute())
-
-        repeat(20)
+        GlobalScope.launch(Dispatchers.Default)
         {
-            var newPersonId: Int
-            do
+            val db = getDb()
+
+            val group = GroupDAO(1, "Платники", true, 6.toAbsolute())
+            repeat(20)
             {
-                newPersonId = Random.nextInt(1, 100)
+                var newPersonId: Int
+
+                do
+                {
+                    newPersonId = Random.nextInt(1, 100)
+                }
+                while (group.members.find { it == newPersonId } != null)
+
+                group.members.add(newPersonId)
+                d("generated person ID: $newPersonId")
             }
-            while (group.members.find { it == newPersonId } != null)
-            group.members.add(newPersonId)
-            d("generated person ID: $newPersonId")
-        }
 
-        db.executeTransaction {
-            it.copyToRealm(group)
-        }
+            db.executeTransaction {
+                it.copyToRealm(group)
+            }
+
+            setSpecificGroupTrigger(group.id!!)
+            setAllGroupsTrigger()
+
+        }.join()
     }
 
     @ExperimentalCoroutinesApi
-    private suspend fun setChangesTriggers()
-    {
-        setAllGroupsChangesTrigger()
-    }
-
-    @ExperimentalCoroutinesApi
-    private suspend fun setAllGroupsChangesTrigger()
+    private suspend fun setAllGroupsTrigger()
     {
         val broadcastChannel: ConflatedBroadcastChannel<List<Group>> = get(named("sendGroupsList"))
 
-        withContext(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Main)
         {
             val db = getDb()
             db.refresh()
 
             val allGroups = db.where<GroupDAO>().findAll()
-            allGroups.addChangeListener { t, _ ->
-                i("channel <sendGroupsList>: add change listener")
+            allGroups.removeAllChangeListeners()
+            allGroups.addChangeListener { elements ->
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    i("channel <sendGroupsList>: SEND")
-                    broadcastChannel.send(t.fromDAO())
+                    e("channel <sendGroupsList>: SEND1")
+                    broadcastChannel.send(elements.fromDAO())
                 }
             }
+
+            GroupChannelsStorage.allGroups.observable = allGroups
         }
     }
 
-    private fun getDb(): Realm = Realm.getInstance(get(named("groups_mock")))
+    @ExperimentalCoroutinesApi
+    private fun setSpecificGroupTrigger(groupId: GroupId)
+    {
+        val broadcastChannel: ConflatedBroadcastChannel<Group> = get(named("sendSpecificGroup")) { parametersOf(groupId)}
+
+        GlobalScope.launch(Dispatchers.Main)
+        {
+            val db = getDb()
+            db.refresh()
+
+            val specificGroup = db.where<GroupDAO>().equalTo("id", groupId).findFirst()
+
+            specificGroup!!.removeAllChangeListeners()
+            specificGroup.addChangeListener { t: GroupDAO, changeSet: ObjectChangeSet? ->
+                GlobalScope.launch(Dispatchers.Main)
+                {
+                    e("channel <sendSpecificGroup[$groupId]>: SEND1")
+                    broadcastChannel.send(t.fromDAO())
+                }
+            }
+
+            GroupChannelsStorage.groupById[groupId]!!.observable = specificGroup
+        }
+    }
+
+    private fun getDb(): Realm = Realm.getInstance(get(named("groups_mock"))).apply { this.refresh() }
 }
