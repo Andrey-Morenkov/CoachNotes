@@ -2,6 +2,7 @@ package ru.hryasch.coachnotes.repository.person
 
 import com.github.javafaker.Faker
 import com.pawegio.kandroid.d
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.w
 import io.realm.ObjectChangeSet
@@ -190,7 +191,7 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
             specificPerson.addChangeListener { t: PersonDAO, changeSet: ObjectChangeSet? ->
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    i("channel <sendSpecificPerson[$personId]>: SEND1")
+                    e("channel <sendSpecificPerson[$personId]>: SEND1")
                     broadcastChannel.send(t.fromDao())
                 }
             }
@@ -213,7 +214,7 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
             peopleBySpecificGroup.addChangeListener { elements ->
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    i("channel <sendPeopleByGroup[$groupId]>: SEND1")
+                    e("channel <sendPeopleByGroup[$groupId]>: SEND1")
                     broadcastChannel.send(elements.fromDAO())
                 }
             }
@@ -237,7 +238,7 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
                 val res = elements.fromDAO()
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    i("channel <sendPeopleList>: SEND1")
+                    e("channel <sendPeopleList>: SEND1")
                     broadcastChannel.send(res)
                 }
             }

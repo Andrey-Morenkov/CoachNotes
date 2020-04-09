@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.groups.presenters.impl
 
+import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -65,7 +66,7 @@ class GroupsPresenterImpl: MvpPresenter<GroupsView>(), GroupsPresenter, KoinComp
             while (true)
             {
                 val newData = groupsRecvChannel.receive()
-                i("GroupsPresenterImpl <recvGroupsList>: RECEIVED")
+                d("GroupsPresenterImpl <recvGroupsList>: RECEIVED")
 
                 withContext(Dispatchers.Main)
                 {

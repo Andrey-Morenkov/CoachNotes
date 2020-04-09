@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.people.presenters.impl
 
+import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -65,7 +66,7 @@ class PeoplePresenterImpl: MvpPresenter<PeopleView>(), PeoplePresenter, KoinComp
             while (true)
             {
                 val newData = peopleRecvChannel.receive()
-                i("GroupsPresenterImpl <recvPeopleList>: RECEIVED")
+                d("GroupsPresenterImpl <recvPeopleList>: RECEIVED")
 
                 withContext(Dispatchers.Main)
                 {

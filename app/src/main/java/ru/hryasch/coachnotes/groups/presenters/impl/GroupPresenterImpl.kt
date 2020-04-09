@@ -1,11 +1,16 @@
 package ru.hryasch.coachnotes.groups.presenters.impl
 
+import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import org.koin.core.KoinComponent
+import org.koin.core.get
 import org.koin.core.inject
+import org.koin.core.parameter.parametersOf
+import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.group.data.Group
@@ -26,6 +31,9 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
     private lateinit var groupNames: Map<GroupId, String>
     private lateinit var groupMembers: List<Person>
 
+    private lateinit var specificGroupChannel: ReceiveChannel<Group>
+    private val subscriptions: Job = Job()
+
     init
     {
         viewState.loadingState()
@@ -41,6 +49,12 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
         withContext(Dispatchers.Main)
         {
             viewState.setGroupData(currentGroup, groupMembers, groupNames)
+            if (!::specificGroupChannel.isInitialized)
+            {
+                specificGroupChannel = get(named("recvSpecificGroup")) { parametersOf(currentGroup.id) }
+                i("subscribed for group[${currentGroup.id}]")
+                subscribeOnGroupChanges()
+            }
         }
     }
 
@@ -87,5 +101,31 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
         }
 
         viewState.showAddPeopleToGroupNotification(null)
+    }
+
+    override fun onDestroy()
+    {
+        subscriptions.cancel()
+        specificGroupChannel.cancel()
+
+        super.onDestroy()
+    }
+
+    @ExperimentalCoroutinesApi
+    private fun subscribeOnGroupChanges()
+    {
+        GlobalScope.launch(Dispatchers.IO + subscriptions)
+        {
+            while (true)
+            {
+                val newData = specificGroupChannel.receive()
+                d("GroupPresenterImpl <recvSpecificGroup[${currentGroup.id}]>: RECEIVED")
+
+                withContext(Dispatchers.Main)
+                {
+                    applyGroupData(newData)
+                }
+            }
+        }
     }
 }

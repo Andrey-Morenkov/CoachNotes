@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.home.impl
 
+import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -77,7 +78,7 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
             while (true)
             {
                 val newData = peopleRecvChannel.receive()
-                i("HomePresenterImpl <sendPeopleList>: RECEIVED")
+                d("HomePresenterImpl <sendPeopleList>: RECEIVED")
 
                 withContext(Dispatchers.Main)
                 {
@@ -95,7 +96,7 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
             while (true)
             {
                 val newData = groupsRecvChannel.receive()
-                i("HomePresenterImpl <sendGroupsList>: RECEIVED")
+                d("HomePresenterImpl <sendGroupsList>: RECEIVED")
 
                 withContext(Dispatchers.Main)
                 {

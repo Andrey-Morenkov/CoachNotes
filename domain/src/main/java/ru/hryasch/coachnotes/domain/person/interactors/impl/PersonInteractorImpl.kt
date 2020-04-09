@@ -40,6 +40,7 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
     @ExperimentalCoroutinesApi
     override suspend fun addOrUpdatePerson(person: Person)
     {
+        groupRepository.deletePersonFromOldGroupIfNeeded(person)
         person.groupId?.let {
             val group = groupRepository.getGroup(it)
             if (group != null)
@@ -50,25 +51,6 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
                     group.membersList.add(person.id)
                     i("added person $person to group ${group.id}")
                     groupRepository.addOrUpdateGroup(group)
-                }
-            }
-        }
-
-        //hotfix for delete person
-        val groups = groupRepository.getAllGroups()
-        groups?.forEach {
-            if (it.id != person.groupId)
-            {
-                val isExisted = it.membersList.find { personId -> personId == person.id }
-                if (isExisted != null)
-                {
-                    it.membersList.remove(person.id)
-                    groupRepository.addOrUpdateGroup(it)
-
-                    //hotfix
-                    val broadcast: ConflatedBroadcastChannel<List<Person>> = get(named("sendPeopleByGroup")) { parametersOf(it.id) }
-                    i("channel <sendPeopleByGroup[${it.id}]>: SEND")
-                    broadcast.send(peopleRepository.getPersonsByGroup(it.id)!!)
                 }
             }
         }
@@ -100,6 +82,7 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
     override suspend fun deletePersonFromGroup(personId: PersonId, groupId: GroupId)
     {
         val person = peopleRepository.getPersonsByGroup(groupId)?.find { person -> person.id == personId }
+        val group = groupRepository.getGroup(groupId)
 
         person?.let {
             it.groupId = null
