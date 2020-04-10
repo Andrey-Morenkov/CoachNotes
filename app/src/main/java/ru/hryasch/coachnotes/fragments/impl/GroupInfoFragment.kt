@@ -220,11 +220,11 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             .setMessage("Вы уверены что хотите удалить ${person.surname} ${person.name} из группы ${currentGroup.name} ?")
             .setPositiveButton("Удалить") { dialog, _ ->
                 dialog.cancel()
-                currentMembers.remove(person)
-                i("members after remove: ${currentMembers.size}")
-                membersAdapter.notifyDataSetChanged()
-                noMembersData.visible = ( membersAdapter.itemCount == 0 )
-                membersCount.text = membersCount.text.toString().toInt().dec().toString()
+                //currentMembers.remove(person)
+                //i("members after remove: ${currentMembers.size}")
+                //membersAdapter.notifyDataSetChanged()
+                //noMembersData.visible = ( membersAdapter.itemCount == 0 )
+                //membersCount.text = membersCount.text.toString().toInt().dec().toString()
 
                 presenter.deletePersonFromCurrentGroup(person.id)
             }

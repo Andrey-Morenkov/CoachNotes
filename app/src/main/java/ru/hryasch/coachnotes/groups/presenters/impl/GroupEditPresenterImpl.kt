@@ -52,6 +52,11 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
         }
     }
 
+    override fun onDeleteGroupClicked()
+    {
+        viewState.showDeleteGroupNotification(currentGroup)
+    }
+
     override fun deleteGroup(group: Group)
     {
         viewState.loadingState()

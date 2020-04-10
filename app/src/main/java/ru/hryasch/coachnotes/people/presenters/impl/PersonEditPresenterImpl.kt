@@ -55,6 +55,11 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
         }
     }
 
+    override fun onDeletePersonClicked()
+    {
+        viewState.showDeletePersonNotification(currentPerson)
+    }
+
     override fun deletePerson(person: Person)
     {
         viewState.loadingState()

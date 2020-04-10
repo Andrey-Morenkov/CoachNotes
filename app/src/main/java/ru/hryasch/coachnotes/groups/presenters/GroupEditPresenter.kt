@@ -8,5 +8,7 @@ interface GroupEditPresenter
 
     fun updateOrCreateGroup()
 
+    fun onDeleteGroupClicked()
+
     fun deleteGroup(group: Group)
 }

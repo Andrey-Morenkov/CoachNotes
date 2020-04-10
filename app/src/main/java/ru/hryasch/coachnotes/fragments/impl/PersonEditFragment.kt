@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.ProgressBar
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -15,6 +16,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
@@ -29,6 +31,7 @@ import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
@@ -180,6 +183,32 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         navController.navigateUp()
     }
 
+    override fun showDeletePersonNotification(person: Person?)
+    {
+        if (person == null)
+        {
+            return
+        }
+
+        val dialog = MaterialAlertDialogBuilder(this@PersonEditFragment.context!!)
+            .setMessage("Удалить ученика?")
+            .setPositiveButton("Удалить") { dialog, _ ->
+                dialog.cancel()
+                presenter.deletePerson(currentPerson)
+            }
+            .setNegativeButton("Отмена") { dialog, _ ->
+                dialog.cancel()
+            }
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
+        }
+
+        dialog.show()
+    }
+
     private fun setExistPersonData()
     {
         deletePerson.visible = true
@@ -198,7 +227,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         }
 
         deletePerson.setOnClickListener {
-            presenter.deletePerson(currentPerson)
+            presenter.onDeletePersonClicked()
         }
     }
 
