@@ -6,9 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pawegio.kandroid.visible
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.KlockLocale
@@ -45,6 +47,8 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
 
     private lateinit var navController: NavController
 
+    private var journalPickerDialog: AlertDialog? = null
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
@@ -74,6 +78,10 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
             navController.navigate(R.id.action_homeFragmentImpl_to_groupListFragment)
         }
 
+        journalsButton.setOnClickListener {
+            journalPickerDialog?.show()
+        }
+
         val today = DateTime.nowLocal()
         val todayDayOfWeek = dayOfWeekNames[today.dayOfWeek.index0Monday].toLowerCase(Locale("ru"))
 
@@ -97,9 +105,9 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
         }
     }
 
-    override fun setGroupsCount(count: Int?)
+    override fun setGroups(groups: List<Group>?)
     {
-        if (count == null)
+        if (groups == null)
         {
             groupsCount.visibility = View.INVISIBLE
             groupsCountLoading.visible = true
@@ -108,7 +116,35 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
         {
             groupsCount.visibility = View.VISIBLE
             groupsCountLoading.visible = false
-            groupsCount.text = count.toString()
+            groupsCount.text = groups.size.toString()
+
+            updateJournalPickerDialog(groups)
+        }
+    }
+
+    private fun updateJournalPickerDialog(groups: List<Group>?)
+    {
+        if (groups == null)
+        {
+            journalPickerDialog = null
+        }
+        else
+        {
+            val sortedGroups = groups.sorted()
+            val dataArray: Array<String> = Array(groups.size) { "" }
+            for ((i, group) in sortedGroups.withIndex())
+            {
+                dataArray[i] = "${group.name} (${group.availableAbsoluteAge?.first} - ${group.availableAbsoluteAge?.last} г.р)"
+            }
+
+            journalPickerDialog = MaterialAlertDialogBuilder(this@HomeFragment.context!!)
+                .setTitle("Выберите группу")
+                .setItems(dataArray) { dialog, position ->
+                    val action = HomeFragmentDirections.actionHomeFragmentImplToJournalGroupFragment(sortedGroups[position])
+                    navController.navigate(action)
+                    dialog.cancel()
+                }
+                .create()
         }
     }
 }

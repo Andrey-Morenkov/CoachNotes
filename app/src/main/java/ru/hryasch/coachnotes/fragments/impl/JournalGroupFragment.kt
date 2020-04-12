@@ -10,22 +10,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 
 import com.evrencoskun.tableview.TableView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.nabinbhandari.android.permissions.PermissionHandler
 import com.nabinbhandari.android.permissions.Permissions
 import com.pawegio.kandroid.*
 import com.soywiz.klock.*
+import com.soywiz.klock.locale.russian
 import com.tingyik90.snackprogressbar.SnackProgressBar
 import com.tingyik90.snackprogressbar.SnackProgressBarManager
 import kotlinx.android.synthetic.main.fragment_journal.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.android.ext.android.get
@@ -44,8 +52,7 @@ import ru.hryasch.coachnotes.journal.presenters.impl.JournalPresenterImpl
 import java.io.File
 import java.util.*
 
-class JournalGroupFragment : MvpAppCompatFragment(),
-    JournalView, KoinComponent
+class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: JournalPresenterImpl
@@ -70,6 +77,8 @@ class JournalGroupFragment : MvpAppCompatFragment(),
     private val monthNames: Array<String> = get(named("months_RU"))
     private val dayOfWeekLongNames: Array<String> = get(named("daysOfWeekLong_RU"))
 
+    private lateinit var navController: NavController
+
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -91,11 +100,18 @@ class JournalGroupFragment : MvpAppCompatFragment(),
         okJournalShareClickListener = JournalShareOkListener(container!!)
         errorJournalShareClickListener = JournalShareErrorListener()
 
+        navController = container!!.findNavController()
+
+        loadingState()
+
         val toolbar: Toolbar = layout.findViewById(R.id.journalToolbar)
-        toolbar.title = "Демо версия"
-
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
+        toolbar.setNavigationOnClickListener {
+            navController.navigateUp()
+        }
 
         buttonNextMonth.setOnClickListener {
             presenter.nextMonth()
@@ -121,6 +137,14 @@ class JournalGroupFragment : MvpAppCompatFragment(),
 
         buttonLock.setOnClickListener {
             presenter.onLockUnlockJournal()
+        }
+
+        val groupData = JournalGroupFragmentArgs.fromBundle(arguments!!).groupData
+        (activity as AppCompatActivity).supportActionBar!!.title = "${groupData.name}"
+
+        GlobalScope.launch(Dispatchers.Default)
+        {
+            presenter.applyGroupData(groupData)
         }
 
         return layout
@@ -151,13 +175,13 @@ class JournalGroupFragment : MvpAppCompatFragment(),
         }
     }
 
-    override fun waitingState()
+    override fun loadingState()
     {
         i("-- Waiting State --")
         spinnerLoadingTable.visible = true
         noDataLabel.visible = false
         viewJournalTable.visible = false
-        journalButtonShare.visible = false
+        buttonExportJournal.visible = false
     }
 
     override fun setPeriod(month: String, year: Int)
@@ -275,14 +299,14 @@ class JournalGroupFragment : MvpAppCompatFragment(),
             noDataLabel.visible = false
             viewJournalTable.visible = true
 
-            journalButtonShare.visible = true
+            buttonExportJournal.visible = true
             checkShareButtonState()
         }
         else
         {
             noDataLabel.visible = true
             viewJournalTable.visible = false
-            journalButtonShare.visible = false
+            buttonExportJournal.visible = false
         }
 
         spinnerLoadingTable.visible = false
@@ -296,6 +320,15 @@ class JournalGroupFragment : MvpAppCompatFragment(),
             tableAdapter.notifyDataSetChanged()
             checkShareButtonState()
         }
+    }
+
+    override fun showLockedJournalNotification()
+    {
+        val today = DateTime.nowLocal()
+        Snackbar
+            .make((activity as AppCompatActivity).findViewById(android.R.id.content), "Пока журнал заблокирован, можно менять только текущий день (${today.dayOfMonth} ${today.month.localName(
+                KlockLocale.russian)} ${today.yearInt}г. )", Snackbar.LENGTH_LONG)
+            .show()
     }
 
     private fun hasUnknownData(): Boolean
@@ -330,20 +363,20 @@ class JournalGroupFragment : MvpAppCompatFragment(),
         {
             hasUnknownData() ->
             {
-                DrawableCompat.wrap(journalButtonShare.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
-                journalButtonShare.setOnClickListener(errorJournalShareClickListener.apply { setMessage("Нужно задать данные для всех людей") })
+                DrawableCompat.wrap(buttonExportJournal.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
+                buttonExportJournal.setOnClickListener(errorJournalShareClickListener.apply { setMessage("Нужно задать данные для всех людей") })
             }
 
             isEmpty() ->
             {
-                DrawableCompat.wrap(journalButtonShare.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
-                journalButtonShare.setOnClickListener(errorJournalShareClickListener.apply { setMessage("Журнал пуст") })
+                DrawableCompat.wrap(buttonExportJournal.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
+                buttonExportJournal.setOnClickListener(errorJournalShareClickListener.apply { setMessage("Журнал пуст") })
             }
 
             else ->
             {
-                DrawableCompat.wrap(journalButtonShare.drawable).setTint(Color.WHITE)
-                journalButtonShare.setOnClickListener(okJournalShareClickListener)
+                DrawableCompat.wrap(buttonExportJournal.drawable).setTint(Color.WHITE)
+                buttonExportJournal.setOnClickListener(okJournalShareClickListener)
             }
         }
     }

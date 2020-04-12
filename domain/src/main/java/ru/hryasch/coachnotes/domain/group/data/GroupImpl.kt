@@ -13,7 +13,7 @@ class GroupImpl(override val id: GroupId,
 
     override fun compareTo(other: Group): Int
     {
-        return "$id $name $isPaid".compareTo("${other.id} ${other.name} ${other.isPaid}")
+        return "$availableAbsoluteAge $name $id $isPaid".compareTo("${other.availableAbsoluteAge} ${other.name} ${other.id} ${other.isPaid}")
     }
 
     override fun toString(): String = "$id: [$name, isPaid = $isPaid, ages = ${availableAbsoluteAge?.first} - ${availableAbsoluteAge?.last}, members count = ${membersList.size}]"

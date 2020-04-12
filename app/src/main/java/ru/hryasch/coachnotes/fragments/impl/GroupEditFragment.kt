@@ -252,7 +252,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         }
 
         val dialog = MaterialAlertDialogBuilder(this@GroupEditFragment.context!!)
-            .setMessage("Удалить группу?")
+            .setMessage("Удалить группу и все связанные с ней журналы?")
             .setPositiveButton("Удалить") { dialog, _ ->
                 dialog.cancel()
                 presenter.deleteGroup(currentGroup)

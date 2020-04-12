@@ -3,6 +3,7 @@ package ru.hryasch.coachnotes.fragments
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.StateStrategyType
+import ru.hryasch.coachnotes.domain.group.data.Group
 
 interface HomeView: MvpView
 {
@@ -10,5 +11,5 @@ interface HomeView: MvpView
     fun setPersonsCount(count: Int?)
 
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun setGroupsCount(count: Int?)
+    fun setGroups(groups: List<Group>?)
 }

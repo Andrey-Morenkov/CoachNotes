@@ -44,10 +44,10 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
 
         GlobalScope.launch(Dispatchers.Default)
         {
-            val groupsCount = homeInteractor.getGroupCount()
+            val groupsCount = homeInteractor.getAllGroups()
             withContext(Dispatchers.Main)
             {
-                viewState.setGroupsCount(groupsCount)
+                viewState.setGroups(groupsCount)
                 subscribeOnGroupsChanges()
             }
         }
@@ -66,7 +66,7 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
 
     private fun loadingState()
     {
-        viewState.setGroupsCount(null)
+        viewState.setGroups(null)
         viewState.setPersonsCount(null)
     }
 
@@ -100,7 +100,7 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
 
                 withContext(Dispatchers.Main)
                 {
-                    viewState.setGroupsCount(newData.size)
+                    viewState.setGroups(newData)
                 }
             }
         }

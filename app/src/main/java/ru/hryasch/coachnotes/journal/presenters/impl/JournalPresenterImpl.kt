@@ -14,6 +14,7 @@ import ru.hryasch.coachnotes.fragments.JournalView
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
 import ru.hryasch.coachnotes.domain.common.GroupId
+import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 import kotlin.collections.ArrayList
@@ -32,9 +33,11 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     private var chosenPeriod: YearMonth = DateTime.now().yearMonth
     private var isJournalLocked: Boolean = true
 
+    private lateinit var currentGroup: Group
+
     init
     {
-        changePeriod()
+        loadingState()
     }
 
     override fun onCellClicked(col: Int, row: Int)
@@ -97,7 +100,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     override fun changePeriod(month: String, year: Int)
     {
         //TODO: custom strategy
-        viewState.waitingState()
+        viewState.loadingState()
         viewState.setPeriod(month, year)
         viewState.lockJournal(null)
 
@@ -111,7 +114,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         findingTableJob = GlobalScope.launch(Dispatchers.IO)
         {
             i("findingTableJob launched")
-            val newModel = journalInteractor.getJournal(chosenPeriod, 1)?.toModel()
+            val newModel = journalInteractor.getJournal(chosenPeriod, currentGroup.id)?.toModel()
 
             if (newModel != null)
             {
@@ -150,6 +153,17 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             tableHelper.onColumnLongPressed(col)
             viewState.refreshData()
         }
+    }
+
+    override fun applyGroupData(group: Group)
+    {
+        currentGroup = group
+        changePeriod()
+    }
+
+    private fun loadingState()
+    {
+        viewState.loadingState()
     }
 
     private fun changePeriod()
@@ -227,6 +241,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         {
             if (!isClickedTodayColumn(col) && isJournalLocked)
             {
+                viewState.showLockedJournalNotification()
                 return
             }
 
@@ -270,6 +285,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         {
             if (!isClickedTodayColumn(col) && isJournalLocked)
             {
+                viewState.showLockedJournalNotification()
                 return
             }
 

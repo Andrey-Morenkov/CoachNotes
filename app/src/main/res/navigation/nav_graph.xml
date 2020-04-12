@@ -14,7 +14,7 @@
             android:id="@+id/action_homeFragmentImpl_to_personListFragment"
             app:destination="@id/peopleListFragment" />
         <action
-            android:id="@+id/action_homeFragmentImpl_to_journalGroupFragment3"
+            android:id="@+id/action_homeFragmentImpl_to_journalGroupFragment"
             app:destination="@id/journalGroupFragment" />
         <action
             android:id="@+id/action_homeFragmentImpl_to_groupListFragment"
@@ -100,5 +100,9 @@
         android:id="@+id/journalGroupFragment"
         android:name="ru.hryasch.coachnotes.fragments.impl.JournalGroupFragment"
         android:label="JournalGroupFragment"
-        tools:layout="@layout/fragment_journal"/>
+        tools:layout="@layout/fragment_journal">
+        <argument
+            android:name="groupData"
+            app:argType="ru.hryasch.coachnotes.domain.group.data.Group" />
+    </fragment>
 </navigation>

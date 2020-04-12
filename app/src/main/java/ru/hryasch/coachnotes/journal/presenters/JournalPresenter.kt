@@ -1,5 +1,7 @@
 package ru.hryasch.coachnotes.journal.presenters
 
+import ru.hryasch.coachnotes.domain.group.data.Group
+
 interface JournalPresenter
 {
     fun onCellClicked(col: Int, row: Int)
@@ -15,4 +17,6 @@ interface JournalPresenter
     fun prevMonth()
     fun changePeriod(month: String, year: Int)
     fun deleteColumnData(col: Int?)
+
+    fun applyGroupData(group: Group)
 }

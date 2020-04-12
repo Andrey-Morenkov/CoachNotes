@@ -13,7 +13,7 @@ interface JournalView: MvpView
 {
     // Base (level 0)
     @StateStrategyType(SingleStateStrategy::class)
-    fun waitingState()
+    fun loadingState()
 
     @StateStrategyType(SingleStateStrategy::class)
     fun showingState(tableContent: TableModel?)
@@ -35,4 +35,7 @@ interface JournalView: MvpView
     // Runtime events (level 3)
     @StateStrategyType(SkipStrategy::class)
     fun refreshData()
+
+    @StateStrategyType(SkipStrategy::class)
+    fun showLockedJournalNotification()
 }
