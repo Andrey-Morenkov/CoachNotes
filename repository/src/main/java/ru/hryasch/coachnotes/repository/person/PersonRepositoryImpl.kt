@@ -103,6 +103,8 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
     {
         withContext(dbContext)
         {
+            var isAddingPerson = false
+
             db.executeTransaction {
                 person.groupId?.let { groupId ->
                     val peopleByGroup = it.where<PersonDAO>()
@@ -119,12 +121,14 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
                                     .equalTo("id", person.id)
                                     .findFirst()
 
-                it.copyToRealmOrUpdate(person.toDao())
+                isAddingPerson = ( existPerson == null )
 
-                if (existPerson == null)
-                {
-                    setSpecificPersonTrigger(person.id)
-                }
+                it.copyToRealmOrUpdate(person.toDao())
+            }
+
+            if (isAddingPerson)
+            {
+                setSpecificPersonTrigger(person.id)
             }
         }
     }

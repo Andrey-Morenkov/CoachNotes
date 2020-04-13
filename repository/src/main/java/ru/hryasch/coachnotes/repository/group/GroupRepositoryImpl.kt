@@ -84,19 +84,21 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
     {
         withContext(dbContext)
         {
+            var isAddingGroup = false
+
             db.executeTransaction {
                 val existGroup = it.where<GroupDAO>()
                                    .equalTo("id", group.id)
                                    .findFirst()
 
-                val isAddingGroup = ( existGroup == null )
+                isAddingGroup = ( existGroup == null )
 
                 it.copyToRealmOrUpdate(group.toDao())
+            }
 
-                if (isAddingGroup)
-                {
-                    setSpecificGroupTrigger(group.id)
-                }
+            if (isAddingGroup)
+            {
+                setSpecificGroupTrigger(group.id)
             }
         }
     }

@@ -34,6 +34,7 @@
     <string name="surname">Фамилия</string>
     <string name="patronymic">Отчество</string>
     <string name="birthday">День Рождения</string>
+    <string name="birthday_with_helper">День Рождения (дд.мм.гггг)</string>
     <string name="parents">Родители</string>
     <string name="full_name">ФИО</string>
     <string name="tags">Особенности</string>

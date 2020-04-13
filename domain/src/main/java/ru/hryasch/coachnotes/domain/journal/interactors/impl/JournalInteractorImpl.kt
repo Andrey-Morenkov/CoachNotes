@@ -117,7 +117,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                         PersonImpl(
                             entry.key.surname,
                             entry.key.name,
-                            Date.Companion.invoke(2014,1,1),
+                            null,
                             -1
                         )
                     )
@@ -187,6 +187,18 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
     private fun postProcessCells(cells: Array<Array<CellData?>>, period: YearMonth, allPeople: List<RowHeaderData>)
     {
+        if (period.isHistorical())
+        {
+            postProcessCellsGeneral(cells, period, allPeople)
+        }
+        else
+        {
+            postProcessCellsNonHistorical(cells, period, allPeople)
+        }
+    }
+
+    private fun postProcessCellsGeneral(cells: Array<Array<CellData?>>, period: YearMonth, allPeople: List<RowHeaderData>)
+    {
         for (row in cells.indices)
         {
             val personHasNoExistData = cells[row].find { it is NoExistData }
@@ -251,6 +263,42 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                 for (col in startCol until cells[row].size)
                 {
                     cells[row][col] = NoExistData()
+                }
+            }
+        }
+    }
+
+    private fun postProcessCellsNonHistorical(cells: Array<Array<CellData?>>, period: YearMonth, allPeople: List<RowHeaderData>)
+    {
+        // generate today no exist data (for deleted persons)
+        val todayCol = DateTime.nowLocal().dayOfMonth - 1
+        for ((i, personHeader) in allPeople.withIndex())
+        {
+            if (personHeader.person.id == -1)
+            {
+                cells[i][todayCol] = NoExistData()
+            }
+        }
+
+        // hotfix
+        // save today data before post process general
+        val savedTodayData = Array<CellData?>(allPeople.size) { null }
+        for (row in cells.indices)
+        {
+            savedTodayData[row] = cells[row][todayCol]
+        }
+
+        postProcessCellsGeneral(cells, period, allPeople)
+
+        // fix cells from now until end of table
+        for (row in cells.indices)
+        {
+            if (cells[row][todayCol] != savedTodayData[row] && (cells[row].find { cellData -> (cellData is AbsenceData || cellData is PresenceData)} == null))
+            {
+                i("fixing row[$row]")
+                for (fixCol in todayCol until cells[row].size)
+                {
+                    cells[row][fixCol] = null
                 }
             }
         }

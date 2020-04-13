@@ -116,7 +116,10 @@ class JournalRepositoryImpl: JournalRepository, KoinComponent
 
     override suspend fun closeDb()
     {
-        db.close()
+        withContext(dbContext)
+        {
+            db.close()
+        }
     }
 
 
