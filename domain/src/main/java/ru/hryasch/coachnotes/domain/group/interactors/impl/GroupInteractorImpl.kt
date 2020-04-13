@@ -9,6 +9,7 @@ import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
 import ru.hryasch.coachnotes.domain.person.data.Person
+import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import java.util.*
 
@@ -16,6 +17,7 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
 {
     private val groupRepository: GroupRepository by inject(named("mock"))
     private val peopleRepository: PersonRepository by inject(named("mock"))
+    private val journalRepository: JournalRepository by inject(named("mock"))
 
     override suspend fun getGroupsList(): List<Group>
     {
@@ -65,5 +67,6 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
         }
 
         groupRepository.deleteGroup(group)
+        journalRepository.deleteAllJournalsByGroup(group.id)
     }
 }

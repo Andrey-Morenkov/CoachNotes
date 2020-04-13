@@ -111,6 +111,22 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         i("SAVED or DELETED")
     }
 
+    override suspend fun deleteAllJournalsByGroup(groupId: GroupId)
+    {
+        val db = getDb()
+        db.refresh()
+
+        db.executeTransaction {
+            db.where<JournalChunkDAO>().findAll().forEach { chunk ->
+                val chunkGroupId = JournalChunkDAOId.deserialize(chunk.id!!).groupId
+                if (chunkGroupId == groupId)
+                {
+                    chunk.deleteFromRealm()
+                }
+            }
+        }
+    }
+
 
     private suspend fun generateJournalDb()
     {
