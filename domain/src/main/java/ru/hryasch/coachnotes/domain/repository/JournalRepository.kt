@@ -5,7 +5,7 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
 
 
-interface JournalRepository
+interface JournalRepository: AbstractRepository
 {
     // 1 month period for now only
     suspend fun getJournalChunks(period: YearMonth, groupId: GroupId): List<JournalChunk>?

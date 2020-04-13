@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.repository.common
 
+import io.realm.Realm
 import io.realm.RealmResults
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -24,6 +25,7 @@ object PeopleChannelsStorage
 class StorageCellResults<T>
 {
     var observable: RealmResults<T>? = null
+    var mainDbEntity: Realm? = null
     @ExperimentalCoroutinesApi
     val channel = ConflatedBroadcastChannel<T>()
 }
@@ -31,6 +33,7 @@ class StorageCellResults<T>
 class StorageCellSingle<T>
 {
     var observable: T? = null
+    var mainDbEntity: Realm? = null
     @ExperimentalCoroutinesApi
     val channel = ConflatedBroadcastChannel<T>()
 }

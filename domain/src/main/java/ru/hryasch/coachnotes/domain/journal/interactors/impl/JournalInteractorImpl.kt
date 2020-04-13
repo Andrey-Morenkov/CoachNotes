@@ -25,9 +25,9 @@ import kotlin.collections.HashSet
 
 class JournalInteractorImpl: JournalInteractor, KoinComponent
 {
-    private val journalRepository: JournalRepository by inject(named("mock"))
-    private val personRepository: PersonRepository by inject(named("mock"))
-    private val groupRepository: GroupRepository by inject(named("mock"))
+    private val journalRepository: JournalRepository by inject(named("release"))
+    private val personRepository: PersonRepository by inject(named("release"))
+    private val groupRepository: GroupRepository by inject(named("release"))
 
     private val exporter: DataExporter by inject(named("docx"))
 

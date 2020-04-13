@@ -15,9 +15,9 @@ import java.util.*
 
 class GroupInteractorImpl: GroupInteractor, KoinComponent
 {
-    private val groupRepository: GroupRepository by inject(named("mock"))
-    private val peopleRepository: PersonRepository by inject(named("mock"))
-    private val journalRepository: JournalRepository by inject(named("mock"))
+    private val groupRepository: GroupRepository by inject(named("release"))
+    private val peopleRepository: PersonRepository by inject(named("release"))
+    private val journalRepository: JournalRepository by inject(named("release"))
 
     override suspend fun getGroupsList(): List<Group>
     {

@@ -14,6 +14,13 @@ val realmRepositoriesModule = module {
             .build()
     }
 
+    single(named("persons"))
+    {
+        RealmConfiguration.Builder()
+            .name("persons")
+            .build()
+    }
+
     single(named("groups_mock"))
     {
        RealmConfiguration.Builder()
@@ -22,11 +29,25 @@ val realmRepositoriesModule = module {
             .build()
     }
 
+    single(named("groups"))
+    {
+        RealmConfiguration.Builder()
+            .name("groups")
+            .build()
+    }
+
     single(named("journal_storage_mock"))
     {
         RealmConfiguration.Builder()
             .name("journal_storage_fake")
             .inMemory()
+            .build()
+    }
+
+    single(named("journal_storage"))
+    {
+        RealmConfiguration.Builder()
+            .name("journal_storage")
             .build()
     }
 }

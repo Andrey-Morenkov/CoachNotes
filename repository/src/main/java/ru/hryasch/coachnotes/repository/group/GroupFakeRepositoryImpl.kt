@@ -124,6 +124,10 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
         }
     }
 
+    override suspend fun closeDb()
+    {
+    }
+
     private suspend fun generateGroupDb()
     {
         GlobalScope.launch(Dispatchers.Default)

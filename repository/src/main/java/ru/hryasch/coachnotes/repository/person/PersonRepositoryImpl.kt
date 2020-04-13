@@ -1,63 +1,56 @@
 package ru.hryasch.coachnotes.repository.person
 
-import com.github.javafaker.Faker
-import com.pawegio.kandroid.d
 import com.pawegio.kandroid.e
-import com.pawegio.kandroid.i
-import com.pawegio.kandroid.w
 import io.realm.ObjectChangeSet
 import io.realm.Realm
-import io.realm.RealmResults
 import io.realm.kotlin.where
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import org.koin.core.KoinComponent
 import org.koin.core.get
-import org.koin.core.inject
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
-import ru.hryasch.coachnotes.domain.group.data.Group
+import ru.hryasch.coachnotes.domain.common.GroupId
+import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.person.data.Person
-import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
-import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.common.PeopleChannelsStorage
-import ru.hryasch.coachnotes.repository.common.PersonId
 import ru.hryasch.coachnotes.repository.converters.fromDAO
 import ru.hryasch.coachnotes.repository.converters.fromDao
 import ru.hryasch.coachnotes.repository.converters.toDao
-import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import ru.hryasch.coachnotes.repository.dao.PersonDAO
-import java.util.*
 import java.util.concurrent.Executors
 
 @ExperimentalCoroutinesApi
-class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
+class PersonRepositoryImpl: PersonRepository, KoinComponent
 {
-    private val faker: Faker = Faker(Locale("ru"))
-    private val groupRepo: GroupRepository by inject(named("mock"))
-
+    private lateinit var db: Realm
+    private val dbContext = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val initializingJob: Job
 
     init
     {
-        initializingJob = GlobalScope.launch(Dispatchers.Default)
+        initializingJob = GlobalScope.launch(dbContext)
         {
-            generatePersonDb()
+            db = Realm.getInstance(get(named("persons")))
+            initTriggers()
         }
     }
 
     override suspend fun getPerson(personId: PersonId): Person?
     {
         var personDao: PersonDAO? = null
-        val db = getDb()
 
-        db.executeTransaction {
-            val result = it.where<PersonDAO>()
-                           .equalTo("id", personId)
-                           .findFirst()
-            result?.let {res ->
-                personDao = it.copyFromRealm(res)
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<PersonDAO>()
+                               .equalTo("id", personId)
+                               .findFirst()
+
+                result?.let {res ->
+                    personDao = it.copyFromRealm(res)
+                }
             }
         }
 
@@ -67,14 +60,17 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
     override suspend fun getPersonsByGroup(groupId: GroupId): List<Person>?
     {
         var peopleDao: List<PersonDAO>? = null
-        val db = getDb()
 
-        db.executeTransaction {
-            val result = it.where<PersonDAO>()
-                .equalTo("groupId", groupId)
-                .findAll()
-            result?.let { res ->
-                peopleDao = it.copyFromRealm(res)
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<PersonDAO>()
+                               .equalTo("groupId", groupId)
+                               .findAll()
+
+                result?.let { res ->
+                    peopleDao = it.copyFromRealm(res)
+                }
             }
         }
 
@@ -86,29 +82,33 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         if (initializingJob.isActive) initializingJob.join()
 
         var peopleList: List<PersonDAO>? = null
-        val db = getDb()
 
-        db.executeTransaction {
-            val result = it.where<PersonDAO>()
-                           .findAll()
-            result?.let { res ->
-                peopleList = it.copyFromRealm(res)
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<PersonDAO>()
+                               .findAll()
+
+                result?.let { res ->
+                    peopleList = it.copyFromRealm(res)
+                }
             }
         }
 
         return peopleList?.fromDAO()
     }
 
+    @ExperimentalCoroutinesApi
     override suspend fun addOrUpdatePerson(person: Person)
     {
-        GlobalScope.launch(Dispatchers.Main)
+        withContext(dbContext)
         {
-            val db = getDb()
             db.executeTransaction {
                 person.groupId?.let { groupId ->
                     val peopleByGroup = it.where<PersonDAO>()
                                           .equalTo("groupId", groupId)
                                           .findAll()
+
                     if (peopleByGroup == null)
                     {
                         setSpecificGroupPeopleTrigger(groupId)
@@ -119,67 +119,66 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
                                     .equalTo("id", person.id)
                                     .findFirst()
 
+                it.copyToRealmOrUpdate(person.toDao())
+
                 if (existPerson == null)
                 {
                     setSpecificPersonTrigger(person.id)
                 }
-
-                it.copyToRealmOrUpdate(person.toDao())
             }
-        }.join()
+        }
     }
 
     override suspend fun deletePerson(person: Person)
     {
-        val db = getDb()
-        db.executeTransaction {
-            val target = it.where<PersonDAO>()
-                           .equalTo("id", person.id)
-                           .findFirst()
-
+        withContext(Dispatchers.Main)
+        {
             PeopleChannelsStorage.personById[person.id]!!.observable?.removeAllChangeListeners()
             PeopleChannelsStorage.personById[person.id]!!.observable == null
-            target?.deleteFromRealm()
+        }
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val target = it.where<PersonDAO>()
+                               .equalTo("id", person.id)
+                               .findFirst()
+
+                target?.deleteFromRealm()
+            }
         }
     }
 
     override suspend fun closeDb()
     {
+        withContext(dbContext)
+        {
+            db.close()
+        }
+        withContext(Dispatchers.Main)
+        {
+            PeopleChannelsStorage.allPeople.mainDbEntity?.close()
+            PeopleChannelsStorage.groupPeopleByGroupId.values.forEach {
+                it.mainDbEntity?.close()
+            }
+            PeopleChannelsStorage.personById.values.forEach {
+                it.mainDbEntity?.close()
+            }
+        }
     }
 
-    private suspend fun generatePersonDb()
+
+    private suspend fun initTriggers()
     {
-        val groupsList = groupRepo.getAllGroups()!!
-
-        GlobalScope.launch(Dispatchers.Default)
-        {
-            val db = getDb()
-            db.executeTransaction {
-                it.deleteAll()
-            }
-
-            for (group in groupsList)
+        val allPeople = db.where<PersonDAO>().findAll()
+        allPeople.forEach {
+            setSpecificPersonTrigger(it.fromDao().id)
+            if (it.groupId != null)
             {
-                for (personId in group.membersList)
-                {
-                    val newPerson = PersonDAO(personId, faker.name().firstName(), faker.name().lastName(), "01/01/2014")
-                        .apply {
-                            groupId = group.id
-                            isPaid = group.isPaid
-                        }
-
-                    d("Generated person: ${newPerson.name} ${newPerson.surname} (id: ${newPerson.id} groupId: ${newPerson.groupId})")
-
-                    db.executeTransaction {
-                        it.copyToRealm(newPerson)
-                    }
-
-                    setSpecificPersonTrigger(personId)
-                }
-                setSpecificGroupPeopleTrigger(group.id)
+                setSpecificGroupPeopleTrigger(it.fromDao().groupId!!)
             }
-            setAllPeopleChangesTrigger()
-        }.join()
+        }
+
+        setAllPeopleChangesTrigger()
     }
 
     @ExperimentalCoroutinesApi
@@ -189,16 +188,22 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
 
         GlobalScope.launch(Dispatchers.Main)
         {
-            val db = getDb()
-            val specificPerson = db.where<PersonDAO>()
-                                   .equalTo("id", personId)
-                                   .findFirst()
+            if (PeopleChannelsStorage.personById[personId]!!.mainDbEntity == null)
+            {
+                PeopleChannelsStorage.personById[personId]!!.mainDbEntity = getDb()
+            }
+            val db1 = PeopleChannelsStorage.personById[personId]!!.mainDbEntity
+            db1!!.refresh()
+
+            val specificPerson = db1.where<PersonDAO>()
+                                    .equalTo("id", personId)
+                                    .findFirst()
 
             specificPerson!!.removeAllChangeListeners()
-            specificPerson.addChangeListener { t: PersonDAO, changeSet: ObjectChangeSet? ->
+            specificPerson.addChangeListener { t: PersonDAO, _: ObjectChangeSet? ->
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    e("channel <sendSpecificPerson[$personId]>: SEND1")
+                    e("channel <SpecificPerson[$personId]>: SEND")
                     broadcastChannel.send(t.fromDao())
                 }
             }
@@ -214,14 +219,22 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
 
         GlobalScope.launch(Dispatchers.Main)
         {
-            val db = getDb()
-            val peopleBySpecificGroup = db.where<PersonDAO>().equalTo("groupId", groupId).findAll()
+            if (PeopleChannelsStorage.groupPeopleByGroupId[groupId]!!.mainDbEntity == null)
+            {
+                PeopleChannelsStorage.groupPeopleByGroupId[groupId]!!.mainDbEntity = getDb()
+            }
+            val db1 = PeopleChannelsStorage.groupPeopleByGroupId[groupId]!!.mainDbEntity
+            db1!!.refresh()
+
+            val peopleBySpecificGroup = db1.where<PersonDAO>()
+                                           .equalTo("groupId", groupId)
+                                           .findAll()
 
             peopleBySpecificGroup!!.removeAllChangeListeners()
             peopleBySpecificGroup.addChangeListener { elements ->
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    e("channel <sendPeopleByGroup[$groupId]>: SEND1")
+                    e("channel <SpecificGroupAllPeople[$groupId]>: SEND")
                     broadcastChannel.send(elements.fromDAO())
                 }
             }
@@ -231,21 +244,28 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
     }
 
     @ExperimentalCoroutinesApi
-    private fun setAllPeopleChangesTrigger()
+    private suspend fun setAllPeopleChangesTrigger()
     {
         val broadcastChannel: ConflatedBroadcastChannel<List<Person>> = get(named("sendPeopleList"))
 
         GlobalScope.launch(Dispatchers.Main)
         {
-            val db = getDb()
-            val allPeople = db.where<PersonDAO>().findAll()
+            if (PeopleChannelsStorage.allPeople.mainDbEntity == null)
+            {
+                PeopleChannelsStorage.allPeople.mainDbEntity = getDb()
+            }
+            val db1 = PeopleChannelsStorage.allPeople.mainDbEntity
+            db1!!.refresh()
+
+            val allPeople = db1.where<PersonDAO>()
+                               .findAll()
 
             allPeople.removeAllChangeListeners()
             allPeople.addChangeListener { elements ->
                 val res = elements.fromDAO()
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    e("channel <sendPeopleList>: SEND1")
+                    e("channel <AllPeople>: SEND")
                     broadcastChannel.send(res)
                 }
             }
@@ -254,5 +274,5 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         }
     }
 
-    private fun getDb(): Realm = Realm.getInstance(get(named("persons_mock"))).apply { this.refresh() }
+    private fun getDb(): Realm = Realm.getInstance(get(named("persons")))
 }

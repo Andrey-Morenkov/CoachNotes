@@ -33,12 +33,9 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
 
     init
     {
-        d("JournalFakeRepositoryImpl INIT START")
-
         initializingJob = GlobalScope.launch(Dispatchers.Default)
         {
             generateJournalDb()
-            d("JournalFakeRepositoryImpl INIT FINISH")
         }
     }
 
@@ -51,14 +48,13 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         db.refresh()
 
         val chunkList: MutableList<JournalChunkDAO> = ArrayList()
-
         val firstDayOfMonth = DateTime.invoke(period.year, period.month, 1)
         var currentDate = firstDayOfMonth
 
         while (currentDate in (firstDayOfMonth until (firstDayOfMonth + 1.months)))
         {
             db.refresh()
-            val chunk = getChunk(db, currentDate.date, 1)
+            val chunk = getChunk(db, currentDate.date, groupId)
 
             if (chunk != null) e("date: ${daoDateFormat.format(currentDate)} chunk = $chunk")
 
@@ -81,9 +77,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         val db = getDb()
         db.refresh()
 
-        i("updateJournalChunk: \n" +
-               "date    = ${chunk.date.format(daoDateFormat)} \n" +
-               "groupId = ${chunk.groupId}\n")
+        i("updateJournalChunk: date = ${chunk.date.format(daoDateFormat)}, groupId = ${chunk.groupId}\n")
 
         db.executeTransaction {
             val daoChunk = getOrCreateChunk(db, chunk.date, chunk.groupId)
@@ -125,6 +119,10 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
                 }
             }
         }
+    }
+
+    override suspend fun closeDb()
+    {
     }
 
 

@@ -4,7 +4,7 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.person.data.Person
 
-interface PersonRepository
+interface PersonRepository: AbstractRepository
 {
     suspend fun getPerson(personId: PersonId): Person?
     suspend fun getPersonsByGroup(groupId: GroupId): List<Person>?

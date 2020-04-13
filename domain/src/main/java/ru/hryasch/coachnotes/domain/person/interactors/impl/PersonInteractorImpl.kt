@@ -19,8 +19,8 @@ import kotlin.collections.HashMap
 
 class PersonInteractorImpl: PersonInteractor, KoinComponent
 {
-    private val peopleRepository: PersonRepository by inject(named("mock"))
-    private val groupRepository: GroupRepository by inject(named("mock"))
+    private val peopleRepository: PersonRepository by inject(named("release"))
+    private val groupRepository: GroupRepository by inject(named("release"))
 
     override suspend fun getPeopleList(): List<Person>
     {
