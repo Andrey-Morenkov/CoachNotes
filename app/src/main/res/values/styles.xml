@@ -153,4 +153,10 @@
         <item name="android:layout_width">0dp</item>
     </style>
 
+    <style name="CustomInputTypeText">
+        <item name="android:imeOptions">actionDone</item>
+        <item name="android:inputType">textCapSentences</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
 </resources>

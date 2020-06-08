@@ -13,13 +13,14 @@
         android:text="Родители"
         android:textSize="@dimen/default_subtitle_text_size" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/default_indent"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="@dimen/default_indent"
-        android:layout_marginBottom="@dimen/default_indent">
+        android:layout_marginBottom="@dimen/default_indent"
+        android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInput1"
@@ -35,10 +36,21 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editPersonEditTextParentFullName"
+                style="@style/CustomInputTypeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/full_name" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.tiper.MaterialSpinner
+            android:id='@+id/personEditParentType'
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Еще не готово"
+            app:boxBackgroundMode="outline"
+            app:spinnerMode="dropdown" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInput2"
@@ -54,12 +66,14 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editPersonEditTextParentPhone"
+                style="@style/CustomInputTypeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/phone" />
+                android:hint="@string/phone"
+                android:inputType="phone" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </LinearLayout>

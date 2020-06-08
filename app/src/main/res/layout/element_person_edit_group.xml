@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/group"
+        android:textSize="@dimen/default_subtitle_text_size" />
+
+    <com.tiper.MaterialSpinner
+        android:id='@+id/personEditSpinnerGroup'
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_indent"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="@dimen/default_indent"
+        android:layout_marginBottom="@dimen/default_indent"
+        android:hint="@string/group"
+        app:boxBackgroundMode="outline"
+        app:hintTextColor="@color/colorAccent"
+        app:spinnerMode="dropdown" />
+
+</LinearLayout>

@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorBackground"
+        android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:title="@string/person_edit_screen_toolbar_new_title">
@@ -85,10 +86,25 @@
                     android:layout_margin="@dimen/default_indent" />
 
                 <include
-                    layout="@layout/element_person_edit_parents"
+                    layout="@layout/element_person_edit_birthday"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/default_indent"
+                    android:layout_marginEnd="@dimen/default_indent" />
+
+                <include
+                    layout="@layout/element_person_edit_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/default_indent" />
+
+                <include
+                    layout="@layout/element_person_edit_parents"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/default_indent"
+                    android:layout_marginEnd="@dimen/default_indent"
+                    android:layout_marginBottom="@dimen/default_indent" />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

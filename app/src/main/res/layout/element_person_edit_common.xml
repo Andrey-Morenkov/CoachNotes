@@ -2,6 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -36,6 +37,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editPersonEditTextSurname"
+                style="@style/CustomInputTypeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/surname" />
@@ -56,6 +58,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editPersonEditTextName"
+                style="@style/CustomInputTypeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/name" />
@@ -74,46 +77,11 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editPersonEditTextPatronymic"
+                style="@style/CustomInputTypeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/patronymic" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInput4"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:helperText="@string/required_helper"
-            app:helperTextTextColor="@color/colorAccent"
-            app:hintTextColor="@color/colorAccent"
-            app:layout_constraintEnd_toEndOf="@id/textInput3"
-            app:layout_constraintStart_toStartOf="@id/textInput3"
-            app:layout_constraintTop_toBottomOf="@+id/textInput3">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editPersonEditTextBirthday"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/birthday_with_helper"
-                android:inputType="date" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.tiper.MaterialSpinner
-            android:id='@+id/personEditSpinnerGroup'
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/group"
-            app:boxBackgroundMode="outline"
-            app:hintTextColor="@color/colorAccent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInput4"
-            app:spinnerMode="dropdown" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

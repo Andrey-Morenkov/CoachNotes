@@ -13,13 +13,14 @@
         android:text="@string/general"
         android:textSize="@dimen/default_subtitle_text_size" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/default_indent"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="@dimen/default_indent"
-        android:layout_marginBottom="@dimen/default_indent">
+        android:layout_marginBottom="@dimen/default_indent"
+        android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInput1"
@@ -29,13 +30,11 @@
             app:boxBackgroundMode="outline"
             app:helperText="@string/required_helper"
             app:helperTextTextColor="@color/colorAccent"
-            app:hintTextColor="@color/colorAccent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:hintTextColor="@color/colorAccent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/groupEditTextInputName"
+                style="@style/CustomInputTypeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/new_group_screen_group_name_label" />
@@ -52,17 +51,13 @@
             app:helperText="@string/required_helper"
             app:helperTextTextColor="@color/colorAccent"
             app:hintTextColor="@color/colorAccent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInput1"
             app:spinnerMode="dropdown" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/groupEditSpinnerPaymentType">
+            android:orientation="horizontal">
 
             <com.tiper.MaterialSpinner
                 android:id='@+id/groupEditSpinnerAge1'
@@ -102,6 +97,6 @@
         </LinearLayout>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </LinearLayout>

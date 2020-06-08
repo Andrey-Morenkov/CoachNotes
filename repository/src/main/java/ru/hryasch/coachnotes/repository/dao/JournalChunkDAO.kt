@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.repository.dao
 
+import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
 import com.soywiz.klock.Date
 import com.soywiz.klock.parse
@@ -56,7 +57,7 @@ data class JournalChunkDAOId (val date: Date, val groupId: GroupId)
 {
     companion object
     {
-        private const val delimiter = "/"
+        private const val delimiter = "|"
 
         fun getSerialized(date: Date, groupId: GroupId): String
         {
@@ -70,12 +71,9 @@ data class JournalChunkDAOId (val date: Date, val groupId: GroupId)
 
         fun deserialize(str: String): JournalChunkDAOId
         {
-            val groupIdStr = str.reversed()
-                                .substringBefore(delimiter)
-                                .reversed()
-
-            val date = str.substringBefore("$delimiter$groupIdStr")
-            return JournalChunkDAOId(daoDateFormat.parse(date).local.date, groupIdStr.toInt())
+            d("deserialize chunkDAO id: $str")
+            val components = str.split(delimiter)
+            return JournalChunkDAOId(daoDateFormat.parse(components[0]).local.date, components[1].toInt())
         }
     }
 }

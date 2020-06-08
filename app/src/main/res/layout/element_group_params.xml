@@ -2,6 +2,7 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     style="@style/CardSettingElement"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -15,7 +16,6 @@
             android:id="@+id/textView12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
             android:text="@string/group_param_supported_age"
             android:textColor="@color/colorPrimaryLight"
             android:textSize="@dimen/group_info_subtitle_text_size"
@@ -24,72 +24,69 @@
 
         <LinearLayout
             android:id="@+id/linearLayout2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="2dp"
             android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/textView12"
             app:layout_constraintTop_toBottomOf="@+id/textView12">
 
             <TextView
-                android:id="@+id/groupInfoTextViewAge1"
-                android:layout_width="70dp"
-                android:layout_height="match_parent"
-                android:editable="false"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:text="@string/group_param_age1_sample"
+                android:id="@+id/groupInfoTextViewAbsoluteAge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/group_param_ages_multiple"
                 android:textSize="@dimen/group_info_user_input_text_size" />
-
-            <ImageView
-                android:id="@+id/groupInfoImageViewRangeAges"
-                android:layout_width="40dp"
-                android:layout_height="match_parent"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                app:srcCompat="@drawable/ic_remove" />
 
             <TextView
-                android:id="@+id/groupInfoTextViewAge2"
-                android:layout_width="70dp"
-                android:layout_height="match_parent"
-                android:editable="false"
-                android:gravity="center"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:text="@string/group_param_age2_sample"
+                android:id="@+id/textView9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="@string/age_type_absolute"
                 android:textSize="@dimen/group_info_user_input_text_size" />
+        </LinearLayout>
 
-            <com.skydoves.powerspinner.PowerSpinnerView
-                android:id="@+id/groupInfoSpinnerAgeType"
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:hint="@string/age_type_absolute"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:textSize="@dimen/group_info_user_input_text_size"
-                app:spinner_arrow_padding="8dp"
-                app:spinner_popup_animation="dropdown"
-                app:spinner_popup_background="@color/colorPrimaryDarkHighlight"
-                app:spinner_popup_height="70dp"
-                app:spinner_popup_width="100dp">
+        <LinearLayout
+            android:id="@+id/linearLayout3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@+id/linearLayout2"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-            </com.skydoves.powerspinner.PowerSpinnerView>
+            <TextView
+                android:id="@+id/groupInfoTextViewRelativeAge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/group_param_ages_multiple"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="18sp" />
 
+            <TextView
+                android:id="@+id/textView14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="@string/age_type_relative"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="18sp" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/textView13"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:text="@string/group_param_payment_method"
             android:textColor="@color/colorPrimaryLight"
             android:textSize="@dimen/group_info_subtitle_text_size"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
 
         <TextView
             android:id="@+id/groupInfoTextViewIsPaid"

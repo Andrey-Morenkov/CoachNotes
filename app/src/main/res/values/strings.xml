@@ -121,6 +121,9 @@
             <string name="group_param_payment_free">Бесплатная</string>
             <string name="group_param_payment_paid">Платная</string>
             <string name="group_param_supported_age">Возраст учеников</string>
+            <string name="group_param_ages_single">%d</string>
+            <string name="group_param_ages_multiple">%d - %d</string>
+            <string name="group_param_schedule">Расписание занятий</string>
                 // Samples
                 <string name="group_param_age1_sample">2007</string>
                 <string name="group_param_age2_sample">2008</string>
