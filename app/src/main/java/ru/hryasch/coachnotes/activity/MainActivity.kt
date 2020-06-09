@@ -4,18 +4,18 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import io.realm.Realm
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.koin.core.qualifier.named
+
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
-import ru.hryasch.coachnotes.fragments.impl.JournalGroupFragment
 
 class MainActivity : AppCompatActivity(), KoinComponent
 {
@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity(), KoinComponent
 
     override fun onDestroy()
     {
-        GlobalScope.launch(Dispatchers.Default)
+        GlobalScope.launch(Dispatchers.Main)
         {
             groupRepository.closeDb()
             peopleRepository.closeDb()

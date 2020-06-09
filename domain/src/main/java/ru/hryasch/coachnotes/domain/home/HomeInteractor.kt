@@ -4,8 +4,6 @@ import ru.hryasch.coachnotes.domain.group.data.Group
 
 interface HomeInteractor
 {
-    suspend fun getGroupCount(): Int
     suspend fun getPeopleCount(): Int
-
     suspend fun getAllGroups(): List<Group>?
 }

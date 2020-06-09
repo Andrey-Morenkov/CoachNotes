@@ -2,6 +2,7 @@ package ru.hryasch.coachnotes.application
 
 import android.app.Application
 import io.realm.Realm
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -20,6 +21,7 @@ class App : Application()
         instance = this
     }
 
+    @ExperimentalCoroutinesApi
     override fun onCreate()
     {
         super.onCreate()

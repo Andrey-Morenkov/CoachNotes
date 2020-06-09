@@ -37,6 +37,7 @@ android
     
     compileOptions
     {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -49,7 +50,6 @@ android
 
 dependencies
 {
-
     // Tests stuff
     implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation "junit:junit:$junit_version"
@@ -86,6 +86,9 @@ dependencies
 	// Apache POI
     //implementation "com.github.SUPERCILEX.poi-android:poi:3.17"
     implementation files("lib/poishadow-all.jar")
+
+    // Java8 support
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$java8_support_version"
 	
     implementation project(path: ':domain')
 }

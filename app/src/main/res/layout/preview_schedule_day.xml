@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/group_schedule_day_view"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/schedule_day_background">
+
+    <CheckBox
+        android:id="@+id/group_schedule_day_checkbox"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="8dp"
+        android:buttonTint="#FFFFFF"
+        android:checked="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/group_schedule_day_day_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="Понедельник"
+        android:textColor="@color/colorScheduleDayUnselectedText"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/group_schedule_day_checkbox"
+        app:layout_constraintEnd_toStartOf="@+id/group_schedule_day_time_from"
+        app:layout_constraintStart_toEndOf="@+id/group_schedule_day_checkbox"
+        app:layout_constraintTop_toTopOf="@+id/group_schedule_day_checkbox" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/group_schedule_day_time_from"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:boxBackgroundMode="outline"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageView2"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <com.google.android.material.textfield.TextInputEditText
+            style="@style/CustomInputTypeText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_bold"
+            android:text="10:00"
+            android:textColor="@color/colorScheduleDayUnselectedText" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/group_schedule_day_time_until"
+        app:layout_constraintEnd_toStartOf="@+id/group_schedule_day_time_until"
+        app:layout_constraintTop_toTopOf="@+id/group_schedule_day_time_until"
+        app:srcCompat="@drawable/ic_remove" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/group_schedule_day_time_until"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        app:boxBackgroundMode="outline"
+        app:layout_constraintBottom_toBottomOf="@+id/group_schedule_day_time_from"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/group_schedule_day_time_from">
+
+        <com.google.android.material.textfield.TextInputEditText
+            style="@style/CustomInputTypeText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_bold"
+            android:text="12:00"
+            android:textColor="@color/colorScheduleDayUnselectedText" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

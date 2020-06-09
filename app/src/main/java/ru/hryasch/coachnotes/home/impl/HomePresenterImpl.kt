@@ -1,9 +1,7 @@
 package ru.hryasch.coachnotes.home.impl
 
 import com.pawegio.kandroid.d
-import com.pawegio.kandroid.i
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -23,8 +21,8 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
 {
     private val homeInteractor: HomeInteractor by inject()
 
-    private val groupsRecvChannel: ReceiveChannel<List<Group>> = get(named("recvGroupsList"))
-    private val peopleRecvChannel: ReceiveChannel<List<Person>>  = get(named("recvPeopleList"))
+    private val groupsRecvChannel: ReceiveChannel<List<Group>>  = get(named("recvGroupsList"))
+    private val peopleRecvChannel: ReceiveChannel<List<Person>> = get(named("recvPeopleList"))
 
     private val subscriptions: Job = Job()
 
@@ -37,37 +35,38 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
             val peopleCount = homeInteractor.getPeopleCount()
             withContext(Dispatchers.Main)
             {
-                viewState.setPersonsCount(peopleCount)
+                viewState.setPeopleCount(peopleCount)
                 subscribeOnPeopleChanges()
             }
         }
 
         GlobalScope.launch(Dispatchers.Default)
         {
-            val groupsCount = homeInteractor.getAllGroups()
+            val groups = homeInteractor.getAllGroups()
             withContext(Dispatchers.Main)
             {
-                viewState.setGroups(groupsCount)
+                viewState.setGroups(groups)
                 subscribeOnGroupsChanges()
             }
         }
-
     }
 
     override fun onDestroy()
     {
-        subscriptions.cancel()
-
         peopleRecvChannel.cancel()
         groupsRecvChannel.cancel()
+
+        subscriptions.cancel()
 
         super.onDestroy()
     }
 
+
+
     private fun loadingState()
     {
         viewState.setGroups(null)
-        viewState.setPersonsCount(null)
+        viewState.setPeopleCount(null)
     }
 
     @ExperimentalCoroutinesApi
@@ -78,11 +77,11 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
             while (true)
             {
                 val newData = peopleRecvChannel.receive()
-                d("HomePresenterImpl <sendPeopleList>: RECEIVED")
+                d("HomePresenterImpl <PeopleList>: RECEIVED (count = ${newData.size})")
 
                 withContext(Dispatchers.Main)
                 {
-                    viewState.setPersonsCount(newData.size)
+                    viewState.setPeopleCount(newData.size)
                 }
             }
         }
@@ -96,7 +95,7 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
             while (true)
             {
                 val newData = groupsRecvChannel.receive()
-                d("HomePresenterImpl <sendGroupsList>: RECEIVED")
+                d("HomePresenterImpl <GroupsList>: RECEIVED (count = ${newData.size})")
 
                 withContext(Dispatchers.Main)
                 {

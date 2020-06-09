@@ -15,7 +15,7 @@
             android:id="@+id/journalButtonShare"
             style="@style/ToolbarImageButton"
             android:layout_gravity="center_vertical|end"
-            android:src="@drawable/ic_share" />
+            android:src="@drawable/ic_microsoft_word" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/journalButtonLock"

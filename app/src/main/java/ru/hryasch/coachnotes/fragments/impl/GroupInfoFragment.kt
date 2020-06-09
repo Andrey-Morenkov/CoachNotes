@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import com.skydoves.powerspinner.PowerSpinnerView
 import kotlinx.coroutines.*
@@ -42,7 +41,6 @@ import ru.hryasch.coachnotes.groups.presenters.impl.GroupPresenterImpl
 import ru.hryasch.coachnotes.repository.common.toAbsolute
 import ru.hryasch.coachnotes.repository.common.toRelative
 import java.util.*
-import kotlin.collections.ArrayList
 
 class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 {

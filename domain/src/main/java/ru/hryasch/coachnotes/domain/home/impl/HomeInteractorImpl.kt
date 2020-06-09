@@ -13,14 +13,6 @@ class HomeInteractorImpl: HomeInteractor, KoinComponent
     private val personRepository: PersonRepository by inject(named("release"))
     private val groupRepository: GroupRepository by inject(named("release"))
 
-    override suspend fun getGroupCount(): Int
-    {
-        var count = 0
-        val groups = groupRepository.getAllGroups()
-        groups?.let { count = it.size }
-        return count
-    }
-
     override suspend fun getPeopleCount(): Int
     {
         var count = 0

@@ -3,11 +3,11 @@ package ru.hryasch.coachnotes.di
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+
 import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
 import ru.hryasch.coachnotes.domain.group.interactors.impl.GroupInteractorImpl
 import ru.hryasch.coachnotes.domain.home.HomeInteractor
 import ru.hryasch.coachnotes.domain.home.impl.HomeInteractorImpl
-
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 import ru.hryasch.coachnotes.domain.journal.interactors.impl.JournalInteractorImpl
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
