@@ -29,14 +29,17 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
         viewState.loadingState()
     }
 
-    override suspend fun applyPersonData(person: Person?)
+    override fun applyPersonDataAsync(person: Person?)
     {
-        currentPerson = person ?: PersonImpl("", "", id = peopleInteractor.getMaxPersonId() + 1)
-        val groups = groupInteractor.getGroupsList()
-
-        withContext(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Default)
         {
-            viewState.setPersonData(currentPerson, groups)
+            currentPerson = person ?: PersonImpl("", "", id = peopleInteractor.getMaxPersonId() + 1)
+            val groups = groupInteractor.getGroupsList()
+
+            withContext(Dispatchers.Main)
+            {
+                viewState.setPersonData(currentPerson, groups)
+            }
         }
     }
 

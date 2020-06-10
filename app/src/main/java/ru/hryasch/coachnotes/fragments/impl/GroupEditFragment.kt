@@ -31,7 +31,6 @@ import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.fragments.GroupEditView
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupEditPresenterImpl
-import ru.hryasch.coachnotes.repository.common.toAbsolute
 import ru.hryasch.coachnotes.repository.common.toRelative
 
 class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
@@ -88,7 +87,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
         GlobalScope.launch(Dispatchers.Default)
         {
-            presenter.applyGroupData(GroupEditFragmentArgs.fromBundle(arguments!!).groupData)
+            presenter.applyGroupDataAsync(GroupEditFragmentArgs.fromBundle(requireArguments()).groupData)
         }
 
         deleteGroup.visible = false

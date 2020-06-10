@@ -4,7 +4,7 @@ import ru.hryasch.coachnotes.domain.group.data.Group
 
 interface GroupEditPresenter
 {
-    suspend fun applyGroupData(group: Group?)
+    fun applyGroupDataAsync(group: Group?)
 
     fun updateOrCreateGroup()
 

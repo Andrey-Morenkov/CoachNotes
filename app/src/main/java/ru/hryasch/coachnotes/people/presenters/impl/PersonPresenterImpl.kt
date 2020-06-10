@@ -26,7 +26,7 @@ class PersonPresenterImpl: MvpPresenter<PersonView>(), PersonPresenter, KoinComp
         viewState.loadingState()
     }
 
-    override suspend fun applyPersonData(person: Person?)
+    override suspend fun applyPersonDataAsync(person: Person?)
     {
         currentPerson = person ?: PersonImpl("", "", id = peopleInteractor.getMaxPersonId() + 1)
         val groups = peopleInteractor.getGroupNames()

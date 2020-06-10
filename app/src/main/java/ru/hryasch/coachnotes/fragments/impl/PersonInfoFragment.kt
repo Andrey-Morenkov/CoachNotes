@@ -12,7 +12,6 @@ import androidx.core.widget.NestedScrollView
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.viewpager2.widget.ViewPager2
-import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.Dispatchers
@@ -86,7 +85,7 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 
         GlobalScope.launch(Dispatchers.Default)
         {
-            presenter.applyPersonData(PersonInfoFragmentArgs.fromBundle(arguments!!).personData)
+            presenter.applyPersonDataAsync(PersonInfoFragmentArgs.fromBundle(arguments!!).personData)
         }
 
         return layout

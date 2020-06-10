@@ -43,137 +43,135 @@
     // Screens
 
 
-        // Home screen
-        <string name="home_screen_my_schedule">График занятий</string>
-        <string name="home_screen_today_schedule_date">Сегодня:   %1$s, %2$d %3$s %4$d</string>
-            // Samples
-            <string name="home_screen_sample_name">Кондратьев Александр</string>
-            <string name="home_screen_sample_position">Тренер</string>
-            <string name="home_screen_sample_today_date">Сегодня: 01 января 2020</string>
-            <string name="home_screen_group_count_sample">5</string>
-            <string name="home_screen_people_count_sample">38</string>
+    // Home screen
+    <string name="home_screen_my_schedule">График занятий</string>
+    <string name="home_screen_today_schedule_date">Сегодня:   %1$s, %2$d %3$s %4$d</string>
+    // Samples
+    <string name="home_screen_sample_name">Кондратьев Александр</string>
+    <string name="home_screen_sample_position">Тренер</string>
+    <string name="home_screen_sample_today_date">Сегодня: 01 января 2020</string>
+    <string name="home_screen_group_count_sample">5</string>
+    <string name="home_screen_people_count_sample">38</string>
 
 
-        // Add new group screen
-        <string name="new_group_screen_group_name_label">Название</string>
-        <string name="new_group_screen_members_label">Участники</string>
+    // Add new group screen
+    <string name="new_group_screen_group_name_label">Название</string>
+    <string name="new_group_screen_members_label">Участники</string>
 
 
+    // Groups screen
+    <string name="groups_screen_toolbar_title">Мои группы</string>
+    <string name="groups_screen_no_data">Нет групп</string>
+    // Samples
+    <string name="groups_screen_toolbar_subtitle_sample">5 шт</string>
 
-        // Groups screen
-        <string name="groups_screen_toolbar_title">Мои группы</string>
-        <string name="groups_screen_no_data">Нет групп</string>
-            // Samples
-            <string name="groups_screen_toolbar_subtitle_sample">5 шт</string>
+    // Group info screen
+    <string name="group_info_screen_toolbar_title">Профиль группы</string>
 
-        // Group info screen
-        <string name="group_info_screen_toolbar_title">Профиль группы</string>
+    // Group edit screen
+    <string name="group_edit_screen_toolbar_title">Редактор группы</string>
+    <string name="group_edit_screen_toolbar_new_title">Новая группа</string>
+    <string name="group_edit_screen_delete_group">Удалить группу</string>
+    <string name="group_edit_screen_age_type">Возраст</string>
 
-        // Group edit screen
-        <string name="group_edit_screen_toolbar_title">Редактор группы</string>
-        <string name="group_edit_screen_toolbar_new_title">Новая группа</string>
-        <string name="group_edit_screen_delete_group">Удалить группу</string>
-        <string name="group_edit_screen_age_type">Возраст</string>
+    // Group journal screen
+    // Samples
+    <string name="group_journal_screen_date_sample">Март 2020</string>
 
-        // Group journal screen
-            // Samples
-            <string name="group_journal_screen_date_sample">Март 2020</string>
+    // Persons screen
+    <string name="persons_screen_toolbar_title">Мои ученики</string>
+    <string name="person_full_name_pattern">%1$s %2$s</string>
+    <string name="persons_screen_no_data">Нет учеников</string>
 
-        // Persons screen
-        <string name="persons_screen_toolbar_title">Мои ученики</string>
-        <string name="person_full_name_pattern">%1$s %2$s</string>
-        <string name="persons_screen_no_data">Нет учеников</string>
+    // Person info screen
+    <string name="person_info_screen_toolbar_title">Профиль ученика</string>
 
-        // Person info screen
-        <string name="person_info_screen_toolbar_title">Профиль ученика</string>
-
-        // Person edit screen
-        <string name="person_edit_screen_toolbar_title">Редактор ученика</string>
-        <string name="person_edit_screen_toolbar_new_title">Новый ученик</string>
-        <string name="person_edit_screen_delete_person">Удалить ученика</string>
-        <string name="person_edit_screen_group_pattern_range">%1$s (%2$s - %3$s г.р)</string>
-        <string name="person_edit_screen_group_pattern_single">%1$s (%2$s г.р)</string>
+    // Person edit screen
+    <string name="person_edit_screen_toolbar_title">Редактор ученика</string>
+    <string name="person_edit_screen_toolbar_new_title">Новый ученик</string>
+    <string name="person_edit_screen_delete_person">Удалить ученика</string>
+    <string name="person_edit_screen_group_pattern_range">%1$s (%2$s - %3$s г.р)</string>
+    <string name="person_edit_screen_group_pattern_single">%1$s (%2$s г.р)</string>
+    <string name="person_edit_screen_relative_age_pattern">$s лет</string>
 
     // Items
 
-        // Previews
+    // Previews
 
-            // Preview group
-            <string name="group_absolute_age_range_pattern">%1$s-%2$s г.р</string>
-            <string name="group_absolute_age_single_pattern">%1$s г.р</string>
-            <string name="group_relative_age_range_pattern">%1$s-%2$s\nлет</string>
-            <string name="group_relative_age_single_pattern">%1$s\nлет</string>
-                // Samples
-                <string name="preview_group_name_sample">Группа #1</string>
-                <string name="preview_group_group_size_sample">24</string>
-                <string name="preview_group_people_ages_absolute_sample">2013–2014 г.р</string>
-                <string name="preview_group_people_ages_relative_sample">7–8\nлет</string>
+    // Preview group
+    <string name="group_absolute_age_range_pattern">%1$s-%2$s г.р</string>
+    <string name="group_absolute_age_single_pattern">%1$s г.р</string>
+    <string name="group_relative_age_range_pattern">%1$s-%2$s\nлет</string>
+    <string name="group_relative_age_single_pattern">%1$s\nлет</string>
+    // Samples
+    <string name="preview_group_name_sample">Группа #1</string>
+    <string name="preview_group_group_size_sample">24</string>
+    <string name="preview_group_people_ages_absolute_sample">2013–2014 г.р</string>
+    <string name="preview_group_people_ages_relative_sample">7–8\nлет</string>
 
-            // Preview person
-                // Samples
-                <string name="preview_person_name_sample">Вася Иванов</string>
-                <string name="preview_person_group_name_sample">Группа #1</string>
+    // Preview person
+    // Samples
+    <string name="preview_person_name_sample">Вася Иванов</string>
+    <string name="preview_person_group_name_sample">Группа #1</string>
 
-        // Elements
+    // Elements
 
-            // Group param element
-            <string name="group_param_payment_method">Тип оплаты</string>
-            <string name="group_param_payment_free">Бесплатная</string>
-            <string name="group_param_payment_paid">Платная</string>
-            <string name="group_param_supported_age">Возраст учеников</string>
-            <string name="group_param_ages_single">%d</string>
-            <string name="group_param_ages_multiple">%d - %d</string>
-            <string name="group_param_schedule">Расписание занятий</string>
-                // Samples
-                <string name="group_param_age1_sample">2007</string>
-                <string name="group_param_age2_sample">2008</string>
-    
-            // Group members element
-            <string name="group_members_people">Участники:</string>
-            <string name="group_members_see_all">Полный список</string>
-            <string name="group_members_add_people">Добавить человека</string>
-                // Samples
-                <string name="group_members_people_count_sample">21</string>
-    
-            // Person header element
-            <string name="person_info_header_name_surname_pattern">%1$s %2$s</string>
-            <string name="person_info_header_age_pattern">%1$d лет</string>
-                // Samples
-                <string name="person_header_name_surname_sample">Иван Иванович</string>
-                <string name="person_header_patronymic_sample">Иванов</string>
-                <string name="person_header_age_sample">12 лет</string>
-                <string name="person_header_group_sample">Группа #1</string>
+    // Group param element
+    <string name="group_param_payment_method">Тип оплаты</string>
+    <string name="group_param_payment_free">Бесплатная</string>
+    <string name="group_param_payment_paid">Платная</string>
+    <string name="group_param_supported_age">Возраст учеников</string>
+    <string name="group_param_ages_single">%s</string>
+    <string name="group_param_ages_multiple">%s - %s</string>
+    <string name="group_param_schedule">Расписание занятий</string>
+    // Samples
+    <string name="group_param_age1_sample">2007</string>
+    <string name="group_param_age2_sample">2008</string>
 
-            // Person params element
-                <string name="person_params_common_tab">Общее</string>
-                <string name="person_params_physical_tab">Физ</string>
-                <string name="person_params_sport_tab">Спорт</string>
-                <string name="person_params_med_tab">Мед</string>
+    // Group members element
+    <string name="group_members_people">Ученики:</string>
+    <string name="group_members_see_all">Полный список</string>
+    <string name="group_members_add_people">Добавить ученика</string>
+    // Samples
+    <string name="group_members_people_count_sample">21</string>
 
-            // Person parent info element
-                <string name="person_parent_info_label">Ответственные лица</string>
+    // Person header element
+    <string name="person_info_header_name_surname_pattern">%1$s %2$s</string>
+    <string name="person_info_header_age_pattern">%1$d лет</string>
+    // Samples
+    <string name="person_header_name_surname_sample">Иван Иванович</string>
+    <string name="person_header_patronymic_sample">Иванов</string>
+    <string name="person_header_age_sample">12 лет</string>
+    <string name="person_header_group_sample">Группа #1</string>
 
-            // Person common info element
-                <string name="person_common_info_birthday_sample">05/10/2010</string>
+    // Person params element
+    <string name="person_params_common_tab">Общее</string>
+    <string name="person_params_physical_tab">Физ</string>
+    <string name="person_params_sport_tab">Спорт</string>
+    <string name="person_params_med_tab">Мед</string>
 
-            // Single parent info element
-                // Samples
-                <string name="single_parent_info_full_name_sample">Наталия Григорьевна</string>
-                <string name="single_parent_info_type_sample">Мама</string>
-                <string name="single_parent_info_phone_sample">+7(920)123–45–67</string>
+    // Person parent info element
+    <string name="person_parent_info_label">Ответственные лица</string>
 
-            // Journal column header
-                // Samples
-                <string name="journal_column_header_date_sample">22</string>
-                <string name="journal_column_header_day_of_week_sample">Пн</string>
 
-            // Journal column header
-                // Samples
-                <string name="journal_row_header_surname_sample">Иванов</string>
-                <string name="journal_row_header_name_sample">Иван</string>
+    // Single parent info element
+    // Samples
+    <string name="single_parent_info_full_name_sample">Наталия Григорьевна</string>
+    <string name="single_parent_info_type_sample">Мама</string>
+    <string name="single_parent_info_phone_sample">+7(920)123–45–67</string>
 
-        // Universal toolbar
-            <string name="universal_toolbar_title">Заголовок</string>
-            <string name="universal_toolbar_subtitle">Подзаголовок</string>
+    // Journal column header
+    // Samples
+    <string name="journal_column_header_date_sample">22</string>
+    <string name="journal_column_header_day_of_week_sample">Пн</string>
+
+    // Journal column header
+    // Samples
+    <string name="journal_row_header_surname_sample">Иванов</string>
+    <string name="journal_row_header_name_sample">Иван</string>
+
+    // Universal toolbar
+    <string name="universal_toolbar_title">Заголовок</string>
+    <string name="universal_toolbar_subtitle">Подзаголовок</string>
 
 </resources>

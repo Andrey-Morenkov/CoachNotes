@@ -41,10 +41,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
     private lateinit var journalsButton: HomeSimpleButton
     private lateinit var todayScheduleDate: TextView
 
-    
     private var journalPickerDialog: AlertDialog? = null
-
-
 
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -99,7 +96,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
     {
         if (groups == null || groups.isEmpty())
         {
-            journalPickerDialog = null
+            createNoGroupsDialog()
             return
         }
 
@@ -107,6 +104,11 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                                  .filter { group -> group.membersList.isNotEmpty() }
                                  .sorted()
                                  .collect(Collectors.toList())
+
+        if (sortedGroups.isEmpty()) {
+            createNoGroupsDialog()
+            return
+        }
 
         val dataArray: Array<String> = Array(groups.size) { "" }
         for ((i, group) in sortedGroups.withIndex())
@@ -121,6 +123,13 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                 navController.navigate(action)
                 dialog.cancel()
             }
+            .create()
+    }
+
+    private fun createNoGroupsDialog() {
+        journalPickerDialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Нет групп с учениками")
+            .setPositiveButton("Ok") { dialog, which -> dialog.dismiss() }
             .create()
     }
 }

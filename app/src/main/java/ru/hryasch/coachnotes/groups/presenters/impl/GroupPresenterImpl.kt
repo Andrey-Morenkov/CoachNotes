@@ -40,20 +40,23 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
     }
 
     @ExperimentalCoroutinesApi
-    override suspend fun applyGroupData(group: Group?)
+    override fun applyGroupDataAsync(group: Group?)
     {
-        currentGroup = group ?: GroupImpl(groupInteractor.getMaxGroupId() + 1, "")
-        groupNames = groupInteractor.getGroupNames()
-        groupMembers = groupInteractor.getPeopleListByGroup(currentGroup.id)
-
-        withContext(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Default)
         {
-            viewState.setGroupData(currentGroup, groupMembers, groupNames)
-            if (!::specificGroupChannel.isInitialized)
+            currentGroup = group!!
+            groupNames = groupInteractor.getGroupNames()
+            groupMembers = groupInteractor.getPeopleListByGroup(currentGroup.id)
+
+            withContext(Dispatchers.Main)
             {
-                specificGroupChannel = get(named("recvSpecificGroup")) { parametersOf(currentGroup.id) }
-                i("subscribed for group[${currentGroup.id}]")
-                subscribeOnGroupChanges()
+                viewState.setGroupData(currentGroup, groupMembers, groupNames)
+                if (!::specificGroupChannel.isInitialized)
+                {
+                    specificGroupChannel = get(named("recvSpecificGroup")) { parametersOf(currentGroup.id) }
+                    subscribeOnGroupChanges()
+                    i("subscribed for group[${currentGroup.id}]")
+                }
             }
         }
     }
@@ -123,7 +126,7 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
 
                 withContext(Dispatchers.Main)
                 {
-                    applyGroupData(newData)
+                    applyGroupDataAsync(newData)
                 }
             }
         }

@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pawegio.kandroid.visible
-import com.skydoves.powerspinner.PowerSpinnerView
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import moxy.MvpAppCompatFragment
@@ -38,7 +37,6 @@ import ru.hryasch.coachnotes.fragments.GroupView
 import ru.hryasch.coachnotes.groups.GroupMembersAdapter
 import ru.hryasch.coachnotes.groups.isSingle
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupPresenterImpl
-import ru.hryasch.coachnotes.repository.common.toAbsolute
 import ru.hryasch.coachnotes.repository.common.toRelative
 import java.util.*
 
@@ -48,28 +46,34 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     lateinit var presenter: GroupPresenterImpl
 
     private lateinit var navController: NavController
-    private lateinit var membersAdapter: GroupMembersAdapter
 
+    private lateinit var loadingBar: ProgressBar
+    private lateinit var contentView: NestedScrollView
+
+    // Toolbar
     private lateinit var editGroup: ImageButton
 
+    // Base section
     private lateinit var name: TextView
-    private lateinit var age1: TextView
-    private lateinit var age2: TextView
-    private lateinit var ageRange: ImageView
-    private lateinit var ageType: PowerSpinnerView
+
+    // Ages & payment section
+    private lateinit var absoluteAge: TextView
+    private lateinit var relativeAge: TextView
+    private lateinit var paymentType: TextView
+    private lateinit var isPaid: ImageView
+
+    // Group members action
     private lateinit var membersCount: TextView
     private lateinit var fullMembersList: MaterialButton
     private lateinit var shortMembersList: RecyclerView
+    private lateinit var membersAdapter: GroupMembersAdapter
     private lateinit var noMembersData: TextView
     private lateinit var addMember: MaterialButton
-    private lateinit var paymentType: TextView
-    private lateinit var isPaid: ImageView
+
 
     private lateinit var currentGroup: Group
     private lateinit var currentMembers: MutableList<Person>
 
-    private lateinit var contentView: NestedScrollView
-    private lateinit var loadingBar: ProgressBar
 
     @ExperimentalCoroutinesApi
     override fun onCreateView(inflater: LayoutInflater,
@@ -78,125 +82,32 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     {
         val layout =  inflater.inflate(R.layout.fragment_group_info, container, false)
 
-        editGroup = layout.findViewById(R.id.groupInfoImageButtonEditPerson)
-
-        name = layout.findViewById(R.id.groupInfoTextViewName)
-        age1 = layout.findViewById(R.id.groupInfoTextViewAge1)
-        age2 = layout.findViewById(R.id.groupInfoTextViewAge2)
-        ageRange = layout.findViewById(R.id.groupInfoImageViewRangeAges)
-        ageType = layout.findViewById(R.id.groupInfoSpinnerAgeType)
-        membersCount = layout.findViewById(R.id.groupInfoTextViewMembersCount)
-        fullMembersList = layout.findViewById(R.id.groupInfoButtonAllMembersList)
-        shortMembersList = layout.findViewById(R.id.groupInfoRecyclerViewMembers)
-        noMembersData = layout.findViewById(R.id.groupInfoTextViewNoData)
-        addMember = layout.findViewById(R.id.groupInfoButtonAddMember)
-        paymentType = layout.findViewById(R.id.groupInfoTextViewIsPaid)
-        isPaid = layout.findViewById(R.id.groupImageViewIsPaid)
+        inflateToolbarElements(layout)
+        inflateBaseSection(layout)
+        inflateAgesAndPaymentSection(layout)
+        inflateMembersSection(layout)
 
         contentView = layout.findViewById(R.id.groupInfoContentView)
         loadingBar = layout.findViewById(R.id.groupInfoProgressBarLoading)
 
-        noMembersData.visibility = View.INVISIBLE
-
-        loadingState()
-
-        ageType.setItems(listOf(context!!.getString(R.string.age_type_absolute), context!!.getString(R.string.age_type_relative)))
-        ageType.selectItemByIndex(0)
-        ageType.lifecycleOwner = this
-
         navController = container!!.findNavController()
 
-        val toolbar: Toolbar = layout.findViewById(R.id.groupInfoToolbar)
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
-        (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
-
-        toolbar.setNavigationOnClickListener {
-            navController.navigateUp()
-        }
-
-        GlobalScope.launch(Dispatchers.Default)
-        {
-            presenter.applyGroupData(GroupInfoFragmentArgs.fromBundle(arguments!!).groupData)
-        }
+        presenter.applyGroupDataAsync(GroupInfoFragmentArgs.fromBundle(requireArguments()).groupData)
 
         return layout
     }
 
     override fun setGroupData(group: Group, members: List<Person>, groupNames: Map<GroupId, String>)
     {
-        contentView.visible = true
-        loadingBar.visible = false
-
         currentGroup = group
         currentMembers = members.toMutableList()
 
         name.text = group.name
-        age1.text = group.availableAbsoluteAge!!.first.toString()
-        age2.text = group.availableAbsoluteAge!!.last.toString()
 
-        if (group.availableAbsoluteAge!!.isSingle())
-        {
-            age2.visibility = View.GONE
-            ageRange.visibility = View.GONE
-        }
-
-        if (group.isPaid)
-        {
-            paymentType.text = context!!.getString(R.string.group_param_payment_paid)
-            paymentType.setTextColor(ContextCompat.getColor(context!!, R.color.colorPaid))
-            isPaid.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_money_active))
-        }
-        else
-        {
-            paymentType.text = context!!.getString(R.string.group_param_payment_free)
-            paymentType.setTextColor(ContextCompat.getColor(context!!, R.color.colorText))
-            isPaid.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_money))
-        }
-
-        ageType.setOnSpinnerItemSelectedListener<String> { position, _ ->
-            when(position)
-            {
-                0 -> {
-                    if (age1.text.toString().toInt() < 1000)
-                    {
-                        age1.text = age1.text.toString().toInt().toAbsolute().toString()
-                        age2.text = age2.text.toString().toInt().toAbsolute().toString()
-                    }
-                }
-                1 -> {
-                    if (age1.text.toString().toInt() > 1000)
-                    {
-                        age1.text = age1.text.toString().toInt().toRelative().toString()
-                        age2.text = age2.text.toString().toInt().toRelative().toString()
-                    }
-                }
-            }
-        }
-
-        membersCount.text = group.membersList.size.toString()
-
-        val listener =  object: GroupMembersAdapter.RemovePersonListener {
-            override fun onPersonRemoveFromGroup(person: Person)
-            {
-                presenter.onDeletePersonFromCurrentGroupClicked(person)
-            }
-        }
-
-        editGroup.setOnClickListener {
-            val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToGroupEditFragment(currentGroup)
-            navController.navigate(action)
-        }
-
-        membersAdapter = get { parametersOf(currentMembers, groupNames, listener) }
-        shortMembersList.adapter = membersAdapter
-        shortMembersList.layoutManager = LinearLayoutManager(context)
-
-        noMembersData.visible = ( membersAdapter.itemCount == 0 )
-
-        addMember.setOnClickListener {
-            presenter.onAddPeopleToGroupClicked()
-        }
+        setToolbarActions()
+        setAges()
+        setPayment()
+        setMembersSection(groupNames)
     }
 
     override fun loadingState()
@@ -213,18 +124,12 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             return
         }
 
-        val dialog = MaterialAlertDialogBuilder(this@GroupInfoFragment.context!!)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Удалене ученика из группы")
             .setMessage("Вы уверены что хотите удалить ${person.surname} ${person.name} из группы ${currentGroup.name} ?")
             .setPositiveButton("Удалить") { dialog, _ ->
-                dialog.cancel()
-                //currentMembers.remove(person)
-                //i("members after remove: ${currentMembers.size}")
-                //membersAdapter.notifyDataSetChanged()
-                //noMembersData.visible = ( membersAdapter.itemCount == 0 )
-                //membersCount.text = membersCount.text.toString().toInt().dec().toString()
-
                 presenter.deletePersonFromCurrentGroup(person.id)
+                dialog.cancel()
             }
             .setNegativeButton("Отмена") { dialog, _ ->
                 dialog.cancel()
@@ -251,8 +156,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         val checkedCountRecvChannel = checkedCountSendChannel.openSubscription()
         val channels = Job()
 
-        val peopleItems = Array<String>(people.size) {""}
-        val checkedItems: BooleanArray = BooleanArray(people.size) {false}
+        val peopleItems  = Array(people.size) {""}
+        val checkedItems = BooleanArray(people.size) {false}
         var checkedCount = 0
 
         for ((i, person) in people.withIndex())
@@ -261,7 +166,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             checkedItems[i] = false
         }
 
-        val dialog = MaterialAlertDialogBuilder(this@GroupInfoFragment.context!!)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Добавить учеников в группу")
             .setMultiChoiceItems(peopleItems, checkedItems) { _, pos, isChecked ->
                 checkedItems[pos] = isChecked
@@ -280,7 +185,6 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
                 }
             }
             .setPositiveButton("Добавить ($checkedCount)") { dialog, _ ->
-                dialog.cancel()
                 checkedCountRecvChannel.cancel()
                 checkedCountSendChannel.cancel()
                 channels.cancel()
@@ -304,6 +208,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
                 membersCount.text = currentMembers.size.toString()
 
                 presenter.addPeopleToGroup(peopleList)
+
+                dialog.cancel()
             }
             .setNegativeButton("Отмена") { dialog, _ ->
                 dialog.cancel()
@@ -318,20 +224,160 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         {
             while (true)
             {
-                val text = "Добавить учеников (${checkedCountRecvChannel.receive()})"
+                val text = "Добавить (${checkedCountRecvChannel.receive()})"
                 val button = dialog.getButton(DialogInterface.BUTTON_POSITIVE)
                 button.text = text
 
-                button.isEnabled = checkedCount != 0
+                if (checkedCount == 0)
+                {
+                    button.isEnabled = false
+                    button.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
+                }
+                else
+                {
+                    button.isEnabled = true
+                    button.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+                }
             }
         }
 
 
         dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
             dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
         }
 
         dialog.show()
+    }
+
+
+
+    private fun inflateToolbarElements(layout: View)
+    {
+        editGroup = layout.findViewById(R.id.groupInfoImageButtonEditPerson)
+
+        val toolbar: Toolbar = layout.findViewById(R.id.groupInfoToolbar)
+        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
+
+        toolbar.setNavigationOnClickListener {
+            navController.navigateUp()
+        }
+    }
+
+    private fun inflateBaseSection(layout: View)
+    {
+        name = layout.findViewById(R.id.groupInfoTextViewName)
+    }
+
+    private fun inflateAgesAndPaymentSection(layout: View)
+    {
+        absoluteAge = layout.findViewById(R.id.groupInfoTextViewAbsoluteAge)
+        relativeAge = layout.findViewById(R.id.groupInfoTextViewRelativeAge)
+        paymentType = layout.findViewById(R.id.groupInfoTextViewIsPaid)
+        isPaid = layout.findViewById(R.id.groupImageViewIsPaid)
+    }
+
+    private fun inflateMembersSection(layout: View)
+    {
+        membersCount = layout.findViewById(R.id.groupInfoTextViewMembersCount)
+        fullMembersList = layout.findViewById(R.id.groupInfoButtonAllMembersList)
+        shortMembersList = layout.findViewById(R.id.groupInfoRecyclerViewMembers)
+        noMembersData = layout.findViewById(R.id.groupInfoTextViewNoData)
+        addMember = layout.findViewById(R.id.groupInfoButtonAddMember)
+    }
+
+    private fun setToolbarActions()
+    {
+        editGroup.setOnClickListener {
+            val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToGroupEditFragment(currentGroup)
+            navController.navigate(action)
+        }
+    }
+
+    private fun setAges()
+    {
+        val age1 = currentGroup.availableAbsoluteAge?.first ?: -1
+        val age2 = currentGroup.availableAbsoluteAge?.last ?: -1
+
+        if (age1 == -1)
+        {
+            // age not set
+            absoluteAge.text = getString(R.string.group_param_ages_multiple, "?", "?")
+            relativeAge.text = getString(R.string.group_param_ages_multiple, "?", "?")
+            return
+        }
+
+        // age set
+        if (currentGroup.availableAbsoluteAge!!.isSingle())
+        {
+            // set only 1 age
+            absoluteAge.text = getString(R.string.group_param_ages_single, age1.toString())
+            relativeAge.text = getString(R.string.group_param_ages_single, age1.toRelative().toString())
+        }
+        else
+        {
+            // set age range
+            absoluteAge.text = getString(R.string.group_param_ages_multiple, age1.toString(), age2.toString())
+            relativeAge.text = getString(R.string.group_param_ages_multiple, age1.toRelative().toString(), age2.toRelative().toString())
+        }
+    }
+
+    private fun setPayment()
+    {
+        if (currentGroup.isPaid)
+        {
+            paymentType.text = getString(R.string.group_param_payment_paid)
+            paymentType.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPaid))
+            isPaid.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_money_active))
+        }
+        else
+        {
+            paymentType.text = getString(R.string.group_param_payment_free)
+            paymentType.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorText))
+            isPaid.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_money))
+        }
+    }
+
+    private fun setMembersSection(groupNames: Map<GroupId, String>)
+    {
+        membersCount.text = currentGroup.membersList.size.toString()
+
+        val listener =  object: GroupMembersAdapter.RemovePersonListener {
+            override fun onPersonRemoveFromGroup(person: Person)
+            {
+                presenter.onDeletePersonFromCurrentGroupClicked(person)
+            }
+        }
+
+        membersAdapter = get { parametersOf(currentMembers, groupNames, listener) }
+
+        shortMembersList.adapter = membersAdapter
+        shortMembersList.layoutManager = LinearLayoutManager(context)
+
+        addMember.setOnClickListener {
+            presenter.onAddPeopleToGroupClicked()
+        }
+
+        if (membersAdapter.itemCount == 0)
+        {
+            noMembersState()
+        }
+        else
+        {
+            hasMembersState()
+        }
+    }
+
+    private fun noMembersState()
+    {
+        shortMembersList.visible = false
+        noMembersData.visible = true
+    }
+
+    private fun hasMembersState()
+    {
+        shortMembersList.visible = true
+        noMembersData.visible = false
     }
 }

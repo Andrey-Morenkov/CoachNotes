@@ -6,7 +6,7 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 
 interface GroupPresenter
 {
-    suspend fun applyGroupData(group: Group?)
+    fun applyGroupDataAsync(group: Group?)
 
     fun onDeletePersonFromCurrentGroupClicked(person: Person)
 

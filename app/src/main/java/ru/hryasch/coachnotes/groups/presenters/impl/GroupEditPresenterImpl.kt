@@ -27,13 +27,15 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
         viewState.loadingState()
     }
 
-    override suspend fun applyGroupData(group: Group?)
+    override fun applyGroupDataAsync(group: Group?)
     {
-        currentGroup = group ?: GroupImpl(groupInteractor.getMaxGroupId() + 1, "")
+        GlobalScope.launch(Dispatchers.Default) {
+            currentGroup = group ?: GroupImpl(groupInteractor.getMaxGroupId() + 1, "")
 
-        withContext(Dispatchers.Main)
-        {
-            viewState.setGroupData(currentGroup)
+            withContext(Dispatchers.Main)
+            {
+                viewState.setGroupData(currentGroup)
+            }
         }
     }
 
