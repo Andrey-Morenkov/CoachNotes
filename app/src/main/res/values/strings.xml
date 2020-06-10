@@ -92,7 +92,7 @@
     <string name="person_edit_screen_delete_person">Удалить ученика</string>
     <string name="person_edit_screen_group_pattern_range">%1$s (%2$s - %3$s г.р)</string>
     <string name="person_edit_screen_group_pattern_single">%1$s (%2$s г.р)</string>
-    <string name="person_edit_screen_relative_age_pattern">$s лет</string>
+    <string name="person_edit_screen_relative_age_pattern">%1$s лет</string>
 
     // Items
 

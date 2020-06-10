@@ -1,7 +1,6 @@
 package ru.hryasch.coachnotes.fragments
 
 import moxy.MvpView
-import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.SingleStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
 import ru.hryasch.coachnotes.domain.common.GroupId

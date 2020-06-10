@@ -371,12 +371,16 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
     private fun noMembersState()
     {
+        contentView.visible = true
+        loadingBar.visible = false
         shortMembersList.visible = false
         noMembersData.visible = true
     }
 
     private fun hasMembersState()
     {
+        contentView.visible = true
+        loadingBar.visible = false
         shortMembersList.visible = true
         noMembersData.visible = false
     }

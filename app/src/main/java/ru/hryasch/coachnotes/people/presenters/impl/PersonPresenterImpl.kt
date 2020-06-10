@@ -10,7 +10,6 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.data.PersonImpl
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
 import ru.hryasch.coachnotes.fragments.PersonView
-import ru.hryasch.coachnotes.people.presenters.PersonEditPresenter
 import ru.hryasch.coachnotes.people.presenters.PersonPresenter
 
 @InjectViewState
@@ -26,14 +25,17 @@ class PersonPresenterImpl: MvpPresenter<PersonView>(), PersonPresenter, KoinComp
         viewState.loadingState()
     }
 
-    override suspend fun applyPersonDataAsync(person: Person?)
+    override fun applyPersonDataAsync(person: Person?)
     {
-        currentPerson = person ?: PersonImpl("", "", id = peopleInteractor.getMaxPersonId() + 1)
-        val groups = peopleInteractor.getGroupNames()
-
-        withContext(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Default)
         {
-            viewState.setPersonData(currentPerson, groups)
+            currentPerson = person ?: PersonImpl("", "", id = peopleInteractor.getMaxPersonId() + 1)
+            val groups = peopleInteractor.getGroupNames()
+
+            withContext(Dispatchers.Main)
+            {
+                viewState.setPersonData(currentPerson, groups)
+            }
         }
     }
 }

@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:text="@string/person_common_info_birthday_sample"
+            android:text="10.21.2014"
             android:textColor="@color/colorText"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/textView"

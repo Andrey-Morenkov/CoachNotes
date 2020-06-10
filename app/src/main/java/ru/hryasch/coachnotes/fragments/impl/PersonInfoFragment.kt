@@ -83,10 +83,7 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
             navController.navigateUp()
         }
 
-        GlobalScope.launch(Dispatchers.Default)
-        {
-            presenter.applyPersonDataAsync(PersonInfoFragmentArgs.fromBundle(arguments!!).personData)
-        }
+        presenter.applyPersonDataAsync(PersonInfoFragmentArgs.fromBundle(requireArguments()).personData)
 
         return layout
     }
@@ -100,7 +97,7 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 
         viewPager.adapter = PersonParamsAdapter(this, person)
 
-        surnameName.text = context!!.getString(R.string.person_info_header_name_surname_pattern, person.surname, person.name)
+        surnameName.text = getString(R.string.person_info_header_name_surname_pattern, person.surname, person.name)
 
         if (person.patronymic == null)
         {
@@ -124,7 +121,7 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
             timeSpan--
         }
 
-        relativeAge.text = context!!.getString(R.string.person_info_header_age_pattern, timeSpan)
+        relativeAge.text = getString(R.string.person_info_header_age_pattern, timeSpan)
         groupName.text = groupNames[person.groupId] ?: "Нет группы"
 
         editPerson.setOnClickListener {

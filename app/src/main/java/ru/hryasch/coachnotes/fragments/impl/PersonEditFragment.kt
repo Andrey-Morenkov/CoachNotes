@@ -5,6 +5,7 @@ import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -18,14 +19,20 @@ import androidx.navigation.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
+import com.soywiz.klock.Date
 import com.soywiz.klock.DateFormat
+import com.soywiz.klock.DateTime
 import com.soywiz.klock.parse
 import com.tiper.MaterialSpinner
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
+import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.get
+import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.common.GroupId
@@ -33,6 +40,8 @@ import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PersonEditView
 import ru.hryasch.coachnotes.people.presenters.impl.PersonEditPresenterImpl
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -65,6 +74,9 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private lateinit var daysOfMonthList: List<String>
     private lateinit var monthsList: List<String>
     private lateinit var yearsList: List<String>
+    private var selectedDay: Int = -1
+    private var selectedMonth: Int = -1
+    private var selectedYear: Int = -1
 
     // Group section
     private lateinit var groupChooser: MaterialSpinner
@@ -80,6 +92,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                               savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_edit_person, container, false)
+        //requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         inflateToolbarElements(layout)
         inflateBaseSection(layout)
@@ -102,14 +115,15 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         currentPerson = person
 
         val isExistPerson = currentPerson.surname.isNotBlank()
-        if (isExistPerson) {
+        if (isExistPerson)
+        {
             setExistPersonData()
         }
 
         showingState(!isExistPerson)
 
         groupChooser.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, getGroupNamesSpinnerData(groups))
-        groupChooser.onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener
+        groupChooser.onItemSelectedListener = object : MaterialSpinner.OnItemSelectedListener
         {
             override fun onItemSelected(parent: MaterialSpinner,
                                         view: View?,
@@ -124,7 +138,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             }
         }
 
-        i("person.groupId = ${person.groupId}")
+        i("selected person.groupId = ${person.groupId}")
 
         groupChooser.selection = groupPositionById[person.groupId]!!
 
@@ -133,9 +147,9 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             currentPerson.name = name.text.toString()
             currentPerson.patronymic = patronymic.text?.toString()
 
-            if (birthday.text != null)
+            if (selectedDay > 0 && selectedMonth > 0 && selectedYear > 0)
             {
-                currentPerson.birthday = DateFormat("dd.MM.yyyy").parse(birthday.text!!.toString()).local.date
+                currentPerson.birthday = Date.Companion.invoke(selectedYear, selectedMonth, selectedDay)
             }
             else
             {
@@ -194,13 +208,14 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             .create()
 
         dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                .setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
         }
 
         dialog.show()
     }
-
 
 
     private fun showingState(isNewPerson: Boolean)
@@ -243,6 +258,64 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         birthdayMonth = layout.findViewById(R.id.personEditBirthdaySpinnerMonth)
         birthdayYear = layout.findViewById(R.id.personEditBirthdaySpinnerYear)
         relativeYears = layout.findViewById(R.id.personEditRelativeAges)
+
+        daysOfMonthList = get(named("monthDays"))
+        val monthsArray: Array<String> = get(named("months_RU"))
+        monthsList = monthsArray.toList()
+        yearsList = get(named("absoluteAgesList"))
+
+        birthdayDay.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, daysOfMonthList)
+        birthdayMonth.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, monthsList)
+        birthdayYear.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, yearsList)
+        relativeYears.text = getString(R.string.person_edit_screen_relative_age_pattern, "?")
+
+        birthdayDay.onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener {
+            override fun onItemSelected(parent: MaterialSpinner,
+                                        view: View?,
+                                        position: Int,
+                                        id: Long)
+            {
+                selectedDay = daysOfMonthList[position].toInt()
+                d("selected day: $selectedDay")
+                setRelativeAgeIfPossible()
+            }
+
+            override fun onNothingSelected(parent: MaterialSpinner)
+            {
+            }
+        }
+
+        birthdayMonth.onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener {
+            override fun onItemSelected(parent: MaterialSpinner,
+                                        view: View?,
+                                        position: Int,
+                                        id: Long)
+            {
+                selectedMonth = position + 1
+                d("selected month: ${monthsList[position]}, $selectedMonth")
+                setRelativeAgeIfPossible()
+            }
+
+            override fun onNothingSelected(parent: MaterialSpinner)
+            {
+            }
+        }
+
+        birthdayYear.onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener {
+            override fun onItemSelected(parent: MaterialSpinner,
+                                        view: View?,
+                                        position: Int,
+                                        id: Long)
+            {
+                selectedYear = yearsList[position].toInt()
+                d("selected year = $selectedYear")
+                setRelativeAgeIfPossible()
+            }
+
+            override fun onNothingSelected(parent: MaterialSpinner)
+            {
+            }
+        }
     }
 
     private fun inflateGroupSection(layout: View)
@@ -263,7 +336,13 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         }
 
         currentPerson.birthday?.let {
-            birthday.text = SpannableStringBuilder(it.format("dd.MM.yyyy"))
+            selectedDay = it.day
+            selectedMonth = it.month.index1
+            selectedYear = it.year
+
+            birthdayDay.selection = daysOfMonthList.indexOf(selectedDay.toString())
+            birthdayMonth.selection = selectedMonth - 1
+            birthdayYear.selection = yearsList.indexOf(selectedYear.toString())
         }
 
         deletePerson.setOnClickListener {
@@ -281,8 +360,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         val groupListSorted = groups.sorted()
         for ((i, group) in groupListSorted.withIndex())
         {
-            groupIdByPosition[i+1] = Pair(group.id, group.isPaid)
-            groupPositionById[group.id] = i+1
+            groupIdByPosition[i + 1] = Pair(group.id, group.isPaid)
+            groupPositionById[group.id] = i + 1
 
             var age1 = "?"
             var age2 = "?"
@@ -295,14 +374,29 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
             if (age1 == age2)
             {
-                groupsListItems.add(context!!.getString(R.string.person_edit_screen_group_pattern_single, group.name, age1))
+                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_single, group.name, age1))
             }
             else
             {
-                groupsListItems.add(context!!.getString(R.string.person_edit_screen_group_pattern_range, group.name, age1, age2))
+                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_range, group.name, age1, age2))
             }
         }
 
         return groupsListItems
+    }
+
+    private fun setRelativeAgeIfPossible()
+    {
+        if (selectedDay < 0 || selectedMonth < 0 || selectedYear < 0)
+        {
+            relativeYears.text = getString(R.string.person_edit_screen_relative_age_pattern, "?")
+            return
+        }
+
+        val birthdayDate = LocalDate.of(selectedYear, selectedMonth, selectedDay)
+        val nowDate = LocalDate.now()
+        val diffYears = ChronoUnit.YEARS.between(birthdayDate, nowDate)
+        i("diff years = $diffYears")
+        relativeYears.text = getString(R.string.person_edit_screen_relative_age_pattern, diffYears.toString())
     }
 }

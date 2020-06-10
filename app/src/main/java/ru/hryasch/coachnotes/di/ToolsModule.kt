@@ -35,7 +35,7 @@ val toolsModule = module {
     {
         val currYear = DateTime.nowLocal().yearInt
         val ages = ArrayList<String>(50)
-        for (i in 3 downTo 50)
+        for (i in 3..50)
         {
             ages.add("${currYear - i}")
         }
@@ -46,7 +46,7 @@ val toolsModule = module {
     single(named("relativeAgesList"))
     {
         val ages = ArrayList<String>(50)
-        for (i in 3 downTo 50)
+        for (i in 3..50)
         {
             ages.add("$i")
         }
@@ -57,7 +57,7 @@ val toolsModule = module {
     single(named("monthDays"))
     {
         val days = ArrayList<String>(31)
-        for (i in 1 downTo 31)
+        for (i in 1..31)
         {
             days.add("$i")
         }

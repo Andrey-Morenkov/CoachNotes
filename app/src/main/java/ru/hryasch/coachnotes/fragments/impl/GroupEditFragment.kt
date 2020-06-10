@@ -5,6 +5,7 @@ import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
@@ -58,6 +59,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
+        //requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         val layout = inflater.inflate(R.layout.fragment_edit_group, container, false)
 
         saveOrCreateGroup = layout.findViewById(R.id.groupEditButtonCreateOrSave)
