@@ -136,7 +136,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         }
 
         val executionDays = generateExecutionDays().sorted()
-        val personsList = personRepo.getPersonsByGroup(1)!!
+        val personsList = personRepo.getPeopleByGroup(1)!!
 
         val chunkList: MutableList<JournalChunkDAO> = LinkedList()
         for (exeDay in executionDays)

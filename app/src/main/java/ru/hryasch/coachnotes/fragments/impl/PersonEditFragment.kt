@@ -92,7 +92,6 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                               savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_edit_person, container, false)
-        //requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         inflateToolbarElements(layout)
         inflateBaseSection(layout)

@@ -14,5 +14,5 @@ interface GroupPresenter
 
     fun onAddPeopleToGroupClicked()
 
-    fun addPeopleToGroup(people: List<Person>)
+    fun addPeopleToNewGroup(people: List<Person>)
 }

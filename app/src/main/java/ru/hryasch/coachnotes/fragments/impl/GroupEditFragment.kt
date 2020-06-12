@@ -59,7 +59,6 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
-        //requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         val layout = inflater.inflate(R.layout.fragment_edit_group, container, false)
 
         saveOrCreateGroup = layout.findViewById(R.id.groupEditButtonCreateOrSave)

@@ -48,7 +48,7 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
 
     override suspend fun getPeopleListByGroup(groupId: GroupId): List<Person>
     {
-        return peopleRepository.getPersonsByGroup(groupId) ?: LinkedList<Person>()
+        return peopleRepository.getPeopleByGroup(groupId) ?: LinkedList<Person>()
     }
 
     override suspend fun addOrUpdateGroup(group: Group)
@@ -63,7 +63,7 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
             person?.apply {
                     groupId = null
                     isPaid = false }
-                  ?.let   { peopleRepository.addOrUpdatePerson(it) }
+                  ?.let   { peopleRepository.addOrUpdatePeople(it) }
         }
 
         groupRepository.deleteGroup(group)

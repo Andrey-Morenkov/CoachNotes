@@ -49,7 +49,7 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
 
         GlobalScope.launch(Dispatchers.Main)
         {
-            peopleInteractor.addOrUpdatePerson(currentPerson)
+            peopleInteractor.addOrUpdatePeople(currentPerson)
 
             withContext(Dispatchers.Main)
             {

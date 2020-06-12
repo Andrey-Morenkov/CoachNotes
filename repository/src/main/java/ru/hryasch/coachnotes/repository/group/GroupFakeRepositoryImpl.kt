@@ -107,7 +107,7 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
         }
     }
 
-    override suspend fun deletePersonFromOldGroupIfNeeded(person: Person)
+    override suspend fun updatePeopleGroupInformation(person: Person)
     {
         val db = getDb()
         db.executeTransaction {

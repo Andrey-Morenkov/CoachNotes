@@ -1,12 +1,10 @@
 package ru.hryasch.coachnotes.domain.person.interactors.impl
 
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import org.koin.core.KoinComponent
-import org.koin.core.get
 import org.koin.core.inject
-import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
@@ -37,25 +35,9 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
         return res
     }
 
-    @ExperimentalCoroutinesApi
-    override suspend fun addOrUpdatePerson(person: Person)
+    override suspend fun getPeopleWithoutGroup(): List<Person>?
     {
-        groupRepository.deletePersonFromOldGroupIfNeeded(person)
-        person.groupId?.let {
-            val group = groupRepository.getGroup(it)
-            if (group != null)
-            {
-                val isExisted = group.membersList.find { personId -> personId == person.id }
-                if (isExisted == null)
-                {
-                    group.membersList.add(person.id)
-                    i("added person $person to group ${group.id}")
-                    groupRepository.addOrUpdateGroup(group)
-                }
-            }
-        }
-
-        peopleRepository.addOrUpdatePerson(person)
+        return peopleRepository.getAllPeople()?.filter { person -> person.groupId == null }
     }
 
     override suspend fun getMaxPersonId(): PersonId
@@ -63,6 +45,26 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
         val maxId = peopleRepository.getAllPeople()?.map { it.id }?.max()
         return maxId ?: 0
     }
+
+
+
+    @ExperimentalCoroutinesApi
+    override suspend fun addOrUpdatePeople(people: List<Person>)
+    {
+        groupRepository.updatePeopleGroupAffiliation(people)
+
+        people.forEach {
+            peopleRepository.addOrUpdatePeople(it)
+        }
+    }
+
+    @ExperimentalCoroutinesApi
+    override suspend fun addOrUpdatePerson(person: Person)
+    {
+        addOrUpdatePeople(listOf(person))
+    }
+
+
 
     override suspend fun deletePerson(person: Person)
     {
@@ -81,18 +83,21 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
     @ExperimentalCoroutinesApi
     override suspend fun deletePersonFromGroup(personId: PersonId, groupId: GroupId)
     {
-        val person = peopleRepository.getPersonsByGroup(groupId)?.find { person -> person.id == personId }
-        val group = groupRepository.getGroup(groupId)
-
-        person?.let {
-            it.groupId = null
-            it.isPaid = false
-            addOrUpdatePerson(it)
+        var person = peopleRepository.getPeopleByGroup(groupId)?.find { prsn -> prsn.id == personId }
+        if (person == null)
+        {
+            e("can't find person $personId in group $groupId, try to find globally")
+            person = peopleRepository.getAllPeople()?.find { prsn -> prsn.id == personId }
+            if (person == null)
+            {
+                e("can't find person $personId globally")
+                return
+            }
         }
-    }
 
-    override suspend fun getPeopleWithoutGroup(): List<Person>?
-    {
-        return peopleRepository.getAllPeople()?.filter { person -> person.groupId == null }
+        person.groupId = null
+        person.isPaid = false
+
+        addOrUpdatePeople(listOf(person))
     }
 }

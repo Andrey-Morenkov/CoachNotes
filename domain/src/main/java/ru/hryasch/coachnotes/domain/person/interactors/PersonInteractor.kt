@@ -10,13 +10,19 @@ interface PersonInteractor
 
     suspend fun getGroupNames(): Map<GroupId, String>
 
-    suspend fun addOrUpdatePerson(person: Person)
+    suspend fun getPeopleWithoutGroup(): List<Person>?
 
     suspend fun getMaxPersonId(): PersonId
+
+
+
+    suspend fun addOrUpdatePeople(people: List<Person>)
+
+    suspend fun addOrUpdatePerson(person: Person)
+
+
 
     suspend fun deletePerson(person: Person)
 
     suspend fun deletePersonFromGroup(personId: PersonId, groupId: GroupId)
-
-    suspend fun getPeopleWithoutGroup(): List<Person>?
 }

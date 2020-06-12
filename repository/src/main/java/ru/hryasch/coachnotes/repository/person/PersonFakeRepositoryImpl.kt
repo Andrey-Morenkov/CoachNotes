@@ -64,7 +64,7 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         return personDao?.fromDao()
     }
 
-    override suspend fun getPersonsByGroup(groupId: GroupId): List<Person>?
+    override suspend fun getPeopleByGroup(groupId: GroupId): List<Person>?
     {
         var peopleDao: List<PersonDAO>? = null
         val db = getDb()
@@ -99,7 +99,7 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         return peopleList?.fromDAO()
     }
 
-    override suspend fun addOrUpdatePerson(person: Person)
+    override suspend fun addOrUpdatePeople(person: Person)
     {
         GlobalScope.launch(Dispatchers.Main)
         {

@@ -44,7 +44,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             }
         }
 
-        return generateTableData(period, groupId, chunks, personRepository.getPersonsByGroup(groupId)!!)
+        return generateTableData(period, groupId, chunks, personRepository.getPeopleByGroup(groupId)!!)
     }
 
     override suspend fun saveJournalChunk(chunk: JournalChunk)

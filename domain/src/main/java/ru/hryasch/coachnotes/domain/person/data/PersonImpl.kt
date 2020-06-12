@@ -20,5 +20,5 @@ data class PersonImpl(override var surname: String,
         return "$surname $name $groupId $id".compareTo("${other.surname} ${other.name} ${other.groupId} ${other.id}")
     }
 
-    override fun toString(): String = "$id: [$surname $name $patronymic ${birthday?.format("dd.MM.yyyy")} isPaid = $isPaid group = $groupId]"
+    override fun toString(): String = "Person[$id]: ($surname $name $patronymic ${birthday?.format("dd.MM.yyyy")} isPaid = $isPaid group = $groupId)"
 }

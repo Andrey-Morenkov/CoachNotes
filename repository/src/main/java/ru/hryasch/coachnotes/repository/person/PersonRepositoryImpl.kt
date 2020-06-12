@@ -57,7 +57,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
         return personDao?.fromDao()
     }
 
-    override suspend fun getPersonsByGroup(groupId: GroupId): List<Person>?
+    override suspend fun getPeopleByGroup(groupId: GroupId): List<Person>?
     {
         var peopleDao: List<PersonDAO>? = null
 
@@ -99,13 +99,19 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
     }
 
     @ExperimentalCoroutinesApi
-    override suspend fun addOrUpdatePerson(person: Person)
+    override suspend fun addOrUpdatePeople(people: List<Person>)
     {
         withContext(dbContext)
         {
-            var isAddingPerson = false
+            val isAddingPeople = Array<Boolean>(people.size) {false}
 
             db.executeTransaction {
+                people.forEach { person ->
+                    if (person.groupId != null)
+                    {
+                        
+                    }
+                }
                 person.groupId?.let { groupId ->
                     val peopleByGroup = it.where<PersonDAO>()
                                           .equalTo("groupId", groupId)
@@ -219,6 +225,11 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
     @ExperimentalCoroutinesApi
     private fun setSpecificGroupPeopleTrigger(groupId: GroupId)
     {
+        if (PeopleChannelsStorage.groupPeopleByGroupId[groupId]!!.observable != null)
+        {
+            return
+        }
+
         val broadcastChannel: ConflatedBroadcastChannel<List<Person>> = get(named("sendPeopleByGroup")) { parametersOf(groupId) }
 
         GlobalScope.launch(Dispatchers.Main)

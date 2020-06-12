@@ -11,5 +11,5 @@ interface GroupRepository: AbstractRepository
 
     suspend fun addOrUpdateGroup(group: Group)
     suspend fun deleteGroup(group: Group)
-    suspend fun deletePersonFromOldGroupIfNeeded(person: Person)
+    suspend fun updatePeopleGroupAffiliation(people: List<Person>)
 }

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.visible
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -73,6 +74,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
     private lateinit var currentGroup: Group
     private lateinit var currentMembers: MutableList<Person>
+    private var isFirstSetData = true
 
 
     @ExperimentalCoroutinesApi
@@ -99,6 +101,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
     override fun setGroupData(group: Group, members: List<Person>, groupNames: Map<GroupId, String>)
     {
+        e("setGroupData: $group")
         currentGroup = group
         currentMembers = members.toMutableList()
 
@@ -108,6 +111,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         setAges()
         setPayment()
         setMembersSection(groupNames)
+
+        isFirstSetData = false
     }
 
     override fun loadingState()
@@ -207,7 +212,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
                 noMembersData.visible = ( membersAdapter.itemCount == 0 )
                 membersCount.text = currentMembers.size.toString()
 
-                presenter.addPeopleToGroup(peopleList)
+                presenter.addPeopleToNewGroup(peopleList)
 
                 dialog.cancel()
             }
@@ -341,6 +346,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
     private fun setMembersSection(groupNames: Map<GroupId, String>)
     {
+        e("setMembers section: $currentGroup")
         membersCount.text = currentGroup.membersList.size.toString()
 
         val listener =  object: GroupMembersAdapter.RemovePersonListener {

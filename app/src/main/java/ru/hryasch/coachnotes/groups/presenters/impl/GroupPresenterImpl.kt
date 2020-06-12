@@ -14,7 +14,6 @@ import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.group.data.Group
-import ru.hryasch.coachnotes.domain.group.data.GroupImpl
 import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
@@ -89,18 +88,15 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
         }
     }
 
-    override fun addPeopleToGroup(people: List<Person>)
+    override fun addPeopleToNewGroup(people: List<Person>)
     {
         people.forEach {
-            i("addPeopleToGroup: $it -> ${currentGroup.id}")
+            i("addPeopleToGroup: $it -> $currentGroup")
         }
 
         GlobalScope.launch(Dispatchers.Default)
         {
-            people.forEach {
-                peopleInteractor.addOrUpdatePerson(it)
-            }
-            groupInteractor.addOrUpdateGroup(currentGroup)
+            peopleInteractor.addOrUpdatePeople(people)
         }
 
         viewState.showAddPeopleToGroupNotification(null)
@@ -122,7 +118,7 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
             while (true)
             {
                 val newData = specificGroupChannel.receive()
-                d("GroupPresenterImpl <recvSpecificGroup[${currentGroup.id}]>: RECEIVED")
+                d("GroupPresenterImpl <Group[${currentGroup.id}]>: RECEIVED $newData")
 
                 withContext(Dispatchers.Main)
                 {

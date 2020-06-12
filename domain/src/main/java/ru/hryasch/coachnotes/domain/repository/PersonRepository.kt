@@ -7,9 +7,9 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 interface PersonRepository: AbstractRepository
 {
     suspend fun getPerson(personId: PersonId): Person?
-    suspend fun getPersonsByGroup(groupId: GroupId): List<Person>?
+    suspend fun getPeopleByGroup(groupId: GroupId): List<Person>?
     suspend fun getAllPeople(): List<Person>?
 
-    suspend fun addOrUpdatePerson(person: Person)
+    suspend fun addOrUpdatePeople(people: List<Person>)
     suspend fun deletePerson(person: Person)
 }

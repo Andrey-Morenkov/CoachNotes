@@ -122,20 +122,31 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
         }
     }
 
-    override suspend fun deletePersonFromOldGroupIfNeeded(person: Person)
+    override suspend fun updatePeopleGroupAffiliation(people: List<Person>)
     {
+        // person already have new group here
         withContext(dbContext)
         {
             db.executeTransaction {
-                val result = it.where<GroupDAO>()
-                               .findAll()
+                val allGroups = it.where<GroupDAO>()
+                                  .findAll()
 
-                result.forEach {group ->
-                    if (group.fromDAO().id != person.groupId)
-                    {
-                        if (group.members.remove(person.id))
+                allGroups.forEach { group ->
+                    people.forEach prs@ { person ->
+                        val isExistPerson = group.members.find { personId -> personId == person.id } != null
+                        val isShouldItBe  = person.groupId == group.id
+
+                        if (isExistPerson && !isShouldItBe)
                         {
+                            group.members.remove(person.id)
                             i("removed person $person from group ${group.id}")
+                            return@prs
+                        }
+
+                        if (!isExistPerson && isShouldItBe)
+                        {
+                            group.members.add(person.id)
+                            i("added person $person to group ${group.id}")
                         }
                     }
                 }
