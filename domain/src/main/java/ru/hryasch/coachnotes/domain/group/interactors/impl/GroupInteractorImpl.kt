@@ -58,14 +58,19 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
 
     override suspend fun deleteGroup(group: Group)
     {
+        val groupPeople = LinkedList<Person>()
+
         group.membersList.forEach {
             val person = peopleRepository.getPerson(it)
             person?.apply {
                     groupId = null
                     isPaid = false }
-                  ?.let   { peopleRepository.addOrUpdatePeople(it) }
+                ?.let {
+                    groupPeople.add(it)
+                }
         }
 
+        peopleRepository.addOrUpdatePeople(groupPeople)
         groupRepository.deleteGroup(group)
         journalRepository.deleteAllJournalsByGroup(group.id)
     }

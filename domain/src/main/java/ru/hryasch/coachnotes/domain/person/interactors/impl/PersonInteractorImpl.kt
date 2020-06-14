@@ -52,10 +52,7 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
     override suspend fun addOrUpdatePeople(people: List<Person>)
     {
         groupRepository.updatePeopleGroupAffiliation(people)
-
-        people.forEach {
-            peopleRepository.addOrUpdatePeople(it)
-        }
+        peopleRepository.addOrUpdatePeople(people)
     }
 
     @ExperimentalCoroutinesApi

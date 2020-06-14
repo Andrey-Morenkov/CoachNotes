@@ -231,7 +231,7 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
             specificGroup.addChangeListener { t: GroupDAO, _: ObjectChangeSet? ->
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    e("channel <SpecificGroup[$groupId]>: SEND")
+                    e("channel <Group[$groupId]>: SEND")
                     broadcastChannel.send(t.fromDAO())
                 }
             }

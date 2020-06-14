@@ -106,36 +106,33 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
             val isAddingPeople = Array<Boolean>(people.size) {false}
 
             db.executeTransaction {
-                people.forEach { person ->
+                for ((i, person) in people.withIndex())
+                {
                     if (person.groupId != null)
                     {
-                        
+                        val peopleByGroup = it.where<PersonDAO>()
+                            .equalTo("groupId", person.groupId)
+                            .findAll()
+                        if (peopleByGroup == null)
+                        {
+                            setSpecificGroupPeopleTrigger(person.groupId!!)
+                        }
                     }
-                }
-                person.groupId?.let { groupId ->
-                    val peopleByGroup = it.where<PersonDAO>()
-                                          .equalTo("groupId", groupId)
-                                          .findAll()
 
-                    if (peopleByGroup == null)
+                    val existPerson = it.where<PersonDAO>()
+                        .equalTo("id", person.id)
+                        .findFirst()
+
+                    isAddingPeople[i] = ( existPerson == null )
+
+                    it.copyToRealmOrUpdate(person.toDao())
+
+                    if (isAddingPeople[i])
                     {
-                        setSpecificGroupPeopleTrigger(groupId)
+                        setSpecificPersonTrigger(person.id)
                     }
                 }
-
-                val existPerson = it.where<PersonDAO>()
-                                    .equalTo("id", person.id)
-                                    .findFirst()
-
-                isAddingPerson = ( existPerson == null )
-
-                it.copyToRealmOrUpdate(person.toDao())
-            }
-
-            if (isAddingPerson)
-            {
-                setSpecificPersonTrigger(person.id)
-            }
+            } // transaction
         }
     }
 
@@ -213,7 +210,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
             specificPerson.addChangeListener { t: PersonDAO, _: ObjectChangeSet? ->
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    e("channel <SpecificPerson[$personId]>: SEND")
+                    e("channel <Person[$personId]>: SEND")
                     broadcastChannel.send(t.fromDao())
                 }
             }
@@ -225,7 +222,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
     @ExperimentalCoroutinesApi
     private fun setSpecificGroupPeopleTrigger(groupId: GroupId)
     {
-        if (PeopleChannelsStorage.groupPeopleByGroupId[groupId]!!.observable != null)
+        if (PeopleChannelsStorage.groupPeopleByGroupId[groupId]?.observable != null)
         {
             return
         }
@@ -249,7 +246,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
             peopleBySpecificGroup.addChangeListener { elements ->
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    e("channel <SpecificGroupAllPeople[$groupId]>: SEND")
+                    e("channel <Group[$groupId]AllPeople>: SEND")
                     broadcastChannel.send(elements.fromDAO())
                 }
             }

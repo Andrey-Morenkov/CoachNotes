@@ -107,21 +107,33 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
         }
     }
 
-    override suspend fun updatePeopleGroupInformation(person: Person)
+    override suspend fun updatePeopleGroupAffiliation(people: List<Person>)
     {
         val db = getDb()
         db.executeTransaction {
-            val result = it.where<GroupDAO>().findAll()
-            result.forEach {
-                if (it.fromDAO().id != person.groupId)
-                {
-                    if (it.members.remove(person.id))
+            val allGroups = it.where<GroupDAO>()
+                .findAll()
+
+            allGroups.forEach { group ->
+                people.forEach prs@ { person ->
+                    val isExistPerson = group.members.find { personId -> personId == person.id } != null
+                    val isShouldItBe  = person.groupId == group.id
+
+                    if (isExistPerson && !isShouldItBe)
                     {
-                        i("removed person $person from group ${it.id}")
+                        group.members.remove(person.id)
+                        i("removed person $person from group ${group.id}")
+                        return@prs
+                    }
+
+                    if (!isExistPerson && isShouldItBe)
+                    {
+                        group.members.add(person.id)
+                        i("added person $person to group ${group.id}")
                     }
                 }
             }
-        }
+        } // transaction
     }
 
     override suspend fun closeDb()

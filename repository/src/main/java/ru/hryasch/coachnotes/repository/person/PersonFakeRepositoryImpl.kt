@@ -99,33 +99,41 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
         return peopleList?.fromDAO()
     }
 
-    override suspend fun addOrUpdatePeople(person: Person)
+    override suspend fun addOrUpdatePeople(people: List<Person>)
     {
         GlobalScope.launch(Dispatchers.Main)
         {
+            val isAddingPeople = Array<Boolean>(people.size) {false}
+
             val db = getDb()
             db.executeTransaction {
-                person.groupId?.let { groupId ->
-                    val peopleByGroup = it.where<PersonDAO>()
-                                          .equalTo("groupId", groupId)
-                                          .findAll()
-                    if (peopleByGroup == null)
+                for ((i, person) in people.withIndex())
+                {
+                    if (person.groupId != null)
                     {
-                        setSpecificGroupPeopleTrigger(groupId)
+                        val peopleByGroup = it.where<PersonDAO>()
+                            .equalTo("groupId", person.groupId)
+                            .findAll()
+                        if (peopleByGroup == null)
+                        {
+                            setSpecificGroupPeopleTrigger(person.groupId!!)
+                        }
+                    }
+
+                    val existPerson = it.where<PersonDAO>()
+                        .equalTo("id", person.id)
+                        .findFirst()
+
+                    isAddingPeople[i] = ( existPerson == null )
+
+                    it.copyToRealmOrUpdate(person.toDao())
+
+                    if (isAddingPeople[i])
+                    {
+                        setSpecificPersonTrigger(person.id)
                     }
                 }
-
-                val existPerson = it.where<PersonDAO>()
-                                    .equalTo("id", person.id)
-                                    .findFirst()
-
-                if (existPerson == null)
-                {
-                    setSpecificPersonTrigger(person.id)
-                }
-
-                it.copyToRealmOrUpdate(person.toDao())
-            }
+            } // transaction
         }.join()
     }
 
