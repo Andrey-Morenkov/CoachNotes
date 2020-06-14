@@ -66,7 +66,7 @@ class PeoplePresenterImpl: MvpPresenter<PeopleView>(), PeoplePresenter, KoinComp
             while (true)
             {
                 val newData = peopleRecvChannel.receive()
-                d("GroupsPresenterImpl <recvPeopleList>: RECEIVED")
+                d("GroupsPresenterImpl <AllPeople>: RECEIVED")
 
                 withContext(Dispatchers.Main)
                 {

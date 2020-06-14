@@ -2,6 +2,7 @@ package ru.hryasch.coachnotes.repository.group
 
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.runOnUiThread
 import io.realm.ObjectChangeSet
 import io.realm.Realm
 import io.realm.kotlin.where
@@ -105,18 +106,26 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
 
     override suspend fun deleteGroup(group: Group)
     {
-        withContext(Dispatchers.Main)
-        {
-            GroupChannelsStorage.groupById[group.id]!!.observable?.removeAllChangeListeners()
-            GroupChannelsStorage.groupById[group.id]!!.observable = null
-        }
         withContext(dbContext)
         {
             db.executeTransaction {
                 val target = it.where<GroupDAO>()
                                .equalTo("id", group.id)
                                .findFirst()
+                target?.members?.clear()
+                it.copyToRealmOrUpdate(target!!)
+            }
 
+            withContext(Dispatchers.Main)
+            {
+                GroupChannelsStorage.groupById[group.id]!!.observable?.removeAllChangeListeners()
+                GroupChannelsStorage.groupById[group.id]!!.observable = null
+            }
+
+            db.executeTransaction {
+                val target = it.where<GroupDAO>()
+                    .equalTo("id", group.id)
+                    .findFirst()
                 target?.deleteFromRealm()
             }
         }

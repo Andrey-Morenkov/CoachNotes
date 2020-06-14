@@ -66,7 +66,7 @@ class GroupsPresenterImpl: MvpPresenter<GroupsView>(), GroupsPresenter, KoinComp
             while (true)
             {
                 val newData = groupsRecvChannel.receive()
-                d("GroupsPresenterImpl <recvGroupsList>: RECEIVED")
+                d("GroupsPresenterImpl <AllGroups>: RECEIVED")
 
                 withContext(Dispatchers.Main)
                 {

@@ -35,5 +35,5 @@ class StorageCellSingle<T>
     var observable: T? = null
     var mainDbEntity: Realm? = null
     @ExperimentalCoroutinesApi
-    val channel = ConflatedBroadcastChannel<T>()
+    var channel = ConflatedBroadcastChannel<T>()
 }

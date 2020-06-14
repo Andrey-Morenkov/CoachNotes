@@ -101,7 +101,6 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
     override fun setGroupData(group: Group, members: List<Person>, groupNames: Map<GroupId, String>)
     {
-        e("setGroupData: $group")
         currentGroup = group
         currentMembers = members.toMutableList()
 
@@ -324,7 +323,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         {
             // set age range
             absoluteAge.text = getString(R.string.group_param_ages_multiple, age1.toString(), age2.toString())
-            relativeAge.text = getString(R.string.group_param_ages_multiple, age1.toRelative().toString(), age2.toRelative().toString())
+            relativeAge.text = getString(R.string.group_param_ages_multiple, age2.toRelative().toString(), age1.toRelative().toString())
         }
     }
 
@@ -340,13 +339,12 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         {
             paymentType.text = getString(R.string.group_param_payment_free)
             paymentType.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorText))
-            isPaid.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_money))
+            isPaid.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_money_off_24))
         }
     }
 
     private fun setMembersSection(groupNames: Map<GroupId, String>)
     {
-        e("setMembers section: $currentGroup")
         membersCount.text = currentGroup.membersList.size.toString()
 
         val listener =  object: GroupMembersAdapter.RemovePersonListener {

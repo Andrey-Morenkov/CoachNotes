@@ -77,7 +77,7 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
             while (true)
             {
                 val newData = peopleRecvChannel.receive()
-                d("HomePresenterImpl <PeopleList>: RECEIVED (count = ${newData.size})")
+                d("HomePresenterImpl <AllPeople>: RECEIVED (count = ${newData.size})")
 
                 withContext(Dispatchers.Main)
                 {
@@ -95,7 +95,7 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
             while (true)
             {
                 val newData = groupsRecvChannel.receive()
-                d("HomePresenterImpl <GroupsList>: RECEIVED (count = ${newData.size})")
+                d("HomePresenterImpl <AllGroups>: RECEIVED (count = ${newData.size})")
 
                 withContext(Dispatchers.Main)
                 {
