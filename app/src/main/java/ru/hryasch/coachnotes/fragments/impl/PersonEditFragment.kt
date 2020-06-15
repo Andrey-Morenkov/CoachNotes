@@ -8,7 +8,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -26,14 +25,10 @@ import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import com.soywiz.klock.Date
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.parse
 import com.tiper.MaterialSpinner
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
-import org.koin.core.context.KoinContextHandler.get
 import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
@@ -431,13 +426,23 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                 age2 = group.availableAbsoluteAge!!.last.toString()
             }
 
+            val paidSuffix =
+                if (group.isPaid)
+                {
+                    " $"
+                }
+                else
+                {
+                    ""
+                }
+
             if (age1 == age2)
             {
-                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_single, group.name, age1))
+                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_single, group.name, age1) + paidSuffix)
             }
             else
             {
-                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_range, group.name, age1, age2))
+                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_range, group.name, age1, age2) + paidSuffix)
             }
         }
 

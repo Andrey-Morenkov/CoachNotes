@@ -12,13 +12,25 @@
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragmentImpl_to_personListFragment"
-            app:destination="@id/peopleListFragment" />
+            app:destination="@id/peopleListFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
         <action
             android:id="@+id/action_homeFragmentImpl_to_journalGroupFragment"
-            app:destination="@id/journalGroupFragment" />
+            app:destination="@id/journalGroupFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
         <action
             android:id="@+id/action_homeFragmentImpl_to_groupListFragment"
-            app:destination="@id/groupListFragment" />
+            app:destination="@id/groupListFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/groupListFragment"
@@ -27,10 +39,18 @@
         tools:layout="@layout/fragment_groups">
         <action
             android:id="@+id/action_groupListFragment_to_groupInfoFragment"
-            app:destination="@id/groupInfoFragment" />
+            app:destination="@id/groupInfoFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
         <action
             android:id="@+id/action_groupListFragment_to_groupEditFragment"
-            app:destination="@id/groupEditFragment" />
+            app:destination="@id/groupEditFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
     </fragment>
     <fragment
         android:id="@+id/groupInfoFragment"
@@ -39,13 +59,25 @@
         tools:layout="@layout/fragment_group_info">
         <action
             android:id="@+id/action_groupInfoFragment_to_groupEditFragment"
-            app:destination="@id/groupEditFragment" />
+            app:destination="@id/groupEditFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
         <action
             android:id="@+id/action_groupInfoFragment_to_personEditFragment"
-            app:destination="@id/personEditFragment" />
+            app:destination="@id/personEditFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
         <action
             android:id="@+id/action_groupInfoFragment_to_personInfoFragment"
-            app:destination="@id/personInfoFragment" />
+            app:destination="@id/personInfoFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
         <argument
             android:name="groupData"
             app:argType="ru.hryasch.coachnotes.domain.group.data.Group" />
@@ -79,10 +111,18 @@
         tools:layout="@layout/fragment_persons">
         <action
             android:id="@+id/action_personListFragment_to_personEditFragment"
-            app:destination="@id/personEditFragment" />
+            app:destination="@id/personEditFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
         <action
             android:id="@+id/action_peopleListFragment_to_personInfoFragment"
-            app:destination="@id/personInfoFragment" />
+            app:destination="@id/personInfoFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
     </fragment>
     <fragment
         android:id="@+id/personInfoFragment"
@@ -91,7 +131,11 @@
         tools:layout="@layout/fragment_person_info">
         <action
             android:id="@+id/action_personInfoFragment_to_personEditFragment"
-            app:destination="@id/personEditFragment" />
+            app:destination="@id/personEditFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
         <argument
             android:name="personData"
             app:argType="ru.hryasch.coachnotes.domain.person.data.Person" />

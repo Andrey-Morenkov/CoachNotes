@@ -6,9 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.pawegio.kandroid.e
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.KlockLocale
 import com.soywiz.klock.locale.russian
@@ -19,6 +21,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.fragments.HomeView
 import ru.hryasch.coachnotes.home.data.HomeAsyncLoadingButton
@@ -110,7 +113,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
             return
         }
 
-        val dataArray: Array<String> = Array(groups.size) { "" }
+        val dataArray: Array<String> = Array(sortedGroups.size) { "" }
         for ((i, group) in sortedGroups.withIndex())
         {
             dataArray[i] = "${group.name} (${group.availableAbsoluteAge?.first} - ${group.availableAbsoluteAge?.last} г.р)"
@@ -129,7 +132,11 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
     private fun createNoGroupsDialog() {
         journalPickerDialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Нет групп с учениками")
-            .setPositiveButton("Ok") { dialog, which -> dialog.dismiss() }
+            .setPositiveButton("Ok") { dialog, _ -> dialog.dismiss() }
             .create()
+
+        journalPickerDialog!!.setOnShowListener {
+            journalPickerDialog!!.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+        }
     }
 }
