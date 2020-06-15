@@ -1,13 +1,17 @@
 package ru.hryasch.coachnotes.fragments.impl
 
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.text.Editable
 import android.text.SpannableStringBuilder
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -18,6 +22,7 @@ import androidx.navigation.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import com.soywiz.klock.DateTime
 import com.tiper.MaterialSpinner
@@ -92,6 +97,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         }
 
         deleteGroup.visible = false
+        setSaveOrCreateButtonDisabled()
 
         return layout
     }
@@ -103,16 +109,78 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
         currentGroup = group
 
-        paymentType.adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, generatePaymentTypes())
-        age1.adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, generateAbsoluteYears())
-        age2.adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, generateAbsoluteYears())
-        ageType.adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, generateAgeTypes())
+        paymentType.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, generatePaymentTypes())
+        age1.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, generateAbsoluteYears())
+        age2.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, generateAbsoluteYears())
+        ageType.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, generateAgeTypes())
 
         ageType.selection = 0
 
         if (group.name.isNotBlank())
         {
             setExistGroupData()
+        }
+
+        name.addTextChangedListener(object: TextWatcher
+                                    {
+                                        override fun afterTextChanged(s: Editable?)
+                                        {
+                                            checkRequiredFields()
+                                        }
+
+                                        override fun beforeTextChanged(
+                                            s: CharSequence?,
+                                            start: Int,
+                                            count: Int,
+                                            after: Int
+                                        )
+                                        {
+                                        }
+
+                                        override fun onTextChanged(
+                                            s: CharSequence?,
+                                            start: Int,
+                                            before: Int,
+                                            count: Int
+                                        )
+                                        {
+                                        }
+
+                                    })
+
+        paymentType.onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener
+        {
+            override fun onItemSelected(
+                parent: MaterialSpinner,
+                view: View?,
+                position: Int,
+                id: Long
+            )
+            {
+                checkRequiredFields()
+            }
+
+            override fun onNothingSelected(parent: MaterialSpinner)
+            {
+            }
+
+        }
+
+        age1.onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener
+        {
+            override fun onItemSelected(
+                parent: MaterialSpinner,
+                view: View?,
+                position: Int,
+                id: Long
+            )
+            {
+                checkRequiredFields()
+            }
+
+            override fun onNothingSelected(parent: MaterialSpinner)
+            {
+            }
         }
 
         ageType.onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener
@@ -225,6 +293,8 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
             presenter.updateOrCreateGroup()
         }
+
+        checkRequiredFields()
     }
 
     override fun loadingState()
@@ -251,7 +321,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             return
         }
 
-        val dialog = MaterialAlertDialogBuilder(this@GroupEditFragment.context!!)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setMessage("Удалить группу и все связанные с ней журналы?")
             .setPositiveButton("Удалить") { dialog, _ ->
                 dialog.cancel()
@@ -274,7 +344,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
     {
         deleteGroup.visible = true
         (activity as AppCompatActivity).supportActionBar!!.setTitle(R.string.group_edit_screen_toolbar_title)
-        saveOrCreateGroup.text = context!!.getString(R.string.save)
+        saveOrCreateGroup.text = getString(R.string.save)
 
         name.text = SpannableStringBuilder(currentGroup.name)
         paymentType.selection = currentGroup.isPaid.toInt()
@@ -312,11 +382,37 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         return ages
     }
 
-    private fun generatePaymentTypes(): List<String> = listOf(context!!.getString(R.string.group_param_payment_free),
-                                                              context!!.getString(R.string.group_param_payment_paid))
+    private fun generatePaymentTypes(): List<String> = listOf(getString(R.string.group_param_payment_free),
+                                                              getString(R.string.group_param_payment_paid))
 
-    private fun generateAgeTypes(): List<String> = listOf(context!!.getString(R.string.age_type_absolute),
-                                                          context!!.getString(R.string.age_type_relative))
+    private fun generateAgeTypes(): List<String> = listOf(getString(R.string.age_type_absolute),
+                                                          getString(R.string.age_type_relative))
+
+    private fun checkRequiredFields()
+    {
+        if (!name.text.isNullOrBlank() && (paymentType.selectedItem != null) && (age1.selectedItem != null))
+        {
+            setSaveOrCreateButtonEnabled()
+        }
+        else
+        {
+            setSaveOrCreateButtonDisabled()
+        }
+    }
+
+    private fun setSaveOrCreateButtonEnabled()
+    {
+        saveOrCreateGroup.isEnabled = true
+        saveOrCreateGroup.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorAccent))
+        saveOrCreateGroup.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorText))
+    }
+
+    private fun setSaveOrCreateButtonDisabled()
+    {
+        saveOrCreateGroup.isEnabled = false
+        saveOrCreateGroup.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorAccentDisabled))
+        saveOrCreateGroup.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorDisabledText))
+    }
 }
 
 private fun Boolean.toInt(): Int = if (this) 1 else 0

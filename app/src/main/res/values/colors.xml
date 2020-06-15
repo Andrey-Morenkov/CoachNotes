@@ -6,7 +6,9 @@
     <color name="colorPrimary">#314755</color>
     <color name="colorPrimaryLight">#6f8c9e</color>
     <color name="colorAccent">#F5824E</color>
+    <color name="colorAccentDisabled">#7F814529</color>
     <color name="colorAccentTint">#7FF5824E</color>
+    <color name="colorDisabledText">#65878787</color>
 
     <color name="colorPaid">#C27A11</color>
     <color name="colorSelected">#65000000</color>

@@ -1,7 +1,10 @@
 package ru.hryasch.coachnotes.fragments.impl
 
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.text.Editable
 import android.text.SpannableStringBuilder
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -105,6 +108,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         navController = container!!.findNavController()
 
         presenter.applyPersonDataAsync(PersonEditFragmentArgs.fromBundle(requireArguments()).personData)
+
+        setSaveOrCreateButtonDisabled()
 
         return layout
     }
@@ -249,6 +254,58 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         surname = layout.findViewById(R.id.editPersonEditTextSurname)
         name = layout.findViewById(R.id.editPersonEditTextName)
         patronymic = layout.findViewById(R.id.editPersonEditTextPatronymic)
+
+        surname.addTextChangedListener(object: TextWatcher
+                                       {
+                                           override fun afterTextChanged(s: Editable?)
+                                           {
+                                               checkRequiredFields()
+                                           }
+
+                                           override fun beforeTextChanged(
+                                               s: CharSequence?,
+                                               start: Int,
+                                               count: Int,
+                                               after: Int
+                                           )
+                                           {
+                                           }
+
+                                           override fun onTextChanged(
+                                               s: CharSequence?,
+                                               start: Int,
+                                               before: Int,
+                                               count: Int
+                                           )
+                                           {
+                                           }
+                                       })
+
+        name.addTextChangedListener(object: TextWatcher
+                                    {
+                                        override fun afterTextChanged(s: Editable?)
+                                        {
+                                            checkRequiredFields()
+                                        }
+
+                                        override fun beforeTextChanged(
+                                            s: CharSequence?,
+                                            start: Int,
+                                            count: Int,
+                                            after: Int
+                                        )
+                                        {
+                                        }
+
+                                        override fun onTextChanged(
+                                            s: CharSequence?,
+                                            start: Int,
+                                            before: Int,
+                                            count: Int
+                                        )
+                                        {
+                                        }
+                                    })
     }
 
     private fun inflateBirthdaySection(layout: View)
@@ -277,6 +334,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                 selectedDay = daysOfMonthList[position].toInt()
                 d("selected day: $selectedDay")
                 setRelativeAgeIfPossible()
+                checkRequiredFields()
             }
 
             override fun onNothingSelected(parent: MaterialSpinner)
@@ -293,6 +351,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                 selectedMonth = position + 1
                 d("selected month: ${monthsList[position]}, $selectedMonth")
                 setRelativeAgeIfPossible()
+                checkRequiredFields()
             }
 
             override fun onNothingSelected(parent: MaterialSpinner)
@@ -309,6 +368,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                 selectedYear = yearsList[position].toInt()
                 d("selected year = $selectedYear")
                 setRelativeAgeIfPossible()
+                checkRequiredFields()
             }
 
             override fun onNothingSelected(parent: MaterialSpinner)
@@ -397,5 +457,38 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         val diffYears = ChronoUnit.YEARS.between(birthdayDate, nowDate)
         i("diff years = $diffYears")
         relativeYears.text = getString(R.string.person_edit_screen_relative_age_pattern, diffYears.toString())
+    }
+
+    private fun checkRequiredFields()
+    {
+        if (!surname.text.isNullOrBlank() && !name.text.isNullOrBlank() && isBirthdaySet())
+        {
+            setSaveOrCreateButtonEnabled()
+        }
+        else
+        {
+            setSaveOrCreateButtonDisabled()
+        }
+    }
+
+    private fun setSaveOrCreateButtonEnabled()
+    {
+        saveOrCreatePerson.isEnabled = true
+        saveOrCreatePerson.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorAccent))
+        saveOrCreatePerson.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorText))
+    }
+
+    private fun setSaveOrCreateButtonDisabled()
+    {
+        saveOrCreatePerson.isEnabled = false
+        saveOrCreatePerson.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorAccentDisabled))
+        saveOrCreatePerson.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorDisabledText))
+    }
+
+    private fun isBirthdaySet(): Boolean
+    {
+        return (birthdayDay.selectedItem != null) &&
+               (birthdayMonth.selectedItem != null) &&
+               (birthdayYear.selectedItem != null)
     }
 }
