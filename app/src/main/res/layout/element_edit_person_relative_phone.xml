@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInput2"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="1"
+        app:helperText="@string/required_helper"
+        app:helperTextTextColor="@color/colorAccent"
+        app:hintTextColor="@color/colorAccent"
+        app:layout_constraintEnd_toEndOf="@id/textInput1"
+        app:layout_constraintStart_toStartOf="@id/textInput1"
+        app:layout_constraintTop_toBottomOf="@+id/textInput1">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editPersonEditTextParentPhone"
+            style="@style/CustomInputTypeText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/phone"
+            android:inputType="phone" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/editPersonRelativeInfoImageViewRemovePhone2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="8dp"
+        android:tint="@color/colorJournalAbsenceGeneral"
+        android:visibility="visible"
+        app:srcCompat="@drawable/ic_no_exist" />
+</LinearLayout>

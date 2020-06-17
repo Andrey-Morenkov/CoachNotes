@@ -111,28 +111,31 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
                     if (person.groupId != null)
                     {
                         val peopleByGroup = it.where<PersonDAO>()
-                            .equalTo("groupId", person.groupId)
-                            .findAll()
-                        if (peopleByGroup == null)
+                                              .equalTo("groupId", person.groupId)
+                                              .findAll()
+                        if (peopleByGroup == null && person.groupId != null)
                         {
                             setSpecificGroupPeopleTrigger(person.groupId!!)
                         }
                     }
 
                     val existPerson = it.where<PersonDAO>()
-                        .equalTo("id", person.id)
-                        .findFirst()
+                                        .equalTo("id", person.id)
+                                        .findFirst()
 
                     isAddingPeople[i] = ( existPerson == null )
 
                     it.copyToRealmOrUpdate(person.toDao())
-
-                    if (isAddingPeople[i])
-                    {
-                        setSpecificPersonTrigger(person.id)
-                    }
                 }
             } // transaction
+
+            for ((i, isAdding) in isAddingPeople.withIndex())
+            {
+                if (isAdding)
+                {
+                    setSpecificPersonTrigger(people[i].id)
+                }
+            }
         }
     }
 

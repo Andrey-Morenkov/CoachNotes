@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import io.realm.Realm
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -29,6 +30,8 @@ class MainActivity : AppCompatActivity(), KoinComponent
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Realm.init(applicationContext)
 
         System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory",  "com.fasterxml.aalto.stax.InputFactoryImpl")
         System.setProperty("org.apache.poi.javax.xml.stream.XMLOutputFactory", "com.fasterxml.aalto.stax.OutputFactoryImpl")

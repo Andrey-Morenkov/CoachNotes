@@ -1,7 +1,6 @@
 package ru.hryasch.coachnotes.application
 
 import android.app.Application
-import io.realm.Realm
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -37,7 +36,5 @@ class App : Application()
                     toolsModule,
                     channelsModule)
         }
-
-        Realm.init(applicationContext)
     }
 }

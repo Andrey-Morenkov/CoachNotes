@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.repository.dao
 
+import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
@@ -19,15 +20,15 @@ open class PersonDAO(): RealmObject()
     var name: String? = null
     @Required
     var surname: String? = null
+
     var patronymic: String? = null
+
     @Required
     var birthday: String? = null
+
     var groupId: GroupId? = null
     var isPaid: Boolean = false
-
-    // Parents params
-    var parentFullName: String? = null
-    var parentPhone: String? = null
+    var relativeInfos: RealmList<RelativeInfoDAO> = RealmList()
 
     constructor(id: PersonId, name: String, surname: String, birthday: String): this()
     {

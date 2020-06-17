@@ -14,9 +14,6 @@ import androidx.navigation.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.pawegio.kandroid.visible
 import com.soywiz.klock.DateTime
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
@@ -26,6 +23,8 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PersonView
 import ru.hryasch.coachnotes.people.PersonParamsAdapter
 import ru.hryasch.coachnotes.people.presenters.impl.PersonPresenterImpl
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 {
@@ -39,7 +38,7 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
     private lateinit var surnameName: TextView
     private lateinit var patronymic: TextView
     private lateinit var isPaid: AppCompatImageView
-    private lateinit var relativeAge: TextView
+    private lateinit var age: TextView
     private lateinit var groupName: TextView
     private lateinit var tagsLayout: LinearLayout
     private lateinit var viewPager: ViewPager2
@@ -60,7 +59,7 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
         surnameName = layout.findViewById(R.id.personInfoTextViewNameSurname)
         patronymic = layout.findViewById(R.id.personInfoTextViewPatronymic)
         isPaid = layout.findViewById(R.id.personInfoImageViewIsPaid)
-        relativeAge = layout.findViewById(R.id.personInfoTextViewRelativeAge)
+        age = layout.findViewById(R.id.personInfoTextViewAge)
         groupName = layout.findViewById(R.id.personInfoTextViewGroupName)
         tagsLayout = layout.findViewById(R.id.personInfoTagsLayout)
         viewPager = layout.findViewById(R.id.personInfoViewPager)
@@ -114,14 +113,11 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
             isPaid.visibility = View.INVISIBLE
         }
 
-        val now = DateTime.nowLocal().local
-        var timeSpan = now.yearInt - person.birthday!!.year
-        if (now.dayOfYear < person.birthday!!.dayOfYear)
-        {
-            timeSpan--
-        }
+        val birthdayDate = LocalDate.of(person.birthday!!.year, person.birthday!!.month1, person.birthday!!.day)
+        val nowDate = LocalDate.now()
+        val diffYears = ChronoUnit.YEARS.between(birthdayDate, nowDate)
 
-        relativeAge.text = getString(R.string.person_info_header_age_pattern, timeSpan)
+        age.text = getString(R.string.person_info_header_age_pattern, person.birthday!!.format("dd.MM.yyyy"), diffYears)
         groupName.text = groupNames[person.groupId] ?: "Нет группы"
 
         editPerson.setOnClickListener {

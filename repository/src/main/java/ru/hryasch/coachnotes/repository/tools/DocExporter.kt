@@ -373,7 +373,7 @@ private fun CellData.toDoc(): String?
 {
     return when (this)
     {
-        is PresenceData -> ""
+        is PresenceData -> "•"
         is AbsenceData -> mark ?: "Н"
         else -> ""
     }

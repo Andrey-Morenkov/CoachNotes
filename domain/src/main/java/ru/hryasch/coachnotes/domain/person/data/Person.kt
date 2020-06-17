@@ -16,9 +16,7 @@ interface Person: Comparable<Person>, Serializable
     var groupId: GroupId?
     var isPaid: Boolean
 
-    // Parent params
-    var parentFullName: String?
-    var parentPhone: String?
+    var relativeInfos: MutableList<RelativeInfo>
 
     override fun toString(): String
 }
