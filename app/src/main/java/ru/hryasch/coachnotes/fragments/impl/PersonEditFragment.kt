@@ -81,6 +81,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private val groupIdByPosition: MutableMap<Int, Pair<GroupId?, Boolean>> = HashMap()
     private val groupPositionById: MutableMap<GroupId?, Int> = HashMap()
 
+    // Relatives section
+
 
     private lateinit var currentPerson: Person
 

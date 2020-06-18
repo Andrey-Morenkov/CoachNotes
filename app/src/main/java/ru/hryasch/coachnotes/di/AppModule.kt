@@ -3,6 +3,8 @@ package ru.hryasch.coachnotes.di
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.application.App
 
 import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
 import ru.hryasch.coachnotes.domain.group.interactors.impl.GroupInteractorImpl
@@ -41,5 +43,5 @@ val appModule = module {
     single(named("months_RU")) { arrayOf("Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь") }
     single(named("daysOfWeek_RU")) { arrayOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс") }
     single(named("daysOfWeekLong_RU")) { arrayOf("Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье") }
-    single(named("relatives_RU")) { arrayOf("Мама", "Отец", "Бабушка", "Дедушка", "Тётя", "Дядя", "Сестра", "Брат")}
+    single(named("relatives_RU")) { arrayOf(App.getCtx().getString(R.string.mother), App.getCtx().getString(R.string.father), App.getCtx().getString(R.string.grandMa), App.getCtx().getString(R.string.grandFa), App.getCtx().getString(R.string.aunt), App.getCtx().getString(R.string.uncle), App.getCtx().getString(R.string.sister), App.getCtx().getString(R.string.brother))}
 }

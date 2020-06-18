@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/relativeInfoContainer"
+    android:id="@+id/relativeInfoHolder"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/fake_outlined"
@@ -25,7 +25,6 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         app:boxBackgroundMode="outline"
-        app:helperText="@string/required_helper"
         app:helperTextTextColor="@color/colorAccent"
         app:hintTextColor="@color/colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -56,6 +55,8 @@
         android:id="@+id/relativeInfoPhonesContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
         android:orientation="vertical">
 
         <include

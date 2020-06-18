@@ -38,6 +38,16 @@
     <string name="parents">Родители</string>
     <string name="full_name">ФИО</string>
     <string name="tags">Особенности</string>
+    
+    // Relatives
+    <string name="mother">Мама</string>
+    <string name="father">Отец</string>
+    <string name="grandMa">Бабушка</string>
+    <string name="grandFa">Дедушка</string>
+    <string name="aunt">Тётя</string>
+    <string name="uncle">Дядя</string>
+    <string name="sister">Сестра</string>
+    <string name="brother">Брат</string>
 
 
     // Screens
