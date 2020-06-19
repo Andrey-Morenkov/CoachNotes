@@ -7,6 +7,7 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.google.android.material.textfield.TextInputEditText
+import com.pawegio.kandroid.e
 import com.tiper.MaterialSpinner
 import org.koin.core.KoinComponent
 import org.koin.core.get
@@ -15,8 +16,9 @@ import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.person.data.ParentType
 import ru.hryasch.coachnotes.domain.person.data.RelativeInfo
 import java.util.*
+import kotlin.collections.ArrayList
 
-internal class RelativeInfoHolder(val context: Context, val layout: View, private val holderPosition: Int): KoinComponent
+internal class RelativeInfoHolder(val context: Context, val layout: View, private var holderPosition: Int): KoinComponent
 {
     private val relativesNames: Array<String> = get(named("relatives_RU"))
 
@@ -26,18 +28,16 @@ internal class RelativeInfoHolder(val context: Context, val layout: View, privat
     private val deleteButton: ImageView       = layout.findViewById(R.id.editPersonImageViewDeleteRelativeInfo)
 
     private val phonesContainer: LinearLayout = layout.findViewById(R.id.relativeInfoPhonesContainer)
-    private val phonesList: MutableList<RelativePhoneHolder> = Collections.emptyList()
+    private val phonesList: MutableList<RelativePhoneHolder> = ArrayList()
 
-    var onPhoneDeleteListener: OnPhoneDeleteListener? = null
-    var onPhoneAddListener: OnPhoneAddListener? = null
     var onDeleteRelativeInfoHolder: OnDeleteRelativeInfoHolder? = null
 
     private val onPhoneHolderDeleteListener = object: OnPhoneHolderDeleteListener {
         override fun onPhoneDelete(phone: String, position: Int)
         {
-            onPhoneDeleteListener?.onDeletePhone(phone, holderPosition, position)
             phonesList.removeAt(position)
             phonesContainer.removeViewAt(position)
+            updateViewsIndices()
         }
     }
 
@@ -58,9 +58,12 @@ internal class RelativeInfoHolder(val context: Context, val layout: View, privat
             addPhoneView() // add additional phones (1st already here)
         }
 
-        for ((i, phoneHolder) in phonesList.withIndex())
+        if (relativeInfo.getPhones().isNotEmpty())
         {
-            phoneHolder.phone.text = SpannableStringBuilder(relativeInfo.getPhones()[i])
+            for ((i, phoneHolder) in phonesList.withIndex())
+            {
+                phoneHolder.phone.text = SpannableStringBuilder(relativeInfo.getPhones()[i])
+            }
         }
     }
 
@@ -78,6 +81,8 @@ internal class RelativeInfoHolder(val context: Context, val layout: View, privat
         }
 
         relativeInfo.type = getFullInfoToParentType()
+        e("relativeInfo.type = ${relativeInfo.type.name}")
+
         for (phoneHolder in phonesList)
         {
             if (!phoneHolder.phone.text.isNullOrBlank())
@@ -106,6 +111,11 @@ internal class RelativeInfoHolder(val context: Context, val layout: View, privat
         }
 
         return true
+    }
+
+    fun updateIndex(index: Int)
+    {
+        holderPosition = index
     }
 
     private fun hasFilledPhoneHolders(): Boolean
@@ -143,7 +153,6 @@ internal class RelativeInfoHolder(val context: Context, val layout: View, privat
     private fun initAddPhoneButton()
     {
         addPhoneButton.setOnClickListener {
-            onPhoneAddListener?.onAddPhone(holderPosition)
             addPhoneView()
         }
     }
@@ -152,6 +161,14 @@ internal class RelativeInfoHolder(val context: Context, val layout: View, privat
     {
         deleteButton.setOnClickListener {
             onDeleteRelativeInfoHolder?.onDeleteInfoHolder(holderPosition)
+        }
+    }
+
+    private fun updateViewsIndices()
+    {
+        for ((i, phoneHolder) in phonesList.withIndex())
+        {
+            phoneHolder.updateIndex(i)
         }
     }
 

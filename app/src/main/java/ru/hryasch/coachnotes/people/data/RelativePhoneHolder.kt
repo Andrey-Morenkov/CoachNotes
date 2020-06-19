@@ -6,7 +6,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.pawegio.kandroid.visible
 import ru.hryasch.coachnotes.R
 
-internal class RelativePhoneHolder(layout: View, private val position: Int)
+internal class RelativePhoneHolder(layout: View, private var position: Int)
 {
     val phone: TextInputEditText = layout.findViewById(R.id.editPersonEditTextParentPhone)
     private val deletePhone: ImageView   = layout.findViewById(R.id.editPersonRelativeInfoImageViewRemovePhone)
@@ -24,6 +24,11 @@ internal class RelativePhoneHolder(layout: View, private val position: Int)
                 onDeletePhoneListener?.onPhoneDelete(phone.text.toString(), position)
             }
         }
+    }
+
+    fun updateIndex(index: Int)
+    {
+        position = index
     }
 }
 

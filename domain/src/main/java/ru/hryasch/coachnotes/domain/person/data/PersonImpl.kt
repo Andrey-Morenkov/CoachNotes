@@ -13,7 +13,7 @@ data class PersonImpl(override var surname: String,
     override var patronymic: String? = null
     override var isPaid: Boolean = false
     override var groupId: GroupId? = null
-    override var relativeInfos: MutableList<RelativeInfo> = Collections.emptyList()
+    override var relativeInfos: MutableList<RelativeInfo> = LinkedList()
 
     override fun compareTo(other: Person): Int
     {

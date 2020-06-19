@@ -1,77 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/relativeInfoHolder"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/fake_outlined"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/editPersonImageViewDeleteRelativeInfo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:paddingTop="4dp"
-        android:paddingEnd="4dp"
-        android:tint="@color/colorJournalAbsenceGeneral"
-        app:srcCompat="@drawable/ic_no_exist" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInput1"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <LinearLayout
+        android:id="@+id/relativeInfoHolder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        app:boxBackgroundMode="outline"
-        app:helperTextTextColor="@color/colorAccent"
-        app:hintTextColor="@color/colorAccent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/fake_outlined"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editPersonEditTextParentFullName"
-            style="@style/CustomInputTypeText"
+        <ImageView
+            android:id="@+id/editPersonImageViewDeleteRelativeInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:paddingTop="4dp"
+            android:paddingEnd="4dp"
+            android:tint="@color/colorJournalAbsenceGeneral"
+            app:srcCompat="@drawable/ic_no_exist" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInput1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:boxBackgroundMode="outline"
+            app:helperTextTextColor="@color/colorAccent"
+            app:hintTextColor="@color/colorAccent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editPersonEditTextParentFullName"
+                style="@style/CustomInputTypeText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/full_name" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.tiper.MaterialSpinner
+            android:id='@+id/personEditParentType'
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            app:boxBackgroundMode="outline"
+            app:spinnerMode="dropdown" />
+
+        <LinearLayout
+            android:id="@+id/relativeInfoPhonesContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/full_name" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical" />
 
-    <com.tiper.MaterialSpinner
-        android:id='@+id/personEditParentType'
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:hint="Мама"
-        app:boxBackgroundMode="outline"
-        app:spinnerMode="dropdown" />
-
-    <LinearLayout
-        android:id="@+id/relativeInfoPhonesContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
-        android:orientation="vertical">
-
-        <include
-            layout="@layout/element_edit_person_relative_phone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/editPersonRelativeInfoImageViewAddPhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/fake_outlined_accent"
+            android:padding="4dp"
+            app:srcCompat="@drawable/ic_phone_plus" />
     </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-        android:id="@+id/editPersonRelativeInfoImageViewAddPhone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/fake_outlined_accent"
-        android:padding="4dp"
-        app:srcCompat="@drawable/ic_phone_plus" />
-</LinearLayout>

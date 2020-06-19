@@ -11,12 +11,31 @@ enum class ParentType(val type: String)
     GrandMother("GrM"),
     GrandFather("GrF"),
     Sister("S"),
-    Brother("B")
+    Brother("B");
+
+    companion object
+    {
+        fun getBySerializedName(name: String): ParentType
+        {
+            return when(name)
+            {
+                "M" -> Mother
+                "F" -> Father
+                "A" -> Aunt
+                "U" -> Uncle
+                "GrM" -> GrandMother
+                "GrF" -> GrandFather
+                "S" -> Sister
+                "B" -> Brother
+                else -> Mother
+            }
+        }
+    }
 }
 
 class RelativeInfo
 {
-    private var phones: MutableList<String> = Collections.emptyList()
+    private var phones: MutableList<String> = LinkedList()
     var name: String = ""
     var type: ParentType = ParentType.Mother
 
@@ -28,6 +47,11 @@ class RelativeInfo
     fun removePhone(phone: String)
     {
         phones.remove(phone)
+    }
+
+    fun removePhone(position: Int)
+    {
+        phones.removeAt(position)
     }
 
     fun removeAllPhones()

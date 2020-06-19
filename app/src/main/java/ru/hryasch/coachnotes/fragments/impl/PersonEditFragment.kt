@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -37,10 +38,15 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PersonEditView
+import ru.hryasch.coachnotes.people.data.OnDeleteRelativeInfoHolder
+import ru.hryasch.coachnotes.people.data.OnPhoneAddListener
+import ru.hryasch.coachnotes.people.data.OnPhoneDeleteListener
+import ru.hryasch.coachnotes.people.data.RelativeInfoHolder
 import ru.hryasch.coachnotes.people.presenters.impl.PersonEditPresenterImpl
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
@@ -82,9 +88,13 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private val groupPositionById: MutableMap<GroupId?, Int> = HashMap()
 
     // Relatives section
-
+    private lateinit var addNewRelativeButton: MaterialButton
+    private lateinit var relativesInfoContainer: LinearLayout
+    private val relativesInfoList: MutableList<RelativeInfoHolder> = ArrayList()
+    private lateinit var deleteRelativeInfoHolder: OnDeleteRelativeInfoHolder
 
     private lateinit var currentPerson: Person
+
 
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -98,6 +108,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         inflateGeneralSection(layout)
         inflateBirthdaySection(layout)
         inflateGroupSection(layout)
+        inflateRelativesSection(layout)
 
         contentView = layout.findViewById(R.id.personEditContent)
         loadingBar = layout.findViewById(R.id.personEditProgressBarLoading)
@@ -168,6 +179,17 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                 currentPerson.isPaid = groupIdByPosition[groupChooser.selection]!!.second
             }
 
+            currentPerson.relativeInfos.clear()
+            for (relativeHolder in relativesInfoList)
+            {
+                if (relativeHolder.isBlank())
+                {
+                    continue
+                }
+
+                currentPerson.relativeInfos.add(relativeHolder.extractData())
+            }
+
             presenter.updateOrCreatePerson()
         }
     }
@@ -203,16 +225,12 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                 dialog.cancel()
                 presenter.deletePerson(currentPerson)
             }
-            .setNegativeButton("Отмена") { dialog, _ ->
-                dialog.cancel()
-            }
+            .setNegativeButton("Отмена") { dialog, _ -> dialog.cancel() }
             .create()
 
         dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                .setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                .setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
         }
 
         dialog.show()
@@ -379,6 +397,51 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         groupChooser = layout.findViewById(R.id.personEditSpinnerGroup)
     }
 
+    private fun inflateRelativesSection(layout: View)
+    {
+        addNewRelativeButton = layout.findViewById(R.id.editPersonRelativeInfoAddRelative)
+        relativesInfoContainer = layout.findViewById(R.id.editPersonRelativeInfoContainer)
+
+        deleteRelativeInfoHolder = object : OnDeleteRelativeInfoHolder {
+            override fun onDeleteInfoHolder(position: Int)
+            {
+                relativesInfoList.removeAt(position)
+                relativesInfoContainer.removeViewAt(position)
+                updateViewsIndices()
+            }
+        }
+
+        addNewRelativeButton.setOnClickListener(View.OnClickListener {
+            addRelativeView()
+        })
+
+        addRelativeView(0)
+    }
+
+    private fun updateViewsIndices()
+    {
+        for ((i, relativeHolder) in relativesInfoList.withIndex())
+        {
+            relativeHolder.updateIndex(i)
+        }
+    }
+
+    private fun addRelativeView(position: Int? = null)
+    {
+        val newRelativeView = View.inflate(requireContext(), R.layout.element_person_edit_relative_info, null)
+        if (position != null)
+        {
+            relativesInfoContainer.addView(newRelativeView, position)
+        }
+        else
+        {
+            relativesInfoContainer.addView(newRelativeView)
+        }
+        relativesInfoList.add(RelativeInfoHolder(requireContext(), newRelativeView, relativesInfoList.size).apply {
+            this.onDeleteRelativeInfoHolder = deleteRelativeInfoHolder
+        })
+    }
+
     private fun setExistPersonData()
     {
         (activity as AppCompatActivity).supportActionBar!!.setTitle(R.string.person_edit_screen_toolbar_title)
@@ -404,6 +467,21 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         deletePerson.setOnClickListener {
             presenter.onDeletePersonClicked()
         }
+
+        for (i in 1 until currentPerson.relativeInfos.size)
+        {
+            addRelativeView() // 1st relative view already added
+        }
+
+        if (currentPerson.relativeInfos.isNotEmpty())
+        {
+            for ((i, relativeHolder) in relativesInfoList.withIndex())
+            {
+                relativeHolder.applyExistData(currentPerson.relativeInfos[i])
+            }
+        }
+
+        checkRequiredFields()
     }
 
     private fun getGroupNamesSpinnerData(groups: List<Group>): List<String>
@@ -468,7 +546,17 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     private fun checkRequiredFields()
     {
-        if (!surname.text.isNullOrBlank() && !name.text.isNullOrBlank() && isBirthdaySet())
+        var isRelativesInfosSet = true
+        for (relativeHolder in relativesInfoList)
+        {
+            if (!relativeHolder.areRequiredFieldsFilled())
+            {
+                isRelativesInfosSet = false
+                break
+            }
+        }
+
+        if (!surname.text.isNullOrBlank() && !name.text.isNullOrBlank() && isBirthdaySet() && isRelativesInfosSet)
         {
             setSaveOrCreateButtonEnabled()
         }

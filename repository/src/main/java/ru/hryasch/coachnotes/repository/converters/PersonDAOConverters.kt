@@ -70,7 +70,7 @@ fun RelativeInfoDAO.fromDao(): RelativeInfo
 {
     val relativeInfo = RelativeInfo()
     relativeInfo.name = this.name!!
-    relativeInfo.type = ParentType.valueOf(this.type!!)
+    relativeInfo.type = ParentType.getBySerializedName(this.type!!)
 
     i("extracting phones (${this.phones.size})")
     for (phone in this.phones)
