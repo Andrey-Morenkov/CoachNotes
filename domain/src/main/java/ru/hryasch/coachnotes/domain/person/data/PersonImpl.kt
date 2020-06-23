@@ -3,12 +3,13 @@ package ru.hryasch.coachnotes.domain.person.data
 import com.soywiz.klock.Date
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
+import java.io.Serializable
 import java.util.*
 
 data class PersonImpl(override var surname: String,
                       override var name: String,
                       override var birthday: Date? = null,
-                      override val id: PersonId = -1) : Person
+                      override val id: PersonId = -1) : Person, Serializable
 {
     override var patronymic: String? = null
     override var isPaid: Boolean = false

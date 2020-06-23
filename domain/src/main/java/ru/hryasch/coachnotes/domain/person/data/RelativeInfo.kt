@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.domain.person.data
 
+import java.io.Serializable
 import java.util.*
 
 enum class ParentType(val type: String)
@@ -33,7 +34,7 @@ enum class ParentType(val type: String)
     }
 }
 
-class RelativeInfo
+class RelativeInfo: Serializable
 {
     private var phones: MutableList<String> = LinkedList()
     var name: String = ""

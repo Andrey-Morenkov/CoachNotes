@@ -39,8 +39,6 @@ import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PersonEditView
 import ru.hryasch.coachnotes.people.data.OnDeleteRelativeInfoHolder
-import ru.hryasch.coachnotes.people.data.OnPhoneAddListener
-import ru.hryasch.coachnotes.people.data.OnPhoneDeleteListener
 import ru.hryasch.coachnotes.people.data.RelativeInfoHolder
 import ru.hryasch.coachnotes.people.presenters.impl.PersonEditPresenterImpl
 import java.time.LocalDate
@@ -546,17 +544,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     private fun checkRequiredFields()
     {
-        var isRelativesInfosSet = true
-        for (relativeHolder in relativesInfoList)
-        {
-            if (!relativeHolder.areRequiredFieldsFilled())
-            {
-                isRelativesInfosSet = false
-                break
-            }
-        }
-
-        if (!surname.text.isNullOrBlank() && !name.text.isNullOrBlank() && isBirthdaySet() && isRelativesInfosSet)
+        if (!surname.text.isNullOrBlank() && !name.text.isNullOrBlank() && isBirthdaySet())
         {
             setSaveOrCreateButtonEnabled()
         }
