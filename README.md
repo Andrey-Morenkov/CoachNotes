@@ -1,6 +1,6 @@
 # CoachNotes
 
-Used libreries:
+Used libreries: <br/>
 :white_check_mark: Konlin's coroutines <br/>
 :white_check_mark: Android navigation <br/>
 :white_check_mark: Java8 support (Android studio 4.0.0+) <br/>
