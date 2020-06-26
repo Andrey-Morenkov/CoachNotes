@@ -15,4 +15,4 @@ Used libreries:
 :white_check_mark: [Table View (evrencoskun's)](https://github.com/evrencoskun/TableView) <br/>
 :white_check_mark: [Snack progress bar (tingyik90's)](https://github.com/tingyik90/snackprogressbar) <br/>
 :white_check_mark: custom Apache POI based on [SUPERCILEX's ApachePOI](https://github.com/SUPERCILEX/poi-android) <br/>
-:x: ~~[Clock(soywiz's)](https://github.com/korlibs/klock)~~
+:x: ~~[Klock(soywiz's)](https://github.com/korlibs/klock)~~
