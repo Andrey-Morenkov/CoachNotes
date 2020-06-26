@@ -1,11 +1,10 @@
 package ru.hryasch.coachnotes.repository.converters
 
-import com.soywiz.klock.DateFormat
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.repository.dao.*
 import java.util.*
 
-val daoDateFormat = DateFormat("dd.MM.yyyy")
+const val daoDateFormat = "dd.MM.yyyy"
 
 
 fun JournalMarkDAO.fromDAO(): CellData

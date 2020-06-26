@@ -1,13 +1,14 @@
 package ru.hryasch.coachnotes.repository.converters
 
 import com.pawegio.kandroid.i
-import com.soywiz.klock.parse
 import ru.hryasch.coachnotes.domain.person.data.ParentType
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.data.PersonImpl
 import ru.hryasch.coachnotes.domain.person.data.RelativeInfo
 import ru.hryasch.coachnotes.repository.dao.PersonDAO
 import ru.hryasch.coachnotes.repository.dao.RelativeInfoDAO
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @JvmName("DAOPersonListConverter")
@@ -22,7 +23,7 @@ fun List<PersonDAO>.fromDAO(): List<Person>
 
 fun PersonDAO.fromDao(): Person
 {
-    val person = PersonImpl(this.surname!!, this.name!!, daoDateFormat.parse(this.birthday!!).local.date, this.id!!)
+    val person = PersonImpl(this.surname!!, this.name!!, LocalDate.parse(this.birthday!!, DateTimeFormatter.ofPattern(daoDateFormat)), this.id!!)
     person.isPaid = this.isPaid
     person.groupId = this.groupId
     person.patronymic = this.patronymic
@@ -38,7 +39,7 @@ fun PersonDAO.fromDao(): Person
 
 fun Person.toDao(): PersonDAO
 {
-    val dao = PersonDAO(this.id, this.name, this.surname, this.birthday!!.format(daoDateFormat))
+    val dao = PersonDAO(this.id, this.name, this.surname, this.birthday!!.format(DateTimeFormatter.ofPattern(daoDateFormat)))
 
     dao.patronymic = this.patronymic
     dao.isPaid = isPaid

@@ -1,8 +1,8 @@
 package ru.hryasch.coachnotes.domain.tools
 
-import com.soywiz.klock.YearMonth
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.JournalChunk
+import java.time.YearMonth
 
 interface DataExporter
 {

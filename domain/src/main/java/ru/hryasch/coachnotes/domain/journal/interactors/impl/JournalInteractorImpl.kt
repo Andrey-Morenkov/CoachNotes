@@ -2,9 +2,6 @@ package ru.hryasch.coachnotes.domain.journal.interactors.impl
 
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
-import com.soywiz.klock.Date
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.YearMonth
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.koin.core.qualifier.named
@@ -18,6 +15,9 @@ import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.domain.tools.DataExporter
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.ZonedDateTime
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
@@ -37,7 +37,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
         chunks?.forEach {
             e("CHUNK")
-            i("timestamp = ${it.date.day}/${it.date.month.index1}/${it.date.year}")
+            i("timestamp = ${it.date.dayOfMonth}/${it.date.month.value}/${it.date.year}")
             i("groupId = ${it.groupId}")
             it.content.forEach { cnt ->
                 i("data[${cnt.key} : ${cnt.value}]")
@@ -80,9 +80,10 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     private fun generateDayOfMonthDescription(period: YearMonth): List<ColumnHeaderData>
     {
         val headers: MutableList<ColumnHeaderData> = LinkedList<ColumnHeaderData>()
-        for (day in (1 .. period.days))
+
+        for (day in (1 .. period.month.length(period.isLeapYear)))
         {
-            headers.add(ColumnHeaderData(Date.Companion.invoke(period, day)))
+            headers.add(ColumnHeaderData(LocalDate.of(period.year, period.month, day)))
         }
         return headers
     }
@@ -259,7 +260,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
             if (!period.isHistorical() && allPeople[row].person.id == -1)
             {
-                val startCol = DateTime.nowLocal().dayOfMonth - 1
+                val startCol = ZonedDateTime.now().dayOfMonth - 1
                 for (col in startCol until cells[row].size)
                 {
                     cells[row][col] = NoExistData()
@@ -271,7 +272,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     private fun postProcessCellsNonHistorical(cells: Array<Array<CellData?>>, period: YearMonth, allPeople: List<RowHeaderData>)
     {
         // generate today no exist data (for deleted persons)
-        val todayCol = DateTime.nowLocal().dayOfMonth - 1
+        val todayCol = LocalDate.now().dayOfMonth - 1
         for ((i, personHeader) in allPeople.withIndex())
         {
             if (personHeader.person.id == -1)
@@ -305,4 +306,4 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     }
 }
 
-private fun YearMonth.isHistorical(): Boolean = this.month != DateTime.nowLocal().month
+private fun YearMonth.isHistorical(): Boolean = this.month != LocalDate.now().month

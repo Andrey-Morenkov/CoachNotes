@@ -1,6 +1,5 @@
 package ru.hryasch.coachnotes.fragments
 
-import com.soywiz.klock.Date
 import moxy.MvpView
 import moxy.viewstate.strategy.*
 

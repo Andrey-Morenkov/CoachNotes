@@ -10,10 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.pawegio.kandroid.e
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.KlockLocale
-import com.soywiz.klock.locale.russian
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -27,6 +23,8 @@ import ru.hryasch.coachnotes.fragments.HomeView
 import ru.hryasch.coachnotes.home.data.HomeAsyncLoadingButton
 import ru.hryasch.coachnotes.home.data.HomeSimpleButton
 import ru.hryasch.coachnotes.home.impl.HomePresenterImpl
+import java.time.ZonedDateTime
+import java.time.format.TextStyle
 import java.util.*
 import java.util.stream.Collectors
 
@@ -77,9 +75,9 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
 
         val dayOfWeekNames: Array<String> = get(named("daysOfWeekLong_RU"))
         todayScheduleDate = layout.findViewById(R.id.homeTextViewTodayScheduleDate)
-        val today = DateTime.nowLocal()
-        val todayDayOfWeek = dayOfWeekNames[today.dayOfWeek.index0Monday].toLowerCase(Locale.getDefault())
-        todayScheduleDate.text = container.context.getString(R.string.home_screen_today_schedule_date, todayDayOfWeek, today.dayOfMonth, today.month.localName(KlockLocale.russian), today.local.date.year)
+        val today = ZonedDateTime.now()
+        val todayDayOfWeek = dayOfWeekNames[today.dayOfWeek.value - 1].toLowerCase(Locale.getDefault())
+        todayScheduleDate.text = container.context.getString(R.string.home_screen_today_schedule_date, todayDayOfWeek, today.dayOfMonth, today.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault()), today.year)
 
         return layout
     }

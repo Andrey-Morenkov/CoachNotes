@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
@@ -26,6 +27,7 @@ import ru.hryasch.coachnotes.groups.presenters.impl.GroupsPresenterImpl
 
 class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
 {
+    @ExperimentalCoroutinesApi
     @InjectPresenter
     lateinit var presenter: GroupsPresenterImpl
 

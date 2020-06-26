@@ -1,7 +1,7 @@
 package ru.hryasch.coachnotes.domain.journal.data
 
-import com.soywiz.klock.Date
 import ru.hryasch.coachnotes.domain.person.data.Person
+import java.time.LocalDate
 
 sealed class CellData(val mark: String? = null)
 {
@@ -58,7 +58,7 @@ class NoExistData(): CellData()
     }
 }
 
-data class ColumnHeaderData(var timestamp: Date)
+data class ColumnHeaderData(var timestamp: LocalDate)
 data class RowHeaderData(val person: Person, val number: Int)
 
 

@@ -1,7 +1,6 @@
 package ru.hryasch.coachnotes.people.presenters.impl
 
 import com.pawegio.kandroid.d
-import com.pawegio.kandroid.i
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import moxy.InjectViewState
@@ -11,7 +10,6 @@ import org.koin.core.get
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.domain.common.PersonId
-import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
 import ru.hryasch.coachnotes.fragments.PeopleView

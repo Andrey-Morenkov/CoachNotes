@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
@@ -26,11 +25,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.nabinbhandari.android.permissions.PermissionHandler
 import com.nabinbhandari.android.permissions.Permissions
 import com.pawegio.kandroid.*
-import com.soywiz.klock.*
-import com.soywiz.klock.locale.russian
 import com.tingyik90.snackprogressbar.SnackProgressBar
 import com.tingyik90.snackprogressbar.SnackProgressBarManager
-import kotlinx.android.synthetic.main.fragment_journal.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -50,6 +46,11 @@ import ru.hryasch.coachnotes.journal.table.TableAdapter
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.impl.JournalPresenterImpl
 import java.io.File
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.*
 
 class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
@@ -72,7 +73,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     private lateinit var okJournalShareClickListener: JournalShareOkListener
     private lateinit var errorJournalShareClickListener: JournalShareErrorListener
-    private val snackProgressBarManager by lazy { SnackProgressBarManager(activity!!.findViewById(R.id.nav_host_fragment), lifecycleOwner = this) }
+    private val snackProgressBarManager by lazy { SnackProgressBarManager(requireActivity().findViewById(R.id.nav_host_fragment), lifecycleOwner = this) }
 
     private val monthNames: Array<String> = get(named("months_RU"))
     private val dayOfWeekLongNames: Array<String> = get(named("daysOfWeekLong_RU"))
@@ -100,7 +101,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         okJournalShareClickListener = JournalShareOkListener(container!!)
         errorJournalShareClickListener = JournalShareErrorListener()
 
-        navController = container!!.findNavController()
+        navController = container.findNavController()
 
         loadingState()
 
@@ -139,7 +140,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             presenter.onLockUnlockJournal()
         }
 
-        val groupData = JournalGroupFragmentArgs.fromBundle(arguments!!).groupData
+        val groupData = JournalGroupFragmentArgs.fromBundle(requireArguments()).groupData
         (activity as AppCompatActivity).supportActionBar!!.title = "${groupData.name}"
 
         GlobalScope.launch(Dispatchers.Default)
@@ -189,7 +190,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         val str = "$month $year"
         textViewPeriod.text = str
 
-        if (monthNames[DateTime.nowLocal().month0] == month && DateTime.nowLocal().yearInt == year)
+        if (monthNames[ZonedDateTime.now().month.value - 1] == month && ZonedDateTime.now().year == year)
         {
             buttonNextMonth.visibility = View.INVISIBLE
         }
@@ -263,11 +264,11 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             return
         }
 
-        val date = DateFormat("dd/MM/yyyy").parse(dateString)
+        val date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 
-        val dialog = MaterialAlertDialogBuilder(this@JournalGroupFragment.context!!)
+        val dialog = MaterialAlertDialogBuilder(this@JournalGroupFragment.requireContext())
             .setTitle("Удаление столбца")
-            .setMessage("Вы уверены, что хотите удалить данные за ${dayOfWeekLongNames[date.dayOfWeek.index0Monday].toLowerCase(Locale("ru"))}, ${date.format("dd.MM.yyyy")} ?")
+            .setMessage("Вы уверены, что хотите удалить данные за ${dayOfWeekLongNames[date.dayOfWeek.value - 1].toLowerCase(Locale("ru"))}, ${date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))} ?")
             .setPositiveButton("Удалить") { dialog, _ ->
                 dialog.cancel()
                 presenter.deleteColumnData(col)
@@ -324,10 +325,9 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     override fun showLockedJournalNotification()
     {
-        val today = DateTime.nowLocal()
+        val today = ZonedDateTime.now()
         Snackbar
-            .make((activity as AppCompatActivity).findViewById(android.R.id.content), "Пока журнал заблокирован, можно менять только текущий день (${today.dayOfMonth} ${today.month.localName(
-                KlockLocale.russian)} ${today.yearInt}г. )", Snackbar.LENGTH_LONG)
+            .make((activity as AppCompatActivity).findViewById(android.R.id.content), "Пока журнал заблокирован, можно менять только текущий день (${today.dayOfMonth} ${today.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())} ${today.year}г. )", Snackbar.LENGTH_LONG)
             .show()
     }
 
@@ -416,7 +416,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         {
             i("clicked ERROR")
 
-            val dialog = MaterialAlertDialogBuilder(this@JournalGroupFragment.context!!)
+            val dialog = MaterialAlertDialogBuilder(this@JournalGroupFragment.requireContext())
                             .setTitle("Невозможно экспортировать журнал")
                             .setMessage(message)
                             .setPositiveButton("Ок") {

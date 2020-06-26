@@ -2,8 +2,6 @@ package ru.hryasch.coachnotes.repository.dao
 
 import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
-import com.soywiz.klock.Date
-import com.soywiz.klock.parse
 import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.Index
@@ -16,6 +14,8 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.converters.daoDateFormat
 import ru.hryasch.coachnotes.repository.converters.toDAO
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 open class JournalChunkDataDAO(): RealmObject()
@@ -40,8 +40,8 @@ open class JournalChunkDataDAO(): RealmObject()
 
     constructor(personInfo: Person, mark: CellData): this()
     {
-        this.name = personInfo.name!!
-        this.surname = personInfo.surname!!
+        this.name = personInfo.name
+        this.surname = personInfo.surname
         this.mark = mark.toDAO().serialize()
     }
 
@@ -53,15 +53,15 @@ open class JournalChunkDataDAO(): RealmObject()
     }
 }
 
-data class JournalChunkDAOId (val date: Date, val groupId: GroupId)
+data class JournalChunkDAOId (val date: LocalDate, val groupId: GroupId)
 {
     companion object
     {
         private const val delimiter = "|"
 
-        fun getSerialized(date: Date, groupId: GroupId): String
+        fun getSerialized(date: LocalDate, groupId: GroupId): String
         {
-            return "${date.format(daoDateFormat)}$delimiter$groupId"
+            return "${date.format(DateTimeFormatter.ofPattern(daoDateFormat))}$delimiter$groupId"
         }
 
         fun getSerialized(date: String, groupId: GroupId): String
@@ -73,7 +73,7 @@ data class JournalChunkDAOId (val date: Date, val groupId: GroupId)
         {
             d("deserialize chunkDAO id: $str")
             val components = str.split(delimiter)
-            return JournalChunkDAOId(daoDateFormat.parse(components[0]).local.date, components[1].toInt())
+            return JournalChunkDAOId(LocalDate.parse(components[0]), components[1].toInt())
         }
     }
 }
@@ -86,7 +86,7 @@ open class JournalChunkDAO(): RealmObject()
     var id: String? = null
     var data: RealmList<JournalChunkDataDAO> = RealmList()
 
-    constructor(date: Date, groupId: GroupId) : this()
+    constructor(date: LocalDate, groupId: GroupId) : this()
     {
         id = JournalChunkDAOId.getSerialized(date, groupId)
         i("created new chunk: id = $id")

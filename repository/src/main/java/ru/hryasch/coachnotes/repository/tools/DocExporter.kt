@@ -3,7 +3,6 @@ package ru.hryasch.coachnotes.repository.tools
 import android.content.Context
 import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
-import com.soywiz.klock.YearMonth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -21,6 +20,8 @@ import ru.hryasch.coachnotes.repository.tools.DocExporter.saveDirectory
 import java.io.File
 import java.io.FileOutputStream
 import java.math.BigInteger
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.HashSet
 import kotlin.math.roundToLong
@@ -91,7 +92,7 @@ private class JournalDocument(val period: YearMonth,
     {
         val monthNames: Array<String> by inject(named("months_RU"))
 
-        val periodInfo = "${monthNames[period.month.index0].toLowerCase(Locale("ru"))} ${period.yearInt}"
+        val periodInfo = "${monthNames[period.month.value - 1].toLowerCase(Locale("ru"))} ${period.year}"
         val groupInfo = "${group.availableAbsoluteAge} лет"
 
         // "Кондратьев Январь 2020 6 лет.docx"
@@ -140,7 +141,7 @@ private object XWPFHelper: KoinComponent
             .createRun()
             .also { it.applyTableStyle() }
             .apply {
-                setText("$coachName   |  $groupAge лет   |   ${monthNames[period.month.index0]} ${period.yearInt}")
+                setText("$coachName   |  $groupAge лет   |   ${monthNames[period.month.value - 1]} ${period.year}")
                 addCarriageReturn()
             }
     }
@@ -302,7 +303,7 @@ private object XWPFHelper: KoinComponent
             table.getRow(1).getCell(dateStartColumn + i).paragraphs[0]
                 .createRun()
                 .also { it.applyTableStyle() }
-                .apply { setText(chunk.date.format("dd.MM")) }
+                .apply { setText(chunk.date.format(DateTimeFormatter.ofPattern("dd.MM"))) }
 
             table.getRow(3).getCell(executionNumStart + i).paragraphs[0]
                 .createRun()

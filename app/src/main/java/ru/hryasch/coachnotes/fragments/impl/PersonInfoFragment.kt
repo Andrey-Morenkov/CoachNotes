@@ -13,7 +13,6 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.pawegio.kandroid.visible
-import com.soywiz.klock.DateTime
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
@@ -24,6 +23,7 @@ import ru.hryasch.coachnotes.fragments.PersonView
 import ru.hryasch.coachnotes.people.PersonParamsAdapter
 import ru.hryasch.coachnotes.people.presenters.impl.PersonPresenterImpl
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
@@ -113,11 +113,11 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
             isPaid.visibility = View.INVISIBLE
         }
 
-        val birthdayDate = LocalDate.of(person.birthday!!.year, person.birthday!!.month1, person.birthday!!.day)
+        val birthdayDate = LocalDate.of(person.birthday!!.year, person.birthday!!.month.value, person.birthday!!.dayOfMonth)
         val nowDate = LocalDate.now()
         val diffYears = ChronoUnit.YEARS.between(birthdayDate, nowDate)
 
-        age.text = getString(R.string.person_info_header_age_pattern, person.birthday!!.format("dd.MM.yyyy"), diffYears)
+        age.text = getString(R.string.person_info_header_age_pattern, person.birthday!!.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), diffYears)
         groupName.text = groupNames[person.groupId] ?: "Нет группы"
 
         editPerson.setOnClickListener {

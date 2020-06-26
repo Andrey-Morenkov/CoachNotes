@@ -15,7 +15,6 @@ import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.person.data.ParentType
 import ru.hryasch.coachnotes.domain.person.data.RelativeInfo
-import java.util.*
 import kotlin.collections.ArrayList
 
 internal class RelativeInfoHolder(val context: Context, val layout: View, private var holderPosition: Int): KoinComponent

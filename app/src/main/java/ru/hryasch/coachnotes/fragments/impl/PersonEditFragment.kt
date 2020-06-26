@@ -25,7 +25,6 @@ import com.google.android.material.textfield.TextInputEditText
 import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
-import com.soywiz.klock.Date
 import com.tiper.MaterialSpinner
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -159,7 +158,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
             if (selectedDay > 0 && selectedMonth > 0 && selectedYear > 0)
             {
-                currentPerson.birthday = Date.Companion.invoke(selectedYear, selectedMonth, selectedDay)
+                currentPerson.birthday = LocalDate.of(selectedYear, selectedMonth, selectedDay)
             }
             else
             {
@@ -409,9 +408,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             }
         }
 
-        addNewRelativeButton.setOnClickListener(View.OnClickListener {
-            addRelativeView()
-        })
+        addNewRelativeButton.setOnClickListener { addRelativeView() }
 
         addRelativeView(0)
     }
@@ -453,8 +450,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         }
 
         currentPerson.birthday?.let {
-            selectedDay = it.day
-            selectedMonth = it.month.index1
+            selectedDay = it.dayOfMonth
+            selectedMonth = it.month.value
             selectedYear = it.year
 
             birthdayDay.selection = daysOfMonthList.indexOf(selectedDay.toString())

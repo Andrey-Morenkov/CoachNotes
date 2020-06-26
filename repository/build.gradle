@@ -67,7 +67,7 @@ dependencies
     implementation "androidx.core:core-ktx:$ktxcore_version"
 
     // Klock
-    implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
+    //implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
 
     // Koin
     implementation "org.koin:koin-core:$koin_version"

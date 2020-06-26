@@ -1,8 +1,6 @@
 package ru.hryasch.coachnotes.people
 
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.pawegio.kandroid.i
 import ru.hryasch.coachnotes.domain.person.data.Person

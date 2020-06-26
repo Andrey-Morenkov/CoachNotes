@@ -8,10 +8,8 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -22,9 +20,7 @@ import androidx.navigation.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
-import com.soywiz.klock.DateTime
 import com.tiper.MaterialSpinner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -38,6 +34,7 @@ import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.fragments.GroupEditView
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupEditPresenterImpl
 import ru.hryasch.coachnotes.repository.common.toRelative
+import java.time.ZonedDateTime
 
 class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 {
@@ -361,7 +358,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
     private fun generateAbsoluteYears(): List<String>
     {
-        val currYear = DateTime.nowLocal().yearInt
+        val currYear = ZonedDateTime.now().year
         val ages = ArrayList<String>(50)
         for (i in 0 until 50)
         {

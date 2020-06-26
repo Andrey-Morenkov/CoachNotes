@@ -1,9 +1,9 @@
 package ru.hryasch.coachnotes.domain.person.data
 
-import com.soywiz.klock.Date
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
 import java.io.Serializable
+import java.time.LocalDate
 
 interface Person: Comparable<Person>, Serializable
 {
@@ -12,7 +12,7 @@ interface Person: Comparable<Person>, Serializable
     var name: String
     var surname: String
     var patronymic: String?
-    var birthday: Date?
+    var birthday: LocalDate?
     var groupId: GroupId?
     var isPaid: Boolean
 

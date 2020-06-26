@@ -2,7 +2,6 @@ package ru.hryasch.coachnotes.repository.group
 
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
-import com.pawegio.kandroid.runOnUiThread
 import io.realm.ObjectChangeSet
 import io.realm.Realm
 import io.realm.kotlin.where

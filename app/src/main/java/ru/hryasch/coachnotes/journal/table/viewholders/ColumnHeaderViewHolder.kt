@@ -4,13 +4,12 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder
-import com.soywiz.klock.Date
-import com.soywiz.klock.DateTime
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
+import java.time.LocalDate
 
 class ColumnHeaderViewHolder(columnHeaderItem: View) : AbstractViewHolder(columnHeaderItem), KoinComponent
 {
@@ -21,9 +20,9 @@ class ColumnHeaderViewHolder(columnHeaderItem: View) : AbstractViewHolder(column
 
     fun setModel(model: ColumnHeaderModel)
     {
-        dayNumber.text = model.data.timestamp.day.toString()
+        dayNumber.text = model.data.timestamp.dayOfMonth.toString()
 
-        val dayIndex = model.data.timestamp.dayOfWeek.index0Monday
+        val dayIndex = model.data.timestamp.dayOfWeek.value - 1
         dayOfWeek.text = daysOfWeek[dayIndex]
 
         dayNumber.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorText))
@@ -41,9 +40,9 @@ class ColumnHeaderViewHolder(columnHeaderItem: View) : AbstractViewHolder(column
         }
     }
 
-    private fun colorizeToday(date: Date)
+    private fun colorizeToday(date: LocalDate)
     {
-        if (DateTime.nowLocal().local.date == date)
+        if (LocalDate.now() == date)
         {
             dayNumber.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorJournalPresence))
             dayOfWeek.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorJournalPresence))

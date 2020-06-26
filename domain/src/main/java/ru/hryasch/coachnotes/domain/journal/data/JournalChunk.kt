@@ -1,8 +1,8 @@
 package ru.hryasch.coachnotes.domain.journal.data
 
-import com.soywiz.klock.Date
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.person.data.Person
+import java.time.LocalDate
 import java.util.*
 
 data class ChunkPersonName(val surname: String, val name: String): Comparable<ChunkPersonName>
@@ -15,7 +15,7 @@ data class ChunkPersonName(val surname: String, val name: String): Comparable<Ch
     constructor(person: Person): this(person.surname!!, person.name!!)
 }
 
-data class JournalChunk(val date: Date,
+data class JournalChunk(val date: LocalDate,
                         val groupId: GroupId)
 {
     val content: SortedMap<ChunkPersonName, CellData?> = TreeMap()

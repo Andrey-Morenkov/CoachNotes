@@ -3,11 +3,8 @@ package ru.hryasch.coachnotes.repository.person
 import com.github.javafaker.Faker
 import com.pawegio.kandroid.d
 import com.pawegio.kandroid.e
-import com.pawegio.kandroid.i
-import com.pawegio.kandroid.w
 import io.realm.ObjectChangeSet
 import io.realm.Realm
-import io.realm.RealmResults
 import io.realm.kotlin.where
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -16,7 +13,6 @@ import org.koin.core.get
 import org.koin.core.inject
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
-import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
@@ -26,10 +22,8 @@ import ru.hryasch.coachnotes.repository.common.PersonId
 import ru.hryasch.coachnotes.repository.converters.fromDAO
 import ru.hryasch.coachnotes.repository.converters.fromDao
 import ru.hryasch.coachnotes.repository.converters.toDao
-import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import ru.hryasch.coachnotes.repository.dao.PersonDAO
 import java.util.*
-import java.util.concurrent.Executors
 
 @ExperimentalCoroutinesApi
 class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
@@ -203,7 +197,7 @@ class PersonFakeRepositoryImpl: PersonRepository, KoinComponent
                                    .findFirst()
 
             specificPerson!!.removeAllChangeListeners()
-            specificPerson.addChangeListener { t: PersonDAO, changeSet: ObjectChangeSet? ->
+            specificPerson.addChangeListener { t: PersonDAO, _: ObjectChangeSet? ->
                 GlobalScope.launch(Dispatchers.Main)
                 {
                     e("channel <sendSpecificPerson[$personId]>: SEND1")

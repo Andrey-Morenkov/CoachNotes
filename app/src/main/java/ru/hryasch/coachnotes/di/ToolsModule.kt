@@ -2,8 +2,6 @@ package ru.hryasch.coachnotes.di
 
 import android.content.Context
 import android.os.Environment
-import com.pawegio.kandroid.i
-import com.soywiz.klock.DateTime
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import ru.hryasch.coachnotes.R
@@ -11,6 +9,7 @@ import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.tools.DataExporter
 import ru.hryasch.coachnotes.repository.tools.DocExporter
 import java.io.File
+import java.time.ZonedDateTime
 
 val toolsModule = module {
     single(named("global")) { App.getCtx() as Context }
@@ -33,7 +32,7 @@ val toolsModule = module {
 
     single(named("absoluteAgesList"))
     {
-        val currYear = DateTime.nowLocal().yearInt
+        val currYear = ZonedDateTime.now().year
         val ages = ArrayList<String>(50)
         for (i in 3..50)
         {

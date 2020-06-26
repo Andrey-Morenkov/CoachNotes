@@ -4,14 +4,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
-import com.soywiz.klock.DateTime
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.group.data.Group
+import java.time.ZonedDateTime
 
 class GroupsAdapter(groupsList: List<Group>,
                     private val listener: GroupClickListener): RecyclerView.Adapter<GroupViewHolder>()
@@ -67,16 +64,16 @@ class GroupViewHolder(itemView: View, private val listener: GroupsAdapter.GroupC
         }
         else
         {
-            val now = DateTime.nowLocal()
+            val now = ZonedDateTime.now()
             if (groupAge.isSingle())
             {
                 peopleAbsoluteAge.text = itemView.context.getString(R.string.group_absolute_age_single_pattern, groupAge.first.toString())
-                peopleRelativeAge.text = itemView.context.getString(R.string.group_relative_age_single_pattern, (now.yearInt - groupAge.first).toString())
+                peopleRelativeAge.text = itemView.context.getString(R.string.group_relative_age_single_pattern, (now.year - groupAge.first).toString())
             }
             else
             {
                 peopleAbsoluteAge.text = itemView.context.getString(R.string.group_absolute_age_range_pattern, groupAge.first.toString(), groupAge.last.toString())
-                peopleRelativeAge.text = itemView.context.getString(R.string.group_relative_age_range_pattern, (now.yearInt - groupAge.last).toString(), (now.yearInt - groupAge.first).toString())
+                peopleRelativeAge.text = itemView.context.getString(R.string.group_relative_age_range_pattern, (now.year - groupAge.last).toString(), (now.year - groupAge.first).toString())
             }
         }
 

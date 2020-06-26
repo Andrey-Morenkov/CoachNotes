@@ -12,7 +12,6 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
-import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
@@ -208,7 +207,7 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
             val specificGroup = db.where<GroupDAO>().equalTo("id", groupId).findFirst()
 
             specificGroup!!.removeAllChangeListeners()
-            specificGroup.addChangeListener { t: GroupDAO, changeSet: ObjectChangeSet? ->
+            specificGroup.addChangeListener { t: GroupDAO, _: ObjectChangeSet? ->
                 GlobalScope.launch(Dispatchers.Main)
                 {
                     e("channel <sendSpecificGroup[$groupId]>: SEND1")

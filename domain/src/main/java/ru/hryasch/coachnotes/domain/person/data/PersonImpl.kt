@@ -1,14 +1,15 @@
 package ru.hryasch.coachnotes.domain.person.data
 
-import com.soywiz.klock.Date
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
 import java.io.Serializable
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 data class PersonImpl(override var surname: String,
                       override var name: String,
-                      override var birthday: Date? = null,
+                      override var birthday: LocalDate? = null,
                       override val id: PersonId = -1) : Person, Serializable
 {
     override var patronymic: String? = null
@@ -21,5 +22,5 @@ data class PersonImpl(override var surname: String,
         return "$surname $name $groupId $id".compareTo("${other.surname} ${other.name} ${other.groupId} ${other.id}")
     }
 
-    override fun toString(): String = "Person[$id]: ($surname $name $patronymic ${birthday?.format("dd.MM.yyyy")} isPaid = $isPaid group = $groupId relativeInfos: $relativeInfos)"
+    override fun toString(): String = "Person[$id]: ($surname $name $patronymic ${birthday?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))} isPaid = $isPaid group = $groupId relativeInfos: $relativeInfos)"
 }

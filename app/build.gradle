@@ -105,7 +105,7 @@ dependencies
     implementation "com.evrencoskun.library:tableview:$tableview_version"
 
     // Klock
-    implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
+    //implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
 
     // Permissions
     implementation "com.nabinbhandari.android:permissions:$permissions_version"

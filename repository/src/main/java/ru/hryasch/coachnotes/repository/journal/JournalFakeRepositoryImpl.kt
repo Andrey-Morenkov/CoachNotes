@@ -3,8 +3,6 @@ package ru.hryasch.coachnotes.repository.journal
 import com.pawegio.kandroid.d
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
-import com.soywiz.klock.*
-import com.soywiz.klock.Date
 import io.realm.Realm
 import io.realm.kotlin.where
 import kotlinx.coroutines.*
@@ -20,6 +18,10 @@ import ru.hryasch.coachnotes.repository.common.GroupId
 import ru.hryasch.coachnotes.repository.converters.daoDateFormat
 import ru.hryasch.coachnotes.repository.converters.fromDAO
 import ru.hryasch.coachnotes.repository.dao.*
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.random.Random
@@ -48,18 +50,20 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         db.refresh()
 
         val chunkList: MutableList<JournalChunkDAO> = ArrayList()
-        val firstDayOfMonth = DateTime.invoke(period.year, period.month, 1)
-        var currentDate = firstDayOfMonth
+        val firstDayOfMonth = LocalDate.of(period.year, period.month, 1)
 
-        while (currentDate in (firstDayOfMonth until (firstDayOfMonth + 1.months)))
+        var currentDate = firstDayOfMonth
+        val endDate     = firstDayOfMonth.plusMonths(1)
+
+        while (currentDate.isBefore(endDate))
         {
             db.refresh()
-            val chunk = getChunk(db, currentDate.date, groupId)
+            val chunk = getChunk(db, currentDate, groupId)
 
-            if (chunk != null) e("date: ${daoDateFormat.format(currentDate)} chunk = $chunk")
+            if (chunk != null) d("date: ${daoDateFormat.format(currentDate)} chunk = $chunk")
 
             chunk?.let { chunkList.add(it) }
-            currentDate += 1.days
+            currentDate = currentDate.plusDays(1)
         }
 
         return if (chunkList.isEmpty())
@@ -77,7 +81,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         val db = getDb()
         db.refresh()
 
-        i("updateJournalChunk: date = ${chunk.date.format(daoDateFormat)}, groupId = ${chunk.groupId}\n")
+        i("updateJournalChunk: date = ${chunk.date.format(DateTimeFormatter.ofPattern(daoDateFormat))}, groupId = ${chunk.groupId}\n")
 
         db.executeTransaction {
             val daoChunk = getOrCreateChunk(db, chunk.date, chunk.groupId)
@@ -170,7 +174,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         }
     }
 
-    private fun generateRandomLeftPeopleData(person: Person, chunkList: MutableList<JournalChunkDAO>, executionDays: List<Date>)
+    private fun generateRandomLeftPeopleData(person: Person, chunkList: MutableList<JournalChunkDAO>, executionDays: List<LocalDate>)
     {
         for (i in executionDays.indices)
         {
@@ -181,7 +185,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         }
     }
 
-    private fun generateRandomNewPeopleData(person: Person, chunkList: MutableList<JournalChunkDAO>, executionDays: List<Date>)
+    private fun generateRandomNewPeopleData(person: Person, chunkList: MutableList<JournalChunkDAO>, executionDays: List<LocalDate>)
     {
         for (i in executionDays.indices)
         {
@@ -192,7 +196,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         }
     }
 
-    private fun generateCommonPeopleData(person: Person, chunkList: MutableList<JournalChunkDAO>, executionDays: List<Date>)
+    private fun generateCommonPeopleData(person: Person, chunkList: MutableList<JournalChunkDAO>, executionDays: List<LocalDate>)
     {
         for (i in executionDays.indices)
         {
@@ -210,28 +214,28 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         }
     }
 
-    private fun generateExecutionDays(): List<Date>
+    private fun generateExecutionDays(): List<LocalDate>
     {
-        val executionsDays: MutableList<Date> = LinkedList()
+        val executionsDays: MutableList<LocalDate> = LinkedList()
         val executionsCount = Random.nextInt(5..10)
 
-        val generationPeriod = DateTimeTz.nowLocal() - 1.months
+        val generationPeriod = ZonedDateTime.now().minusMonths(1)
         for (i in 1..executionsCount)
         {
-            var exeDay: Date
+            var exeDay: LocalDate
             do
             {
-                exeDay = Date.invoke(generationPeriod.year, generationPeriod.month, Random.nextInt(1..generationPeriod.yearMonth.days))
+                exeDay = LocalDate.of(generationPeriod.year, generationPeriod.month, Random.nextInt(1..28))
             }
             while (executionsDays.find { it == exeDay } != null)
-            d("generated execution date: ${exeDay.format("dd/MM/yyyy")}")
+            d("generated execution date: ${exeDay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}")
             executionsDays.add(exeDay)
         }
 
         return executionsDays
     }
 
-    private fun getChunk(db: Realm, date: Date, groupId: GroupId): JournalChunkDAO?
+    private fun getChunk(db: Realm, date: LocalDate, groupId: GroupId): JournalChunkDAO?
     {
         val obj = db.where<JournalChunkDAO>()
                     .equalTo("id", JournalChunkDAOId.getSerialized(date, groupId))
@@ -249,7 +253,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
         return obj?.run { db.copyFromRealm(obj) }
     }
 
-    private fun getOrCreateChunk(db: Realm, date: Date, groupId: GroupId): JournalChunkDAO
+    private fun getOrCreateChunk(db: Realm, date: LocalDate, groupId: GroupId): JournalChunkDAO
     {
         return getChunk(db, date, groupId) ?: JournalChunkDAO(date, groupId)
     }
@@ -262,7 +266,7 @@ class JournalFakeRepositoryImpl: JournalRepository, KoinComponent
           ?.deleteFromRealm()
     }
 
-    private fun deleteChunk(db: Realm, date: Date, groupId: GroupId)
+    private fun deleteChunk(db: Realm, date: LocalDate, groupId: GroupId)
     {
         db.where<JournalChunkDAO>()
           .equalTo("id", JournalChunkDAOId.getSerialized(date, groupId))

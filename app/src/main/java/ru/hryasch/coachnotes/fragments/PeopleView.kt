@@ -1,6 +1,5 @@
 package ru.hryasch.coachnotes.fragments
 
-import androidx.recyclerview.widget.SortedList
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy
 import moxy.viewstate.strategy.OneExecutionStateStrategy

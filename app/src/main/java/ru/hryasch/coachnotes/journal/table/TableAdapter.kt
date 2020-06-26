@@ -6,9 +6,7 @@ import android.view.ViewGroup
 
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder
-import com.pawegio.kandroid.i
 import com.pawegio.kandroid.inflateLayout
-import com.pawegio.kandroid.w
 import org.koin.core.KoinComponent
 
 import ru.hryasch.coachnotes.R

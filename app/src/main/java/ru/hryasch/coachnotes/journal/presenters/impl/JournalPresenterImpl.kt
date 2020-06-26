@@ -1,7 +1,6 @@
 package ru.hryasch.coachnotes.journal.presenters.impl
 
 import com.pawegio.kandroid.i
-import com.soywiz.klock.*
 import kotlinx.coroutines.*
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -17,6 +16,10 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
@@ -30,7 +33,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
     private val tableHelper: TableHelper = TableHelper()
     private lateinit var findingTableJob: Job
-    private var chosenPeriod: YearMonth = DateTime.now().yearMonth
+    private var chosenPeriod: YearMonth = YearMonth.now()
     private var isJournalLocked: Boolean = true
 
     private lateinit var currentGroup: Group
@@ -55,7 +58,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     override fun onColumnLongPressed(col: Int)
     {
         val date = tableHelper.tableModel.columnHeaderContent[col].data.timestamp
-        viewState.showDeleteColNotification(date.format("dd/MM/yyyy"), col)
+        viewState.showDeleteColNotification(date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), col)
     }
 
     override fun onExportButtonClicked()
@@ -87,13 +90,13 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
     override fun nextMonth()
     {
-        chosenPeriod += 1.months
+        chosenPeriod = chosenPeriod.plusMonths(1)
         changePeriod()
     }
 
     override fun prevMonth()
     {
-        chosenPeriod -= 1.months
+        chosenPeriod = chosenPeriod.minusMonths(1)
         changePeriod()
     }
 
@@ -168,7 +171,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
     private fun changePeriod()
     {
-        changePeriod(monthNames[chosenPeriod.month.index0], chosenPeriod.year.year)
+        changePeriod(monthNames[chosenPeriod.month.value - 1], chosenPeriod.year)
     }
 
 
@@ -351,7 +354,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         fun getGroupId(): GroupId = tableModel.groupId
 
         @Synchronized
-        fun isChunkShowingNow(chunk: JournalChunk): Boolean = (chunk.groupId == tableModel.groupId && (chosenPeriod == YearMonth.Companion.invoke(chunk.date.yearYear, chunk.date.month)))
+        fun isChunkShowingNow(chunk: JournalChunk): Boolean = (chunk.groupId == tableModel.groupId && (chosenPeriod == YearMonth.of(chunk.date.year, chunk.date.month)))
 
         private fun clearTableMetadata()
         {
@@ -364,7 +367,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         private fun saveChunkOnBackground(col: Int)
         {
             i("saveChunkOnBackground")
-            val day = tableModel.columnHeaderContent[col].data.timestamp.day
+            val day = tableModel.columnHeaderContent[col].data.timestamp.dayOfMonth
             var chunkBackup = chunksToSave[day]
             if (chunkBackup == null)
             {
@@ -453,6 +456,6 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             }
         }
 
-        private fun isClickedTodayColumn(col: Int): Boolean = tableModel.columnHeaderContent[col].data.timestamp == DateTime.nowLocal().local.date
+        private fun isClickedTodayColumn(col: Int): Boolean = tableModel.columnHeaderContent[col].data.timestamp == LocalDate.now()
     }
 }

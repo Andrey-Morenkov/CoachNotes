@@ -2,7 +2,6 @@ package ru.hryasch.coachnotes.repository.journal
 
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
-import com.soywiz.klock.*
 import io.realm.Realm
 import io.realm.kotlin.where
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -20,6 +19,9 @@ import ru.hryasch.coachnotes.repository.converters.fromDAO
 import ru.hryasch.coachnotes.repository.dao.JournalChunkDAO
 import ru.hryasch.coachnotes.repository.dao.JournalChunkDAOId
 import ru.hryasch.coachnotes.repository.dao.JournalChunkDataDAO
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
 
 class JournalRepositoryImpl: JournalRepository, KoinComponent
@@ -39,14 +41,16 @@ class JournalRepositoryImpl: JournalRepository, KoinComponent
                                           groupId: GroupId): List<JournalChunk>?
     {
         val chunkList: MutableList<JournalChunkDAO> = ArrayList()
-        val firstDayOfMonth = DateTime.invoke(period.year, period.month, 1)
-        var currentDate = firstDayOfMonth
+        val firstDayOfMonth = LocalDate.of(period.year, period.month, 1)
 
-        while (currentDate in (firstDayOfMonth until (firstDayOfMonth + 1.months)))
+        var currentDate = firstDayOfMonth
+        val endDate     = firstDayOfMonth.plusMonths(1)
+
+        while (currentDate.isBefore(endDate))
         {
             withContext(dbContext)
             {
-                val chunk = getChunk(currentDate.date, groupId)
+                val chunk = getChunk(currentDate, groupId)
                 if (chunk != null)
                 {
                     e("getJournalChunks: date: ${daoDateFormat.format(currentDate)} chunk = $chunk")
@@ -54,7 +58,7 @@ class JournalRepositoryImpl: JournalRepository, KoinComponent
                 }
             }
 
-            currentDate += 1.days
+            currentDate = currentDate.plusDays(1)
         }
 
         return if (chunkList.isEmpty())
@@ -69,7 +73,7 @@ class JournalRepositoryImpl: JournalRepository, KoinComponent
 
     override suspend fun updateJournalChunk(chunk: JournalChunk)
     {
-        i("updateJournalChunk: date = ${chunk.date.format(daoDateFormat)}, groupId = ${chunk.groupId}\n")
+        i("updateJournalChunk: date = ${chunk.date.format(DateTimeFormatter.ofPattern(daoDateFormat))}, groupId = ${chunk.groupId}\n")
 
         withContext(dbContext)
         {
@@ -123,7 +127,7 @@ class JournalRepositoryImpl: JournalRepository, KoinComponent
     }
 
 
-    private fun getChunk(date: Date, groupId: GroupId): JournalChunkDAO?
+    private fun getChunk(date: LocalDate, groupId: GroupId): JournalChunkDAO?
     {
         val obj = db.where<JournalChunkDAO>()
                     .equalTo("id", JournalChunkDAOId.getSerialized(date, groupId))
@@ -132,7 +136,7 @@ class JournalRepositoryImpl: JournalRepository, KoinComponent
         return obj?.run { db.copyFromRealm(obj) }
     }
 
-    private fun getOrCreateChunk(date: Date, groupId: GroupId): JournalChunkDAO
+    private fun getOrCreateChunk(date: LocalDate, groupId: GroupId): JournalChunkDAO
     {
         return getChunk(date, groupId) ?: JournalChunkDAO(date, groupId)
     }

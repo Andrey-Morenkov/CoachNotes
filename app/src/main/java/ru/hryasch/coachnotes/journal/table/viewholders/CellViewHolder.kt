@@ -3,8 +3,6 @@ package ru.hryasch.coachnotes.journal.table.viewholders
 import android.view.View
 import android.widget.TextView
 import android.content.Context
-import android.graphics.PorterDuff
-import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
 
