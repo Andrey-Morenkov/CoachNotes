@@ -1,4 +1,9 @@
 # CoachNotes
+Features: <br/>
+- Dependency injection (Koin)
+- Single activity
+- Reactive behaviour (based on coroutines' channels + Realm's reactive features)
+
 
 Used libreries: <br/>
   :white_check_mark: Konlin's coroutines <br/>
