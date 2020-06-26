@@ -4,6 +4,8 @@ Features:
 - Single activity
 - Reactive behaviour (based on coroutines' channels + Realm's reactive features)
 
+<br/>
+<br/>
 
 Used libreries: <br/>
   :white_check_mark: Konlin's coroutines <br/>
