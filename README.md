@@ -1,5 +1,5 @@
 # CoachNotes
-Features: <br/>
+Features:
 - Dependency injection (Koin)
 - Single activity
 - Reactive behaviour (based on coroutines' channels + Realm's reactive features)
