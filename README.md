@@ -1,5 +1,6 @@
 # CoachNotes
 Features:
+- MVP/MVI
 - Dependency injection (Koin)
 - Single activity
 - Reactive behaviour (based on coroutines' channels + Realm's reactive features)
