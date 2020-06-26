@@ -27,3 +27,4 @@ Used libreries:
 - :white_check_mark: custom Apache POI based on [SUPERCILEX's ApachePOI](https://github.com/SUPERCILEX/poi-android) <br/>
 - :x: ~~[Klock(soywiz's)](https://github.com/korlibs/klock)~~ // can't be serialized when moxy's on stop activity -> :white_check_mark: Java8 time
 - :black_square_button: [MaskedEditText (VicMikhailau's)](https://github.com/VicMikhailau/MaskedEditText)
+- :black_square_button: [Timetable Layout (MoyuruAizawa's)](https://github.com/MoyuruAizawa/TimetableLayout)
