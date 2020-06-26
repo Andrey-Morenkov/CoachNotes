@@ -15,4 +15,4 @@ Used libreries: <br/>
   :white_check_mark: [Table View (evrencoskun's)](https://github.com/evrencoskun/TableView) <br/>
   :white_check_mark: [Snack progress bar (tingyik90's)](https://github.com/tingyik90/snackprogressbar) <br/>
   :white_check_mark: custom Apache POI based on [SUPERCILEX's ApachePOI](https://github.com/SUPERCILEX/poi-android) <br/>
-  :x: ~~[Klock(soywiz's)](https://github.com/korlibs/klock)~~ // can't be serialized when moxy's on stop activity
+  :x: ~~[Klock(soywiz's)](https://github.com/korlibs/klock)~~ -> :white_check_mark: Java8 time // can't be serialized when moxy's on stop activity
