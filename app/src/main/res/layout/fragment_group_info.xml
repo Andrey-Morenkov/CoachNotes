@@ -20,6 +20,7 @@
         <ImageButton
             android:id="@+id/groupInfoImageButtonEditPerson"
             style="@style/ToolbarImageButton"
+            android:padding="0dp"
             app:srcCompat="@drawable/ic_settings" />
 
     </androidx.appcompat.widget.Toolbar>

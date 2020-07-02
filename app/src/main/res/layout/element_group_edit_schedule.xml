@@ -12,12 +12,13 @@
         android:text="@string/group_param_schedule"
         android:textSize="@dimen/default_subtitle_text_size" />
 
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/group_edit_schedule_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        android:orientation="vertical" />
+        android:layout_marginBottom="8dp"
+        tools:itemCount="7"
+        tools:listitem="@layout/preview_schedule_day" />
 
 </LinearLayout>

@@ -6,6 +6,8 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 
 interface GroupPresenter
 {
+    fun applyInitialArgumentGroupAsync(group: Group?)
+
     fun applyGroupDataAsync(group: Group?)
 
     fun onDeletePersonFromCurrentGroupClicked(person: Person)

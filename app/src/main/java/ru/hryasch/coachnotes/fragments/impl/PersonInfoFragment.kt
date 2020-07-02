@@ -82,7 +82,7 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
             navController.navigateUp()
         }
 
-        presenter.applyPersonDataAsync(PersonInfoFragmentArgs.fromBundle(requireArguments()).personData)
+        presenter.applyInitialArgumentPersonAsync(PersonInfoFragmentArgs.fromBundle(requireArguments()).personData)
 
         return layout
     }

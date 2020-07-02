@@ -1,7 +1,9 @@
 package ru.hryasch.coachnotes.groups.presenters.impl
 
 import com.pawegio.kandroid.d
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.w
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import moxy.InjectViewState
@@ -26,7 +28,7 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
     private val groupInteractor: GroupInteractor by inject()
     private val peopleInteractor: PersonInteractor by inject()
 
-    private lateinit var currentGroup: Group
+    private var currentGroup: Group? = null
     private lateinit var groupNames: Map<GroupId, String>
     private lateinit var groupMembers: List<Person>
 
@@ -39,22 +41,38 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
     }
 
     @ExperimentalCoroutinesApi
+    override fun applyInitialArgumentGroupAsync(group: Group?)
+    {
+        // for prevent unnecessary apply group when fragment re-create
+        e("try applyInitialArgumentGroupAsync")
+        if (currentGroup != null)
+        {
+            e("return applyGroupDataAsync")
+            return
+        }
+        w("call applyGroupDataAsync INITIAL")
+        applyGroupDataAsync(group)
+    }
+
+    @ExperimentalCoroutinesApi
     override fun applyGroupDataAsync(group: Group?)
     {
+        i("applyGroupDataAsync: $group")
         GlobalScope.launch(Dispatchers.Default)
         {
             currentGroup = group!!
             groupNames = groupInteractor.getGroupNames()
-            groupMembers = groupInteractor.getPeopleListByGroup(currentGroup.id)
+            groupMembers = groupInteractor.getPeopleListByGroup(currentGroup!!.id)
 
             withContext(Dispatchers.Main)
             {
-                viewState.setGroupData(currentGroup, groupMembers, groupNames)
+                i("group presenter setGroupData: $currentGroup")
+                viewState.setGroupData(currentGroup!!, groupMembers, groupNames)
                 if (!::specificGroupChannel.isInitialized)
                 {
-                    specificGroupChannel = get(named("recvSpecificGroup")) { parametersOf(currentGroup.id) }
+                    specificGroupChannel = get(named("recvSpecificGroup")) { parametersOf(currentGroup!!.id) }
                     subscribeOnGroupChanges()
-                    i("subscribed for group[${currentGroup.id}]")
+                    i("subscribed for group[${currentGroup!!.id}]")
                 }
             }
         }
@@ -69,7 +87,7 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
     {
         GlobalScope.launch(Dispatchers.Default)
         {
-            peopleInteractor.deletePersonFromGroup(personId, currentGroup.id)
+            peopleInteractor.deletePersonFromGroup(personId, currentGroup!!.id)
         }
 
         viewState.showDeletePersonFromGroupNotification(null)
@@ -118,10 +136,11 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
             while (true)
             {
                 val newData = specificGroupChannel.receive()
-                d("GroupPresenterImpl <Group[${currentGroup.id}]>: RECEIVED $newData")
+                d("GroupPresenterImpl <Group[${currentGroup!!.id}]>: RECEIVED $newData")
 
                 withContext(Dispatchers.Main)
                 {
+                    w("call applyGroupDataAsync CHANNEL")
                     applyGroupDataAsync(newData)
                 }
             }

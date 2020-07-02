@@ -79,6 +79,26 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
         return groupsList?.fromDAO()
     }
 
+    override suspend fun getGroupsByScheduleDay(dayPosition0: Int): List<Group>?
+    {
+        var groupsList: List<GroupDAO>? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<GroupDAO>()
+                               .contains("scheduleDaysCode0", dayPosition0.toString())
+                               .findAll()
+
+                result?.let { res ->
+                    groupsList = it.copyFromRealm(res)
+                }
+            }
+        }
+
+        return groupsList?.fromDAO()
+    }
+
     @ExperimentalCoroutinesApi
     override suspend fun addOrUpdateGroup(group: Group)
     {
@@ -112,6 +132,7 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
                                .equalTo("id", group.id)
                                .findFirst()
                 target?.members?.clear()
+                target?.scheduleDays?.clear()
                 it.copyToRealmOrUpdate(target!!)
             }
 

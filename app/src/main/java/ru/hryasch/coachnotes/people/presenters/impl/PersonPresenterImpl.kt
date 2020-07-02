@@ -17,12 +17,22 @@ class PersonPresenterImpl: MvpPresenter<PersonView>(), PersonPresenter, KoinComp
 {
     private val peopleInteractor: PersonInteractor by inject()
 
-    private lateinit var currentPerson: Person
+    private var currentPerson: Person? = null
 
     init
     {
         i("onCreate PersonPresenterImpl")
         viewState.loadingState()
+    }
+
+    override fun applyInitialArgumentPersonAsync(person: Person?)
+    {
+        if (currentPerson != null)
+        {
+            return
+        }
+
+        applyPersonDataAsync(person)
     }
 
     override fun applyPersonDataAsync(person: Person?)
@@ -34,7 +44,7 @@ class PersonPresenterImpl: MvpPresenter<PersonView>(), PersonPresenter, KoinComp
 
             withContext(Dispatchers.Main)
             {
-                viewState.setPersonData(currentPerson, groups)
+                viewState.setPersonData(currentPerson!!, groups)
             }
         }
     }

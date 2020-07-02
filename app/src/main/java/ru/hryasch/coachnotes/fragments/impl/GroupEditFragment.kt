@@ -17,24 +17,30 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.visible
 import com.tiper.MaterialSpinner
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
+import org.koin.core.get
+import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.group.data.Group
+import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
 import ru.hryasch.coachnotes.fragments.GroupEditView
+import ru.hryasch.coachnotes.groups.data.ScheduleDayAdapter
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupEditPresenterImpl
 import ru.hryasch.coachnotes.repository.common.toRelative
 import java.time.ZonedDateTime
+import java.util.*
+import kotlin.collections.ArrayList
 
 class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 {
@@ -51,6 +57,10 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
     private lateinit var age1: MaterialSpinner
     private lateinit var age2: MaterialSpinner
     private lateinit var ageType: MaterialSpinner
+
+    private lateinit var scheduleDaysView: RecyclerView
+    private val scheduleDaysList: MutableList<ScheduleDay> = LinkedList()
+    private lateinit var scheduleDaysAdapter: ScheduleDayAdapter
 
     private lateinit var contentView: NestedScrollView
     private lateinit var loadingBar: ProgressBar
@@ -72,6 +82,8 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         age2 = layout.findViewById(R.id.groupEditSpinnerAge2)
         ageType = layout.findViewById(R.id.groupEditSpinnerAgeType)
 
+        scheduleDaysView = layout.findViewById(R.id.group_edit_schedule_list)
+
         contentView = layout.findViewById(R.id.groupEditContent)
         loadingBar = layout.findViewById(R.id.groupEditProgressBarLoading)
 
@@ -88,10 +100,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             navController.navigateUp()
         }
 
-        GlobalScope.launch(Dispatchers.Default)
-        {
-            presenter.applyGroupDataAsync(GroupEditFragmentArgs.fromBundle(requireArguments()).groupData)
-        }
+        presenter.applyInitialArgumentGroupAsync(GroupEditFragmentArgs.fromBundle(requireArguments()).groupData)
 
         deleteGroup.visible = false
         setSaveOrCreateButtonDisabled()
@@ -288,8 +297,20 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
                 currentGroup.availableAbsoluteAge = null
             }
 
+            currentGroup.scheduleDays.clear()
+            for (scheduleDay in scheduleDaysList)
+            {
+                e("save scheduleDay: $scheduleDay")
+                if (scheduleDay.isNotBlank())
+                {
+                    currentGroup.scheduleDays.add(scheduleDay)
+                }
+            }
+
             presenter.updateOrCreateGroup()
         }
+
+        setSchedule()
 
         checkRequiredFields()
     }
@@ -354,6 +375,26 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         deleteGroup.setOnClickListener {
             presenter.onDeleteGroupClicked()
         }
+    }
+
+    private fun setSchedule()
+    {
+        val dayOfWeekNames: Array<String> = get(named("daysOfWeekLong_RU"))
+        for ((i, dayOfWeek) in dayOfWeekNames.withIndex())
+        {
+            scheduleDaysList.add(ScheduleDay(dayOfWeek, i))
+        }
+
+        for (existedDayOfWeek in currentGroup.scheduleDays)
+        {
+            val scheduleDay = scheduleDaysList[existedDayOfWeek.dayPosition0]
+            scheduleDay.startTime = existedDayOfWeek.startTime
+            scheduleDay.endTime = existedDayOfWeek.endTime
+        }
+
+        scheduleDaysAdapter = ScheduleDayAdapter(scheduleDaysList, requireContext())
+        scheduleDaysView.adapter = scheduleDaysAdapter
+        scheduleDaysView.layoutManager = LinearLayoutManager(context)
     }
 
     private fun generateAbsoluteYears(): List<String>

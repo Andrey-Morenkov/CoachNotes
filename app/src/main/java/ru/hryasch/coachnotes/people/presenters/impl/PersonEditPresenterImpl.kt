@@ -22,11 +22,21 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
     private val peopleInteractor: PersonInteractor by inject()
     private val groupInteractor: GroupInteractor by inject()
 
-    private lateinit var currentPerson: Person
+    private var currentPerson: Person? = null
 
     init
     {
         viewState.loadingState()
+    }
+
+    override fun applyInitialArgumentPersonAsync(person: Person?)
+    {
+        if (currentPerson != null)
+        {
+            return
+        }
+
+        applyPersonDataAsync(person)
     }
 
     override fun applyPersonDataAsync(person: Person?)
@@ -38,7 +48,7 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
 
             withContext(Dispatchers.Main)
             {
-                viewState.setPersonData(currentPerson, groups)
+                viewState.setPersonData(currentPerson!!, groups)
             }
         }
     }
@@ -49,7 +59,7 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
 
         GlobalScope.launch(Dispatchers.Main)
         {
-            peopleInteractor.addOrUpdatePeople(listOf(currentPerson))
+            peopleInteractor.addOrUpdatePeople(listOf(currentPerson!!))
 
             withContext(Dispatchers.Main)
             {

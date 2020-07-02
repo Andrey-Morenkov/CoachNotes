@@ -23,7 +23,7 @@ internal class RelativeInfoHolder(val context: Context, val layout: View, privat
 
     private val nameHolder: TextInputEditText = layout.findViewById(R.id.editPersonEditTextParentFullName)
     private val typeHolder: MaterialSpinner   = layout.findViewById(R.id.personEditParentType)
-    private val addPhoneButton: View     = layout.findViewById(R.id.editPersonRelativeInfoImageViewAddPhone)
+    private val addPhoneButton: View          = layout.findViewById(R.id.editPersonRelativeInfoImageViewAddPhone)
     private val deleteButton: ImageView       = layout.findViewById(R.id.editPersonImageViewDeleteRelativeInfo)
 
     private val phonesContainer: LinearLayout = layout.findViewById(R.id.relativeInfoPhonesContainer)

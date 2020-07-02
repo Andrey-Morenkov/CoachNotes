@@ -30,8 +30,7 @@
         <dimen name="card_default_avatar_to_text_margin">16dp</dimen>
 
     //Toolbar
-        <dimen name="universal_toolbar_action_img_size">24dp</dimen>
-        <dimen name="universal_toolbar_action_img_margin_end">16dp</dimen>
+        <dimen name="universal_toolbar_action_img_size">48dp</dimen>
 
     // Journal table
         <dimen name="journal_table_column_header_width">55dp</dimen>

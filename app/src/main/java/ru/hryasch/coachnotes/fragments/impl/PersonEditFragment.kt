@@ -112,7 +112,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         navController = container!!.findNavController()
 
-        presenter.applyPersonDataAsync(PersonEditFragmentArgs.fromBundle(requireArguments()).personData)
+        presenter.applyInitialArgumentPersonAsync(PersonEditFragmentArgs.fromBundle(requireArguments()).personData)
 
         setSaveOrCreateButtonDisabled()
 

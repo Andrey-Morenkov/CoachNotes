@@ -5,17 +5,17 @@
     android:id="@+id/group_schedule_day_view"
     android:layout_width="match_parent"
     android:layout_height="80dp"
-    android:layout_marginTop="8dp"
-    android:background="@drawable/schedule_day_background"
-    android:backgroundTint="@color/colorAccent">
+    android:layout_marginTop="1dp"
+    android:background="@color/colorScheduleDayUnselected">
 
     <CheckBox
         android:id="@+id/group_schedule_day_checkbox"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginStart="8dp"
-        android:buttonTint="#FFFFFF"
-        android:checked="true"
+        android:buttonTint="@color/colorScheduleDayUnselectedText"
+        android:checked="false"
+        android:clickable="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,7 +29,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="Понедельник"
-        android:textColor="@color/colorText"
+        android:textColor="@color/colorScheduleDayUnselectedText"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/group_schedule_day_checkbox"
         app:layout_constraintEnd_toStartOf="@+id/group_schedule_day_time_from"
@@ -51,12 +51,15 @@
         tools:visibility="visible">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/group_schedule_day_time_from_time_place"
             style="@style/CustomInputTypeText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:cursorVisible="false"
             android:fontFamily="@font/roboto_bold"
+            android:inputType="none"
             android:text="10:00"
-            android:textColor="@color/colorText" />
+            android:textColor="@color/colorScheduleDayUnselectedText" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -83,12 +86,15 @@
         app:layout_constraintTop_toTopOf="@+id/group_schedule_day_time_from">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/group_schedule_day_time_until_time_place"
             style="@style/CustomInputTypeText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:cursorVisible="false"
             android:fontFamily="@font/roboto_bold"
+            android:inputType="none"
             android:text="12:00"
-            android:textColor="@color/colorText" />
+            android:textColor="@color/colorScheduleDayUnselectedText" />
     </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

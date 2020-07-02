@@ -22,6 +22,8 @@ open class GroupDAO(): RealmObject()
     var availableAgeHigh: AbsoluteAge? = null
     var isPaid: Boolean = false
     var members: RealmList<PersonId> = RealmList()
+    var scheduleDays: RealmList<ScheduleDayDAO> = RealmList()
+    var scheduleDaysCode0: String = ""
 
     constructor(id: GroupId,
                 name: String,

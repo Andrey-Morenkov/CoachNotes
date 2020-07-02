@@ -1,6 +1,8 @@
 package ru.hryasch.coachnotes.groups.presenters.impl
 
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.w
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -20,11 +22,25 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
 {
     private val groupInteractor: GroupInteractor by inject()
 
-    private lateinit var currentGroup: Group
+    private var currentGroup: Group? = null
 
     init
     {
         viewState.loadingState()
+    }
+
+    override fun applyInitialArgumentGroupAsync(group: Group?)
+    {
+        // for prevent unnecessary apply group when fragment re-create
+        e("try applyInitialArgumentGroupAsync")
+        if (currentGroup != null)
+        {
+            e("return applyGroupDataAsync")
+            return
+        }
+
+        w("call applyGroupDataAsync INITIAL")
+        applyGroupDataAsync(group)
     }
 
     override fun applyGroupDataAsync(group: Group?)
@@ -34,7 +50,8 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
 
             withContext(Dispatchers.Main)
             {
-                viewState.setGroupData(currentGroup)
+                i("group edit presenter setGroupData: $currentGroup")
+                viewState.setGroupData(currentGroup!!)
             }
         }
     }
@@ -45,7 +62,7 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
 
         GlobalScope.launch(Dispatchers.Main)
         {
-            groupInteractor.addOrUpdateGroup(currentGroup)
+            groupInteractor.addOrUpdateGroup(currentGroup!!)
 
             withContext(Dispatchers.Main)
             {

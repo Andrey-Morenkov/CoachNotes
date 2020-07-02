@@ -72,6 +72,24 @@ class GroupFakeRepositoryImpl: GroupRepository, KoinComponent
         return groupsList?.fromDAO()
     }
 
+    override suspend fun getGroupsByScheduleDay(dayPosition0: Int): List<Group>?
+    {
+        var groupsList: List<GroupDAO>? = null
+        val db = getDb()
+
+        db.executeTransaction {
+            val result = it.where<GroupDAO>()
+                .contains("scheduleDaysCode0", dayPosition0.toString())
+                .findAll()
+
+            result?.let { res ->
+                groupsList = it.copyFromRealm(res)
+            }
+        }
+
+        return groupsList?.fromDAO()
+    }
+
     override suspend fun addOrUpdateGroup(group: Group)
     {
         GlobalScope.launch(Dispatchers.Main)

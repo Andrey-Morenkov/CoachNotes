@@ -20,7 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
+import com.pawegio.kandroid.w
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import moxy.MvpAppCompatFragment
@@ -93,13 +95,14 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
         navController = container!!.findNavController()
 
-        presenter.applyGroupDataAsync(GroupInfoFragmentArgs.fromBundle(requireArguments()).groupData)
+        presenter.applyInitialArgumentGroupAsync(GroupInfoFragmentArgs.fromBundle(requireArguments()).groupData)
 
         return layout
     }
 
     override fun setGroupData(group: Group, members: List<Person>, groupNames: Map<GroupId, String>)
     {
+        i("set new group data: $group")
         currentGroup = group
         currentMembers = members.toMutableList()
 
