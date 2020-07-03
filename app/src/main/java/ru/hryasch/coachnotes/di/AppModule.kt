@@ -12,6 +12,7 @@ import ru.hryasch.coachnotes.domain.home.HomeInteractor
 import ru.hryasch.coachnotes.domain.home.impl.HomeInteractorImpl
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 import ru.hryasch.coachnotes.domain.journal.interactors.impl.JournalInteractorImpl
+import ru.hryasch.coachnotes.domain.person.data.ParentType
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
 import ru.hryasch.coachnotes.domain.person.interactors.impl.PersonInteractorImpl
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
@@ -44,4 +45,19 @@ val appModule = module {
     single(named("daysOfWeek_RU")) { arrayOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс") }
     single(named("daysOfWeekLong_RU")) { arrayOf("Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье") }
     single(named("relatives_RU")) { arrayOf(App.getCtx().getString(R.string.mother), App.getCtx().getString(R.string.father), App.getCtx().getString(R.string.grandMa), App.getCtx().getString(R.string.grandFa), App.getCtx().getString(R.string.aunt), App.getCtx().getString(R.string.uncle), App.getCtx().getString(R.string.sister), App.getCtx().getString(R.string.brother))}
+
+    factory(named("getRelativeName")) { (parentType: ParentType) ->
+        when(parentType)
+        {
+            ParentType.Mother -> App.getCtx().getString(R.string.mother)
+            ParentType.Father -> App.getCtx().getString(R.string.father)
+            ParentType.GrandMother -> App.getCtx().getString(R.string.grandMa)
+            ParentType.GrandFather -> App.getCtx().getString(R.string.grandFa)
+            ParentType.Aunt -> App.getCtx().getString(R.string.aunt)
+            ParentType.Uncle -> App.getCtx().getString(R.string.uncle)
+            ParentType.Brother -> App.getCtx().getString(R.string.brother)
+            ParentType.Sister -> App.getCtx().getString(R.string.sister)
+            else -> App.getCtx().getString(R.string.mother)
+        }
+    }
 }

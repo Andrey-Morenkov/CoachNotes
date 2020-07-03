@@ -1,9 +1,13 @@
 package ru.hryasch.coachnotes.domain.person.data
 
+import org.koin.core.KoinComponent
+import org.koin.core.get
+import org.koin.core.parameter.parametersOf
+import org.koin.core.qualifier.named
 import java.io.Serializable
 import java.util.*
 
-enum class ParentType(val type: String)
+enum class ParentType(val type: String): KoinComponent
 {
     Mother("M"),
     Father("F"),
@@ -31,6 +35,11 @@ enum class ParentType(val type: String)
                 else -> Mother
             }
         }
+    }
+
+    override fun toString(): String
+    {
+        return get(named("getRelativeName")) { parametersOf(this) }
     }
 }
 

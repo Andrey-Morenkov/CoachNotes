@@ -10,14 +10,9 @@
         android:padding="@dimen/default_indent">
 
         <include
-            layout="@layout/element_person_common_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <include
             layout="@layout/element_person_parent_info"
             android:layout_width="match_parent"
-            android:layout_height="220dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="24dp" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

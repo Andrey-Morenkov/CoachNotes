@@ -23,6 +23,7 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/homePersonsCard"
+            style="@style/ViewWithRipple"
             android:layout_width="160dp"
             android:layout_height="100dp"
             app:cardBackgroundColor="@color/colorAccent"
@@ -102,6 +103,7 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/homeGroupsCard"
+            style="@style/ViewWithRipple"
             android:layout_width="160dp"
             android:layout_height="100dp"
             app:cardBackgroundColor="@color/colorAccent"
@@ -181,6 +183,7 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/homeJournalsCard"
+            style="@style/ViewWithRipple"
             android:layout_width="0dp"
             android:layout_height="100dp"
             android:layout_marginTop="12dp"

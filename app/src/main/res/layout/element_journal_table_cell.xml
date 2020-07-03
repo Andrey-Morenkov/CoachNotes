@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/journalCellLayout"
+    style="@style/ViewWithRipple"
     android:layout_width="@dimen/journal_table_column_header_width"
     android:layout_height="@dimen/journal_table_row_header_height">
 

@@ -11,6 +11,7 @@ import com.pawegio.kandroid.e
 import com.tiper.MaterialSpinner
 import org.koin.core.KoinComponent
 import org.koin.core.get
+import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.person.data.ParentType
@@ -50,8 +51,9 @@ internal class RelativeInfoHolder(val context: Context, val layout: View, privat
 
     fun applyExistData(relativeInfo: RelativeInfo)
     {
+        val relativeType: String = get(named("getRelativeName")) { parametersOf(relativeInfo.type) }
         nameHolder.text = SpannableStringBuilder(relativeInfo.name)
-        typeHolder.selection = relativesNames.indexOf(getParentTypeFullString(relativeInfo.type))
+        typeHolder.selection = relativesNames.indexOf(relativeType)
         for (i in 1 until relativeInfo.getPhones().size)
         {
             addPhoneView() // add additional phones (1st already here)
@@ -184,22 +186,6 @@ internal class RelativeInfoHolder(val context: Context, val layout: View, privat
             context.getString(R.string.brother) -> ParentType.Brother
             context.getString(R.string.sister)  -> ParentType.Sister
             else -> ParentType.Mother
-        }
-    }
-
-    private fun getParentTypeFullString(parentType: ParentType): String
-    {
-        return when(parentType)
-        {
-            ParentType.Mother -> context.getString(R.string.mother)
-            ParentType.Father -> context.getString(R.string.father)
-            ParentType.GrandMother -> context.getString(R.string.grandMa)
-            ParentType.GrandFather -> context.getString(R.string.grandFa)
-            ParentType.Aunt -> context.getString(R.string.aunt)
-            ParentType.Uncle -> context.getString(R.string.uncle)
-            ParentType.Brother -> context.getString(R.string.brother)
-            ParentType.Sister -> context.getString(R.string.sister)
-            else -> context.getString(R.string.mother)
         }
     }
 }

@@ -7,17 +7,23 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.pawegio.kandroid.visible
+import com.pawegio.kandroid.w
+import kotlinx.android.synthetic.main.element_person_parent_info.*
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.person.data.Person
+import ru.hryasch.coachnotes.domain.person.data.RelativeInfo
+import ru.hryasch.coachnotes.people.PersonRelativesAdapter
+import java.util.*
 
 class TabPersonCommonInfoFragment(private val personData: Person): Fragment()
 {
-    // header
-    private lateinit var birthday: TextView
-
-    private lateinit var parentsCard: CardView
-    private lateinit var commonCard: CardView
+    // Parents info section
+    private lateinit var parentsInfoView: View
+    private lateinit var parentsInfoContainer: RecyclerView
+    private val parentsList: MutableList<RelativeInfo> = LinkedList()
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -25,17 +31,22 @@ class TabPersonCommonInfoFragment(private val personData: Person): Fragment()
     {
         val layout = inflater.inflate(R.layout.tab_fragment_person_common, container, false)
 
-        birthday = layout.findViewById(R.id.personInfoTextViewBirthday)
-        parentsCard = layout.findViewById(R.id.personInfoParentsCard)
-        commonCard = layout.findViewById(R.id.personInfoCommonCard)
+        parentsInfoView = layout.findViewById(R.id.personInfoParentsCard)
+        parentsInfoContainer = layout.findViewById(R.id.personInfoParentsContainer)
 
-        //personData.birthday?.let {
-        //    commonCard.visible = true
-        //    birthday.text = it.format("dd/MM/yyyy")
-        //} ?: let { commonCard.visible = false }
-
-        commonCard.visible = false
-        parentsCard.visible = false
+        parentsList.clear()
+        parentsList.addAll(personData.relativeInfos)
+        if (parentsList.isEmpty())
+        {
+            parentsInfoView.visible = false
+        }
+        else
+        {
+            w("parentsList.size = ${parentsList.size}")
+            parentsInfoView.visible = true
+            parentsInfoContainer.adapter = PersonRelativesAdapter(parentsList, requireActivity())
+            parentsInfoContainer.layoutManager = LinearLayoutManager(context)
+        }
 
         return layout
     }

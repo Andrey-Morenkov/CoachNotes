@@ -34,6 +34,7 @@
 
     <style name="StraightCard.Colorized" parent="AppTheme">
         <item name="cardBackgroundColor">@color/colorPrimary</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
     <style name="CardSettingElement" parent="StraightCard.Colorized"/>
@@ -51,12 +52,18 @@
 // Elements (buttons, etc)
     <style name="TransparentBackgroundImageButton">
         <item name="android:background">@android:color/transparent</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="ViewWithRipple">
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
 
     <style name="TextButton" parent="@style/Widget.MaterialComponents.Button.TextButton.Icon">
         <item name="icon">@null</item>
         <item name="android:textColor">@color/colorText</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
     <style name="TextButton.Icon">
@@ -80,6 +87,7 @@
         <item name="icon">@null</item>
         <item name="android:textColor">@color/colorAccent</item>
         <item name="strokeColor">@color/colorAccent</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
     <style name="OutlinedButton.Icon">
@@ -93,6 +101,7 @@
         <item name="icon">@null</item>
         <item name="android:textColor">@color/colorText</item>
         <item name="backgroundTint">@color/colorAccent</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
     <style name="FilledButton.Icon">
@@ -106,6 +115,7 @@
         <item name="tint">@color/colorPrimaryLight</item>
         <item name="iconPadding">@dimen/default_icon_padding</item>
         <item name="backgroundTint">@color/colorPrimaryDarkHighlight</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
     
     <style name="DefaultToolbar" parent="Widget.MaterialComponents.Toolbar">
@@ -132,6 +142,7 @@
         <item name="android:layout_gravity">center_vertical|end</item>
         <item name="tint">@color/colorText</item>
         <item name="elevation">4dp</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
     
     <style name="TableSeparator">
