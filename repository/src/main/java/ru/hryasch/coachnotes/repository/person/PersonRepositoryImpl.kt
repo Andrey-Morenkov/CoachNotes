@@ -1,6 +1,7 @@
 package ru.hryasch.coachnotes.repository.person
 
 import com.pawegio.kandroid.e
+import com.pawegio.kandroid.i
 import io.realm.ObjectChangeSet
 import io.realm.Realm
 import io.realm.kotlin.where
@@ -164,6 +165,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
         {
             db.close()
         }
+        i("reopen DB")
         withContext(Dispatchers.Main)
         {
             PeopleChannelsStorage.allPeople.mainDbEntity?.close()

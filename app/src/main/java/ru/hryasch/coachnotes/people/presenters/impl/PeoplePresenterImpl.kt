@@ -38,6 +38,8 @@ class PeoplePresenterImpl: MvpPresenter<PeopleView>(), PeoplePresenter, KoinComp
         }
     }
 
+
+
     override fun onPersonClicked(personId: PersonId)
     {
         TODO("Not yet implemented")

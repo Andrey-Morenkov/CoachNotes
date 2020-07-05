@@ -23,8 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:paddingTop="4dp"
-            android:paddingEnd="4dp"
+            android:padding="4dp"
             android:tint="@color/colorJournalAbsenceGeneral"
             app:srcCompat="@drawable/ic_no_exist" />
 

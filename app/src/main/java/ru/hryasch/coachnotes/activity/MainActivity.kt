@@ -4,9 +4,11 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.pawegio.kandroid.e
 import io.realm.Realm
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
@@ -14,6 +16,7 @@ import org.koin.core.inject
 import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
@@ -29,9 +32,11 @@ class MainActivity : AppCompatActivity(), KoinComponent
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        Realm.init(applicationContext)
+        App.onActivityCreate()
+
+        e("ON CREATE $savedInstanceState")
+        setContentView(R.layout.activity_main)
 
         System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory",  "com.fasterxml.aalto.stax.InputFactoryImpl")
         System.setProperty("org.apache.poi.javax.xml.stream.XMLOutputFactory", "com.fasterxml.aalto.stax.OutputFactoryImpl")
@@ -40,14 +45,11 @@ class MainActivity : AppCompatActivity(), KoinComponent
         navController = Navigation.findNavController(this, R.id.nav_host_fragment)
     }
 
+    @ExperimentalCoroutinesApi
     override fun onDestroy()
     {
-        GlobalScope.launch(Dispatchers.Main)
-        {
-            groupRepository.closeDb()
-            peopleRepository.closeDb()
-            journalRepository.closeDb()
-        }
+        e("ON DESTROY")
+        App.onActivityDestroy()
 
         super.onDestroy()
     }
