@@ -31,6 +31,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
@@ -73,6 +74,8 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
     {
         val layout = inflater.inflate(R.layout.fragment_edit_group, container, false)
 
+        (activity as MainActivity).hideBottomNavigation()
+
         saveOrCreateGroup = layout.findViewById(R.id.groupEditButtonCreateOrSave)
         deleteGroup = layout.findViewById(R.id.groupEditButtonRemoveGroup)
 
@@ -92,7 +95,6 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         navController = container!!.findNavController()
 
         val toolbar: Toolbar = layout.findViewById(R.id.groupEditToolbar)
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 

@@ -17,6 +17,7 @@ import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PersonView
@@ -54,6 +55,8 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
     {
         val layout = inflater.inflate(R.layout.fragment_person_info, container, false)
 
+        (activity as MainActivity).hideBottomNavigation()
+
         editPerson = layout.findViewById(R.id.personInfoImageButtonEditPerson)
 
         surnameName = layout.findViewById(R.id.personInfoTextViewNameSurname)
@@ -74,7 +77,6 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
         navController = container!!.findNavController()
 
         val toolbar: Toolbar = layout.findViewById(R.id.personInfoToolbar)
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 

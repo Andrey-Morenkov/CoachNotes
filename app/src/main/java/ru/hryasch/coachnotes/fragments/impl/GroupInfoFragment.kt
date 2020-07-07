@@ -31,6 +31,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.data.Group
@@ -84,6 +85,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
                               savedInstanceState: Bundle?): View?
     {
         val layout =  inflater.inflate(R.layout.fragment_group_info, container, false)
+
+        (activity as MainActivity).hideBottomNavigation()
 
         inflateToolbarElements(layout)
         inflateBaseSection(layout)
@@ -262,7 +265,6 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         editGroup = layout.findViewById(R.id.groupInfoImageButtonEditPerson)
 
         val toolbar: Toolbar = layout.findViewById(R.id.groupInfoToolbar)
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 

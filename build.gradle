@@ -35,6 +35,7 @@ buildscript
         viewpager2_version = '1.0.0'
         tableview_version = '0.8.9'
         snack_progressbar_version = "6.2.1"
+        smooth_bottom_bar_version = "1.7.6"
 
         // DI
         koin_version = '2.1.5'

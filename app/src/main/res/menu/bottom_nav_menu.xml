@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragmentImpl"
+        android:title="@string/main_bottom_nav"
+        android:icon="@drawable/ic_baseline_home_24"/>
+
+    <item
+        android:id="@+id/groupListFragment"
+        android:title="@string/groups_bottom_nav"
+        android:icon="@drawable/ic_group"/>
+
+    <item
+        android:id="@+id/peopleListFragment"
+        android:title="@string/people_bottom_nav"
+        android:icon="@drawable/ic_person"/>
+</menu>

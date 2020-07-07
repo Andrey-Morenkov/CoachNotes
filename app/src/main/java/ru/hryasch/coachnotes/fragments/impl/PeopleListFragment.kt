@@ -14,11 +14,13 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.pawegio.kandroid.e
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.android.ext.android.get
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PeopleView
@@ -55,7 +57,6 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
         navController = container!!.findNavController()
 
         val toolbar: Toolbar = layout.findViewById(R.id.peopleToolbar)
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
@@ -71,6 +72,12 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
         }
 
         return layout
+    }
+
+    override fun onStart()
+    {
+        super.onStart()
+        (activity as MainActivity).showBottomNavigation()
     }
 
     override fun setPeopleList(peopleList: List<Person>?, groupNames: Map<GroupId, String>?)

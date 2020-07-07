@@ -43,6 +43,10 @@ android
     {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
+
+    packagingOptions {
+        exclude 'META-INF/lib_release.kotlin_module'
+    }
 }
 
 dependencies
@@ -104,8 +108,8 @@ dependencies
     // TableView
     implementation "com.evrencoskun.library:tableview:$tableview_version"
 
-    // Klock
-    //implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
+    // Custom bottom navigation
+    implementation "com.github.ibrahimsn98:SmoothBottomBar:$smooth_bottom_bar_version"
 
     // Permissions
     implementation "com.nabinbhandari.android:permissions:$permissions_version"

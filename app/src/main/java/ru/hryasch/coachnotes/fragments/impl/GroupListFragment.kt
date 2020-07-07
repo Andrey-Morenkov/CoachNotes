@@ -20,6 +20,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.fragments.GroupsView
 import ru.hryasch.coachnotes.groups.GroupsAdapter
@@ -54,7 +55,6 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
         navController = container!!.findNavController()
 
         val toolbar: Toolbar = layout.findViewById(R.id.groupsToolbar)
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
@@ -70,6 +70,12 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
         }
 
         return layout
+    }
+
+    override fun onStart()
+    {
+        super.onStart()
+        (activity as MainActivity).showBottomNavigation()
     }
 
     override fun setGroupsList(groupsList: List<Group>?)

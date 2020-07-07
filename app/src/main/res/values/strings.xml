@@ -49,6 +49,10 @@
     <string name="sister">Сестра</string>
     <string name="brother">Брат</string>
 
+    // Bottom nav menu
+    <string name="main_bottom_nav">Главная</string>
+    <string name="groups_bottom_nav">Группы</string>
+    <string name="people_bottom_nav">Ученики</string>
 
     // Screens
 

@@ -106,7 +106,6 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         loadingState()
 
         val toolbar: Toolbar = layout.findViewById(R.id.journalToolbar)
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
