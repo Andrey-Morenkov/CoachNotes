@@ -26,7 +26,7 @@
         android:layout_height="70dp"
         android:elevation="4dp"
         app:activeItem="0"
-        app:backgroundColor="@color/colorDarkBackground"
+        app:backgroundColor="@color/colorBackground"
         app:duration="300"
         app:iconSize="30dp"
         app:indicatorColor="@color/colorAccent"
