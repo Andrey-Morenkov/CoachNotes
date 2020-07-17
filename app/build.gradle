@@ -11,6 +11,7 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android
 {
+
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig
@@ -116,6 +117,9 @@ dependencies
 
     // SnackProgressBar
     implementation "com.github.tingyik90:snackprogressbar:$snack_progressbar_version"
+
+    // Week view (schedule calendar view)
+    implementation "com.github.Andrey-Morenkov:Android-Week-View:master-SNAPSHOT"
 
     // Java8 support
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$java8_support_version"

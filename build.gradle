@@ -30,6 +30,7 @@ buildscript
         material_version = '1.2.0-alpha02'
         material_spinner_version = '1.4.1'
         spinner_version = '1.0.4'
+        week_view_version = '4.1.6'
 
         // Components
         viewpager2_version = '1.0.0'

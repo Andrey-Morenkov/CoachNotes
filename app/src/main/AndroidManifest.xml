@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <!-- Fix while there is no official WeekView fix release -->
+    <uses-sdk tools:overrideLibrary="com.alamkanak.weekview.jsr310"/>
+
     <application
         android:name="ru.hryasch.coachnotes.application.App"
         android:allowBackup="true"

@@ -8,8 +8,5 @@ import ru.hryasch.coachnotes.domain.group.data.Group
 interface HomeView: MvpView
 {
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun setPeopleCount(count: Int?)
-
-    @StateStrategyType(AddToEndSingleStrategy::class)
     fun setGroups(groups: List<Group>?)
 }

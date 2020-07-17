@@ -16,6 +16,7 @@
 
     <color name="colorScheduleDayUnselected">#654C4C4C</color>
     <color name="colorScheduleDayUnselectedText">#65AFAFAF</color>
+    <color name="colorScheduleCell">#f8b552</color>
 
     <color name="colorJournalBackground">@color/colorBackground</color>
     <color name="colorJournalSeparator">@color/colorPrimary</color>

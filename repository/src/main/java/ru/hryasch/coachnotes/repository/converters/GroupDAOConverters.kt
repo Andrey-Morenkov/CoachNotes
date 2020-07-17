@@ -5,6 +5,8 @@ import ru.hryasch.coachnotes.domain.group.data.GroupImpl
 import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
 import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import ru.hryasch.coachnotes.repository.dao.ScheduleDayDAO
+import java.text.SimpleDateFormat
+import java.time.LocalTime
 import java.util.*
 
 @JvmName("DAOGroupListConverter")
@@ -66,18 +68,34 @@ fun Group.toDao(): GroupDAO
 
 fun ScheduleDayDAO.fromDAO(): ScheduleDay
 {
-    val scheduleDay = ScheduleDay(this.name!!, this.position0!!)
-    scheduleDay.startTime = this.startTime!!
-    scheduleDay.endTime   = this.finishTime!!
+    val startTimeCal = Calendar.getInstance().apply {
+        timeInMillis = ScheduleDay.format.parse(startTime!!)!!.time
+    }
 
-    return scheduleDay
+    val endTimeCal = Calendar.getInstance().apply {
+        timeInMillis = ScheduleDay.format.parse(finishTime!!)!!.time
+    }
+
+    return ScheduleDay(this.name!!, this.position0!!).apply {
+        startTime = LocalTime.of(startTimeCal.get(Calendar.HOUR_OF_DAY), startTimeCal.get(Calendar.MINUTE))
+        endTime = LocalTime.of(endTimeCal.get(Calendar.HOUR_OF_DAY), endTimeCal.get(Calendar.MINUTE))
+    }
 }
 
 fun ScheduleDay.toDAO(): ScheduleDayDAO
 {
-    val dao = ScheduleDayDAO(this.dayName, this.dayPosition0)
-    dao.startTime  = this.startTime
-    dao.finishTime = this.endTime
+    val startTimeCal = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, startTime!!.hour)
+        set(Calendar.MINUTE, startTime!!.minute)
+    }
 
-    return dao
+    val endTimeCal = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, endTime!!.hour)
+        set(Calendar.MINUTE, endTime!!.minute)
+    }
+
+    return ScheduleDayDAO(this.dayName, this.dayPosition0).apply {
+        startTime  = ScheduleDay.format.format(startTimeCal.time)
+        finishTime = ScheduleDay.format.format(endTimeCal.time)
+    }
 }

@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.groups.data
 
+import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.res.ColorStateList
@@ -11,10 +12,13 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.pawegio.kandroid.e
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
+import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.util.Calendar
+import java.util.Locale
 
 class ScheduleDayAdapter(private val scheduleDayList: List<ScheduleDay>, private val context: Context): RecyclerView.Adapter<ScheduleDayViewHolder>()
 {
@@ -38,22 +42,37 @@ class ScheduleDayAdapter(private val scheduleDayList: List<ScheduleDay>, private
 
 class ScheduleDayViewHolder(itemView: View, val context: Context): RecyclerView.ViewHolder(itemView)
 {
+    // Data
+    private lateinit var scheduleDay: ScheduleDay
+
+    // UI
     private val checkBox: CheckBox = itemView.findViewById(R.id.group_schedule_day_checkbox)
     private val name: TextView = itemView.findViewById(R.id.group_schedule_day_day_name)
-
-    private lateinit var timeStartPicker: TimePickerDialog
     private val timeStartTimePlace: TextInputEditText = itemView.findViewById(R.id.group_schedule_day_time_from_time_place)
-
-    private lateinit var timeFinishPicker: TimePickerDialog
     private val timeFinishTimePlace: TextInputEditText = itemView.findViewById(R.id.group_schedule_day_time_until_time_place)
+    private lateinit var timeStartPicker: TimePickerDialog
+    private lateinit var timeFinishPicker: TimePickerDialog
 
+    // Flags
     private var isChecked: Boolean = false
-    private var startHour:    Int = 12
-    private var startMinute:  Int = 0
-    private var finishHour:   Int = 13
-    private var finishMinute: Int = 0
 
-    private lateinit var scheduleDay: ScheduleDay
+
+    private val timeStartCalendar: Calendar = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 12)
+        set(Calendar.MINUTE, 0)
+    }
+    private val timeFinishCalendar: Calendar = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 13)
+        set(Calendar.MINUTE, 0)
+    }
+
+    companion object
+    {
+        @SuppressLint("ConstantLocale")
+        val defaultTimeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+    }
+
+
 
     init
     {
@@ -67,15 +86,19 @@ class ScheduleDayViewHolder(itemView: View, val context: Context): RecyclerView.
         name.text = scheduleDay.dayName
         e("bind scheduleDay: $scheduleDay")
 
-        if (scheduleDay.startTime.isNotBlank())
+        if (scheduleDay.isNotBlank())
         {
-            val startTime = scheduleDay.startTime.split(":")
-            startHour   = startTime[0].toInt()
-            startMinute = startTime[1].toInt()
+            with(timeStartCalendar)
+            {
+                set(Calendar.HOUR_OF_DAY, scheduleDay.startTime!!.hour)
+                set(Calendar.MINUTE, scheduleDay.endTime!!.minute)
+            }
 
-            val finishTime = scheduleDay.endTime.split(":")
-            finishHour   = finishTime[0].toInt()
-            finishMinute = finishTime[1].toInt()
+            with(timeFinishCalendar)
+            {
+                set(Calendar.HOUR_OF_DAY, scheduleDay.endTime!!.hour)
+                set(Calendar.MINUTE, scheduleDay.endTime!!.minute)
+            }
 
             isChecked = true
             selectedState()
@@ -84,20 +107,26 @@ class ScheduleDayViewHolder(itemView: View, val context: Context): RecyclerView.
         setStartTimeString()
         timeStartPicker = TimePickerDialog(context, TimePickerDialog.OnTimeSetListener
         { _, hourOfDay, minute ->
-            startHour = hourOfDay
-            startMinute = minute
+            with(timeStartCalendar)
+            {
+                set(Calendar.HOUR_OF_DAY, hourOfDay)
+                set(Calendar.MINUTE, minute)
+            }
             setStartTimeString()
-            scheduleDay.startTime = timeStartTimePlace.text.toString()
-        }, startHour, startMinute, true)
+            scheduleDay.startTime = LocalTime.of(hourOfDay, minute)
+        }, timeStartCalendar.get(Calendar.HOUR_OF_DAY), timeStartCalendar.get(Calendar.MINUTE), true)
 
         setFinishTimeString()
         timeFinishPicker = TimePickerDialog(context, TimePickerDialog.OnTimeSetListener
         { _, hourOfDay, minute ->
-            finishHour = hourOfDay
-            finishMinute = minute
+            with(timeFinishCalendar)
+            {
+                set(Calendar.HOUR_OF_DAY, hourOfDay)
+                set(Calendar.MINUTE, minute)
+            }
             setFinishTimeString()
-            scheduleDay.endTime = timeFinishTimePlace.text.toString()
-        }, finishHour, finishMinute, true)
+            scheduleDay.endTime = LocalTime.of(hourOfDay, minute)
+        }, timeFinishCalendar.get(Calendar.HOUR_OF_DAY), timeFinishCalendar.get(Calendar.MINUTE), true)
     }
 
     private fun initLayout()
@@ -119,56 +148,12 @@ class ScheduleDayViewHolder(itemView: View, val context: Context): RecyclerView.
 
     private fun setStartTimeString()
     {
-        var timeString = ""
-        timeString =
-            if (startHour < 10)
-            {
-                "0$startHour"
-            }
-            else
-            {
-                "$startHour"
-            }
-
-        timeString += ":"
-
-        if (startMinute < 10)
-        {
-            timeString += "0$startMinute"
-        }
-        else
-        {
-            timeString += startMinute
-        }
-
-        timeStartTimePlace.setText(timeString)
+        timeStartTimePlace.setText(defaultTimeFormatter.format(timeStartCalendar.time))
     }
 
     private fun setFinishTimeString()
     {
-        var timeString = ""
-        timeString =
-            if (finishHour < 10)
-            {
-                "0$finishHour"
-            }
-            else
-            {
-                "$finishHour"
-            }
-
-        timeString += ":"
-
-        if (finishMinute < 10)
-        {
-            timeString += "0$finishMinute"
-        }
-        else
-        {
-            timeString += finishMinute
-        }
-
-        timeFinishTimePlace.setText(timeString)
+        timeFinishTimePlace.setText(defaultTimeFormatter.format(timeFinishCalendar.time))
     }
 
     private fun unselectedState()
@@ -189,8 +174,8 @@ class ScheduleDayViewHolder(itemView: View, val context: Context): RecyclerView.
 
         if (::scheduleDay.isInitialized)
         {
-            scheduleDay.startTime = ""
-            scheduleDay.endTime = ""
+            scheduleDay.startTime = null
+            scheduleDay.endTime = null
         }
     }
 
@@ -217,8 +202,8 @@ class ScheduleDayViewHolder(itemView: View, val context: Context): RecyclerView.
 
         if (::scheduleDay.isInitialized)
         {
-            scheduleDay.startTime = timeStartTimePlace.text.toString()
-            scheduleDay.endTime = timeFinishTimePlace.text.toString()
+            scheduleDay.startTime = LocalTime.of(timeStartCalendar.get(Calendar.HOUR_OF_DAY), timeStartCalendar.get(Calendar.MINUTE))
+            scheduleDay.endTime   = LocalTime.of(timeFinishCalendar.get(Calendar.HOUR_OF_DAY), timeFinishCalendar.get(Calendar.MINUTE))
         }
     }
 }

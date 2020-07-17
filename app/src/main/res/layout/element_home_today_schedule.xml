@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/RoundCard.Colorized"
     android:layout_width="match_parent"
-    android:layout_height="600dp">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,9 +29,12 @@
                 android:textSize="@dimen/home_screen_submenu_text_size" />
 
             <TextView
-                android:id="@+id/homeTextViewTodayScheduleDate"
+                android:id="@+id/homeScheduleTextViewTodayDate"
+                style="@style/ViewWithRipple"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:text="@string/home_screen_sample_today_date"
                 android:textColor="@color/colorPrimaryLight"
                 android:textSize="@dimen/home_screen_submenu_explanation_text_size" />
@@ -39,6 +42,77 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                android:id="@+id/homeScheduleLoading"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.alamkanak.weekview.WeekView
+                android:id="@+id/homeScheduleWeekView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:columnGap="2dp"
+                app:dateFormat="EEEE, dd MMMM"
+                app:dayBackgroundColor="@color/colorPrimary"
+                app:eventCornerRadius="4dp"
+                app:eventPaddingHorizontal="6dp"
+                app:eventPaddingVertical="2dp"
+                app:eventTextColor="@color/colorText"
+                app:futureBackgroundColor="@color/colorPrimary"
+                app:headerRowBackgroundColor="@color/colorPrimary"
+                app:headerRowPadding="12dp"
+                app:headerRowTextColor="@color/colorPrimaryLight"
+                app:hourHeight="60dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0"
+                app:nowLineColor="#2196F3"
+                app:nowLineDotColor="#2196F3"
+                app:nowLineDotRadius="5dp"
+                app:nowLineStrokeWidth="2dp"
+                app:numberOfVisibleDays="1"
+                app:overlappingEventGap="1dp"
+                app:showCurrentTimeFirst="true"
+                app:showHeaderRowBottomLine="false"
+                app:showHeaderRowBottomShadow="false"
+                app:showMidnightHour="true"
+                app:showNowLine="true"
+                app:showNowLineDot="true"
+                app:showTimeColumnHourSeparator="false"
+                app:showTimeColumnSeparator="false"
+                app:showWeekNumber="false"
+                app:timeColumnBackgroundColor="@color/colorPrimary"
+                app:timeColumnPadding="8dp"
+                app:timeColumnTextColor="@color/colorText"
+                app:timeColumnTextSize="12sp"
+                app:timeFormat="HH:mm"
+                app:todayBackgroundColor="@color/colorPrimary"
+                app:todayHeaderTextColor="@color/colorText"
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/homeScheduleWeekView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/home_schedule_box"
+                tools:visibility="gone" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
