@@ -34,7 +34,7 @@ val toolsModule = module {
     {
         val currYear = ZonedDateTime.now().year
         val ages = ArrayList<String>(50)
-        for (i in 3..50)
+        for (i in 1..50)
         {
             ages.add("${currYear - i}")
         }
@@ -45,7 +45,7 @@ val toolsModule = module {
     single(named("relativeAgesList"))
     {
         val ages = ArrayList<String>(50)
-        for (i in 3..50)
+        for (i in 1..50)
         {
             ages.add("$i")
         }
@@ -62,5 +62,17 @@ val toolsModule = module {
         }
 
         return@single days as List<String>
+    }
+
+    single(named("paymentTypes"))
+    {
+        return@single listOf(App.getCtx().getString(R.string.group_param_payment_free),
+                             App.getCtx().getString(R.string.group_param_payment_paid))
+    }
+
+    single(named("ageTypes"))
+    {
+        return@single listOf(App.getCtx().getString(R.string.age_type_absolute),
+                             App.getCtx().getString(R.string.age_type_relative))
     }
 }

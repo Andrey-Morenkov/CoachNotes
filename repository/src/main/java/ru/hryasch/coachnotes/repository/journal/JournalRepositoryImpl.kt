@@ -75,28 +75,30 @@ class JournalRepositoryImpl: JournalRepository, KoinComponent
     {
         i("updateJournalChunk: date = ${chunk.date.format(DateTimeFormatter.ofPattern(daoDateFormat))}, groupId = ${chunk.groupId}\n")
 
-        withContext(dbContext)
-        {
-            db.executeTransaction {
-                val daoChunk = getOrCreateChunk(chunk.date, chunk.groupId)
-                daoChunk.data.clear()
-
-                chunk.content.forEach {
-                    if (it.value != null && it.value !is NoExistData)
-                    {
-                        daoChunk.data.add(JournalChunkDataDAO(it.key, it.value!!))
+        // hotfix (why with context not blocking current function??)
+        runBlocking {
+            withContext(dbContext)
+            {
+                db.executeTransaction {
+                    val daoChunk = getOrCreateChunk(chunk.date, chunk.groupId)
+                    daoChunk.data.clear()
+                    chunk.content.forEach {
+                        if (it.value != null && it.value !is NoExistData)
+                        {
+                            daoChunk.data.add(JournalChunkDataDAO(it.key, it.value!!))
+                        }
                     }
-                }
 
-                if (daoChunk.isEmpty())
-                {
-                    i("delete chunk")
-                    deleteChunk(daoChunk)
-                }
-                else
-                {
-                    i("create or update chunk")
-                    it.copyToRealmOrUpdate(daoChunk)
+                    if (daoChunk.isEmpty())
+                    {
+                        i("delete chunk")
+                        deleteChunk(daoChunk)
+                    }
+                    else
+                    {
+                        i("create or update chunk")
+                        it.copyToRealmOrUpdate(daoChunk)
+                    }
                 }
             }
         }

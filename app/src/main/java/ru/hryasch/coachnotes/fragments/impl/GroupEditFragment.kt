@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
@@ -23,13 +22,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import com.pawegio.kandroid.e
 import com.pawegio.kandroid.visible
 import com.tiper.MaterialSpinner
+import kotlinx.coroutines.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.get
+import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.activity.MainActivity
@@ -38,10 +38,9 @@ import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
 import ru.hryasch.coachnotes.fragments.GroupEditView
 import ru.hryasch.coachnotes.groups.data.ScheduleDayAdapter
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupEditPresenterImpl
+import ru.hryasch.coachnotes.repository.common.toAbsolute
 import ru.hryasch.coachnotes.repository.common.toRelative
-import java.time.ZonedDateTime
 import java.util.*
-import kotlin.collections.ArrayList
 
 class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 {
@@ -72,6 +71,14 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         private lateinit var age2: MaterialSpinner
         private lateinit var ageType: MaterialSpinner
 
+        // Utility
+        private val absoluteYears: List<String> by inject(named("absoluteAgesList"))
+        private val relativeYears: List<String> by inject(named("relativeAgesList"))
+        private val paymentTypes:  List<String> by inject(named("paymentTypes"))
+        private val ageTypes:      List<String> by inject(named("ageTypes"))
+        private lateinit var absoluteAgesAdapter: ArrayAdapter<String>
+        private lateinit var relativeAgesAdapter: ArrayAdapter<String>
+
     // Schedule section
         // UI
         private lateinit var scheduleDaysView: RecyclerView
@@ -79,6 +86,8 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         // Utility
         private val scheduleDaysList: MutableList<ScheduleDay> = LinkedList()
         private lateinit var scheduleDaysAdapter: ScheduleDayAdapter
+
+    private lateinit var setGroupDataJob: Job
 
 
 
@@ -91,7 +100,9 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         (activity as MainActivity).hideBottomNavigation()
 
         saveOrCreateGroup = layout.findViewById(R.id.groupEditButtonCreateOrSave)
+        setSaveOrCreateButtonDisabled()
         deleteGroup = layout.findViewById(R.id.groupEditButtonRemoveGroup)
+        deleteGroup.visible = false
 
         name = layout.findViewById(R.id.groupEditTextInputName)
         paymentType = layout.findViewById(R.id.groupEditSpinnerPaymentType)
@@ -115,202 +126,42 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
         presenter.applyInitialArgumentGroupAsync(GroupEditFragmentArgs.fromBundle(requireArguments()).groupData)
 
-        deleteGroup.visible = false
-        setSaveOrCreateButtonDisabled()
-
         return layout
     }
 
     override fun setGroupData(group: Group)
     {
-        contentView.visible = true
-        loadingBar.visible = false
+        if (::setGroupDataJob.isInitialized && setGroupDataJob.isActive)
+        {
+            setGroupDataJob.cancel()
+        }
 
-        currentGroup = group
-
-        paymentType.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, generatePaymentTypes())
-        age1.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, generateAbsoluteYears())
-        age2.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, generateAbsoluteYears())
-        ageType.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, generateAgeTypes())
-
-        ageType.selection = 0
-
-        createSaveOrCreateGroupWithoutScheduleWarningDialog(group.name.isBlank())
         if (group.name.isNotBlank())
         {
-            setExistGroupData()
+            toolbar.setTitle(R.string.group_edit_screen_toolbar_title)
+            saveOrCreateGroup.text = getString(R.string.save)
         }
+        currentGroup = group
 
-        name.addTextChangedListener(object: TextWatcher
-                                    {
-                                        override fun afterTextChanged(s: Editable?)
-                                        {
-                                            checkRequiredFields()
-                                        }
-
-                                        override fun beforeTextChanged(
-                                            s: CharSequence?,
-                                            start: Int,
-                                            count: Int,
-                                            after: Int
-                                        )
-                                        {
-                                        }
-
-                                        override fun onTextChanged(
-                                            s: CharSequence?,
-                                            start: Int,
-                                            before: Int,
-                                            count: Int
-                                        )
-                                        {
-                                        }
-
-                                    })
-
-        paymentType.onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener
-        {
-            override fun onItemSelected(
-                parent: MaterialSpinner,
-                view: View?,
-                position: Int,
-                id: Long
-            )
+        setGroupDataJob =
+            GlobalScope.launch(Dispatchers.Unconfined)
             {
-                checkRequiredFields()
-            }
-
-            override fun onNothingSelected(parent: MaterialSpinner)
-            {
-            }
-
-        }
-
-        age1.onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener
-        {
-            override fun onItemSelected(
-                parent: MaterialSpinner,
-                view: View?,
-                position: Int,
-                id: Long
-            )
-            {
-                checkRequiredFields()
-            }
-
-            override fun onNothingSelected(parent: MaterialSpinner)
-            {
-            }
-        }
-
-        ageType.onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener
-        {
-            override fun onItemSelected(parent: MaterialSpinner,
-                                        view: View?,
-                                        position: Int,
-                                        id: Long)
-            {
-                when(position)
+                delay(500) //hotfix for animation
+                setAgesAdapters()
+                createSaveOrCreateGroupWithoutScheduleWarningDialog(group.name.isBlank())
+                if (group.name.isNotBlank())
                 {
-                    // absolute
-                    0 ->
-                    {
-                        val newAge1Selection = age1.selectedItem?.toString()?.toInt()
-                        val newAge2Selection = age2.selectedItem?.toString()?.toInt()
+                    setExistGroupData()
+                }
+                setListeners()
+                setSchedule()
 
-                        newAge1Selection?.let {
-                            if (it > 1000) return
-                        }
-
-                        newAge2Selection?.let {
-                            if (it > 1000) return
-                        }
-
-                        age1.adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, generateAbsoluteYears())
-                        age2.adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, generateAbsoluteYears())
-
-                        if (newAge1Selection != null && newAge2Selection != null)
-                        {
-                            age1.selection = newAge2Selection.toInt()
-                            age2.selection = newAge1Selection.toInt()
-                        }
-                        else
-                        {
-                            age1.selectedItem?.let {
-                                age1.selection = newAge1Selection?.toInt() ?: MaterialSpinner.INVALID_POSITION
-                            }
-
-                            age2.selectedItem?.let {
-                                age2.selection = newAge2Selection?.toInt() ?: MaterialSpinner.INVALID_POSITION
-                            }
-                        }
-                    }
-
-                    // relative
-                    1 ->
-                    {
-                        val newAge1Selection = age1.selectedItem?.toString()?.toInt()
-                        val newAge2Selection = age2.selectedItem?.toString()?.toInt()
-
-                        newAge1Selection?.let {
-                            if (it < 1000) return
-                        }
-
-                        newAge2Selection?.let {
-                            if (it < 1000) return
-                        }
-
-                        age1.adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, generateRelativeYears())
-                        age2.adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, generateRelativeYears())
-
-                        if (newAge1Selection != null && newAge2Selection != null)
-                        {
-                            age1.selection = newAge2Selection.toInt().toRelative()
-                            age2.selection = newAge1Selection.toInt().toRelative()
-                        }
-                        else
-                        {
-                            age1.selectedItem?.let {
-                                age1.selection = newAge1Selection?.toRelative()?.toInt() ?: MaterialSpinner.INVALID_POSITION
-                            }
-
-                            age2.selectedItem?.let {
-                                age2.selection = newAge2Selection?.toRelative()?.toInt() ?: MaterialSpinner.INVALID_POSITION
-                            }
-                        }
-                    }
+                withContext(Dispatchers.Main)
+                {
+                    checkRequiredFields()
+                    showingState()
                 }
             }
-
-            override fun onNothingSelected(parent: MaterialSpinner)
-            {
-            }
-        }
-
-        saveOrCreateGroup.setOnClickListener {
-            var hasScheduleDays = false
-            for (scheduleDay in scheduleDaysList)
-            {
-                if (scheduleDay.isNotBlank())
-                {
-                    hasScheduleDays = true
-                    break
-                }
-            }
-
-            if (!hasScheduleDays)
-            {
-                saveOrCreateGroupWithoutScheduleWarningDialog.show()
-            }
-            else
-            {
-                createOrUpdateGroupAction()
-            }
-        }
-
-        setSchedule()
-
-        checkRequiredFields()
     }
 
     override fun loadingState()
@@ -351,26 +202,59 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         dialog.show()
     }
 
-    private fun setExistGroupData()
+
+
+    private suspend fun setAgesAdapters()
     {
-        deleteGroup.visible = true
-        toolbar.setTitle(R.string.group_edit_screen_toolbar_title)
-        saveOrCreateGroup.text = getString(R.string.save)
+        absoluteAgesAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, absoluteYears)
+        relativeAgesAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, relativeYears)
+        val paymentAdapter = getPaymentTypesAdapter()
+        val ageAdapter = getAgeTypesAdapter()
 
-        name.text = SpannableStringBuilder(currentGroup.name)
-        paymentType.selection = currentGroup.isPaid.toInt()
-
-        currentGroup.availableAbsoluteAge?.let {
-            age1.selection = it.first.toRelative()
-            age2.selection = it.last.toRelative()
-        }
-
-        deleteGroup.setOnClickListener {
-            presenter.onDeleteGroupClicked()
+        withContext(Dispatchers.Main)
+        {
+            paymentType.adapter = paymentAdapter
+            age1.adapter = absoluteAgesAdapter
+            age2.adapter = absoluteAgesAdapter
+            ageType.adapter = ageAdapter
+            ageType.selection = 0
         }
     }
 
-    private fun setSchedule()
+    private suspend fun setListeners()
+    {
+        withContext(Dispatchers.Main)
+        {
+            name.addTextChangedListener(getDefaultTextChangedListener())
+            paymentType.onItemSelectedListener = getDefaultItemSelectedListener()
+            age1.onItemSelectedListener = getDefaultItemSelectedListener()
+            // age2 is not required => no need to add listener
+            ageType.onItemSelectedListener = getAgeTypeItemSelectedListener()
+
+            saveOrCreateGroup.setOnClickListener {
+                var hasScheduleDays = false
+                for (scheduleDay in scheduleDaysList)
+                {
+                    if (scheduleDay.isNotBlank())
+                    {
+                        hasScheduleDays = true
+                        break
+                    }
+                }
+
+                if (!hasScheduleDays)
+                {
+                    saveOrCreateGroupWithoutScheduleWarningDialog.show()
+                }
+                else
+                {
+                    createOrUpdateGroupAction()
+                }
+            }
+        }
+    }
+
+    private suspend fun setSchedule()
     {
         val dayOfWeekNames: Array<String> = get(named("daysOfWeekLong_RU"))
         for ((i, dayOfWeek) in dayOfWeekNames.withIndex())
@@ -386,32 +270,208 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         }
 
         scheduleDaysAdapter = ScheduleDayAdapter(scheduleDaysList, requireContext())
-        scheduleDaysView.adapter = scheduleDaysAdapter
-        scheduleDaysView.layoutManager = LinearLayoutManager(context)
+
+        withContext(Dispatchers.Main)
+        {
+            scheduleDaysView.adapter = scheduleDaysAdapter
+            scheduleDaysView.layoutManager = LinearLayoutManager(context)
+        }
     }
 
-    private fun createSaveOrCreateGroupWithoutScheduleWarningDialog(isCreatingNewGroup: Boolean)
+
+
+    private fun showingState()
     {
-        val builder =  MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.group_edit_screen_no_schedule_title)
-            .setMessage(R.string.group_edit_screen_no_schedule_message)
-            .setPositiveButton(R.string.group_edit_screen_no_schedule_cancel) { dialog, _ -> dialog.dismiss()}
+        contentView.visible = true
+        loadingBar.visible = false
+    }
 
-        val saveOrUpdateListener = DialogInterface.OnClickListener { dialog, _ ->
-            createOrUpdateGroupAction()
-            dialog.dismiss()
-        }
-
-        if (isCreatingNewGroup)
+    private fun getDefaultTextChangedListener(): TextWatcher
+    {
+        return object: TextWatcher
         {
-            builder.setNegativeButton(R.string.group_edit_screen_no_schedule_force_create_button, saveOrUpdateListener)
-        }
-        else
-        {
-            builder.setNegativeButton(R.string.group_edit_screen_no_schedule_force_update_button, saveOrUpdateListener)
-        }
+            override fun afterTextChanged(s: Editable?)
+            {
+                checkRequiredFields()
+            }
 
-        saveOrCreateGroupWithoutScheduleWarningDialog = builder.create()
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            )
+            {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            )
+            {
+            }
+        }
+    }
+
+    private fun getDefaultItemSelectedListener(): MaterialSpinner.OnItemSelectedListener
+    {
+        return object: MaterialSpinner.OnItemSelectedListener
+        {
+            override fun onItemSelected(
+                parent: MaterialSpinner,
+                view: View?,
+                position: Int,
+                id: Long
+            )
+            {
+                checkRequiredFields()
+            }
+
+            override fun onNothingSelected(parent: MaterialSpinner)
+            {
+            }
+        }
+    }
+
+    private fun getAgeTypeItemSelectedListener(): MaterialSpinner.OnItemSelectedListener
+    {
+        return object: MaterialSpinner.OnItemSelectedListener
+        {
+            override fun onItemSelected(parent: MaterialSpinner,
+                                        view: View?,
+                                        position: Int,
+                                        id: Long)
+            {
+                when(position)
+                {
+                    // absolute
+                    0 ->
+                    {
+                        val newAge1Selection = age1.selectedItem?.toString()?.toInt()
+                        val newAge2Selection = age2.selectedItem?.toString()?.toInt()
+
+                        newAge1Selection?.let {
+                            if (it > 1000) return
+                        }
+
+                        newAge2Selection?.let {
+                            if (it > 1000) return
+                        }
+
+                        age1.adapter = absoluteAgesAdapter
+                        age2.adapter = absoluteAgesAdapter
+
+                        if (newAge1Selection != null && newAge2Selection != null)
+                        {
+                            age1.selection = absoluteYears.indexOf(newAge2Selection.toAbsolute().toString())
+                            age2.selection = absoluteYears.indexOf(newAge1Selection.toAbsolute().toString())
+                        }
+                        else
+                        {
+                            age1.selectedItem?.let {
+                                age1.selection = newAge1Selection?.toInt() ?: MaterialSpinner.INVALID_POSITION
+                            }
+
+                            age2.selectedItem?.let {
+                                age2.selection = newAge2Selection?.toInt() ?: MaterialSpinner.INVALID_POSITION
+                            }
+                        }
+                    }
+
+                    // relative
+                    1 ->
+                    {
+                        val newAge1Selection = age1.selectedItem?.toString()?.toInt()
+                        val newAge2Selection = age2.selectedItem?.toString()?.toInt()
+
+                        newAge1Selection?.let {
+                            if (it < 1000) return
+                        }
+
+                        newAge2Selection?.let {
+                            if (it < 1000) return
+                        }
+
+                        age1.adapter = relativeAgesAdapter
+                        age2.adapter = relativeAgesAdapter
+
+                        if (newAge1Selection != null && newAge2Selection != null)
+                        {
+                            age1.selection = relativeYears.indexOf(newAge2Selection.toRelative().toString())
+                            age2.selection = relativeYears.indexOf(newAge1Selection.toRelative().toString())
+                        }
+                        else
+                        {
+                            age1.selectedItem?.let {
+                                age1.selection = relativeYears.indexOf(newAge1Selection!!.toRelative().toString())
+                            }
+
+                            age2.selectedItem?.let {
+                                age2.selection = relativeYears.indexOf(newAge2Selection!!.toRelative().toString())
+                            }
+                        }
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: MaterialSpinner)
+            {
+            }
+        }
+    }
+
+    private fun getPaymentTypesAdapter() =  ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, paymentTypes)
+    private fun getAgeTypesAdapter() = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, ageTypes)
+
+    private suspend fun setExistGroupData()
+    {
+        withContext(Dispatchers.Main)
+        {
+            deleteGroup.visible = true
+
+            name.text = SpannableStringBuilder(currentGroup.name)
+            paymentType.selection = currentGroup.isPaid.toInt()
+
+            currentGroup.availableAbsoluteAge?.let {
+                age1.selection = absoluteYears.indexOf(it.first.toString())
+                age2.selection = absoluteYears.indexOf(it.last.toString())
+            }
+
+            deleteGroup.setOnClickListener {
+                presenter.onDeleteGroupClicked()
+            }
+        }
+    }
+
+
+
+    private suspend fun createSaveOrCreateGroupWithoutScheduleWarningDialog(isCreatingNewGroup: Boolean)
+    {
+        withContext(Dispatchers.Main)
+        {
+            val builder =  MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.group_edit_screen_no_schedule_title)
+                .setMessage(R.string.group_edit_screen_no_schedule_message)
+                .setPositiveButton(R.string.group_edit_screen_no_schedule_cancel) { dialog, _ -> dialog.dismiss()}
+
+            val saveOrUpdateListener = DialogInterface.OnClickListener { dialog, _ ->
+                createOrUpdateGroupAction()
+                dialog.dismiss()
+            }
+
+            if (isCreatingNewGroup)
+            {
+                builder.setNegativeButton(R.string.group_edit_screen_no_schedule_force_create_button, saveOrUpdateListener)
+            }
+            else
+            {
+                builder.setNegativeButton(R.string.group_edit_screen_no_schedule_force_update_button, saveOrUpdateListener)
+            }
+
+            saveOrCreateGroupWithoutScheduleWarningDialog = builder.create()
+        }
     }
 
     private fun createOrUpdateGroupAction()
@@ -442,7 +502,6 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         currentGroup.scheduleDays.clear()
         for (scheduleDay in scheduleDaysList)
         {
-            e("save scheduleDay: $scheduleDay")
             if (scheduleDay.isNotBlank())
             {
                 currentGroup.scheduleDays.add(scheduleDay)
@@ -451,35 +510,6 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
         presenter.updateOrCreateGroup()
     }
-
-    private fun generateAbsoluteYears(): List<String>
-    {
-        val currYear = ZonedDateTime.now().year
-        val ages = ArrayList<String>(50)
-        for (i in 0 until 50)
-        {
-            ages.add("${currYear - i}")
-        }
-
-        return ages
-    }
-
-    private fun generateRelativeYears(): List<String>
-    {
-        val ages = ArrayList<String>(50)
-        for (i in 0 until 50)
-        {
-            ages.add("$i")
-        }
-
-        return ages
-    }
-
-    private fun generatePaymentTypes(): List<String> = listOf(getString(R.string.group_param_payment_free),
-                                                              getString(R.string.group_param_payment_paid))
-
-    private fun generateAgeTypes(): List<String> = listOf(getString(R.string.age_type_absolute),
-                                                          getString(R.string.age_type_relative))
 
     private fun checkRequiredFields()
     {

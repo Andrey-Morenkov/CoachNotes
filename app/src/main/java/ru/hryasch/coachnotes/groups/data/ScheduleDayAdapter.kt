@@ -82,9 +82,7 @@ class ScheduleDayViewHolder(itemView: View, val context: Context): RecyclerView.
     fun bind(scheduleDay: ScheduleDay)
     {
         this.scheduleDay = scheduleDay
-
         name.text = scheduleDay.dayName
-        e("bind scheduleDay: $scheduleDay")
 
         if (scheduleDay.isNotBlank())
         {
