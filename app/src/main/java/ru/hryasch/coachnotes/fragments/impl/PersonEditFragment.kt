@@ -228,11 +228,6 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             .setNegativeButton("Отмена") { dialog, _ -> dialog.cancel() }
             .create()
 
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
-        }
-
         dialog.show()
     }
 

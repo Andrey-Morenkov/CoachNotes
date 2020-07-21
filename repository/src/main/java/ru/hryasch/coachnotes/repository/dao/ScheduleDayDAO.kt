@@ -8,8 +8,6 @@ import io.realm.annotations.Required
 open class ScheduleDayDAO(): RealmObject()
 {
     @Required
-    @Index
-    @PrimaryKey
     var name: String? = null
 
     @Required
@@ -25,5 +23,10 @@ open class ScheduleDayDAO(): RealmObject()
     {
         this.name = name
         this.position0 = position
+    }
+
+    override fun toString(): String
+    {
+        return "ScheduleDay($name/$position0): $startTime - $finishTime"
     }
 }

@@ -5,7 +5,6 @@ import ru.hryasch.coachnotes.domain.group.data.GroupImpl
 import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
 import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import ru.hryasch.coachnotes.repository.dao.ScheduleDayDAO
-import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.util.*
 

@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.fragments.impl
 
+import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
@@ -32,7 +33,6 @@ import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.activity.MainActivity
-import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
 import ru.hryasch.coachnotes.fragments.GroupEditView
@@ -47,26 +47,40 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: GroupEditPresenterImpl
-
     private lateinit var navController: NavController
-
-    private lateinit var saveOrCreateGroup: MaterialButton
-    private lateinit var deleteGroup: MaterialButton
-
-    private lateinit var name: TextInputEditText
-    private lateinit var paymentType: MaterialSpinner
-    private lateinit var age1: MaterialSpinner
-    private lateinit var age2: MaterialSpinner
-    private lateinit var ageType: MaterialSpinner
-
-    private lateinit var scheduleDaysView: RecyclerView
-    private val scheduleDaysList: MutableList<ScheduleDay> = LinkedList()
-    private lateinit var scheduleDaysAdapter: ScheduleDayAdapter
-
-    private lateinit var contentView: NestedScrollView
-    private lateinit var loadingBar: ProgressBar
-
     private lateinit var currentGroup: Group
+
+    // Toolbar
+        // UI
+        private lateinit var toolbar: Toolbar
+        private lateinit var saveOrCreateGroup: MaterialButton
+
+        // Dialogs
+        private lateinit var saveOrCreateGroupWithoutScheduleWarningDialog: AlertDialog
+
+    // Common
+        // UI
+        private lateinit var deleteGroup: MaterialButton
+        private lateinit var contentView: NestedScrollView
+        private lateinit var loadingBar: ProgressBar
+
+    // General section
+        // UI
+        private lateinit var name: TextInputEditText
+        private lateinit var paymentType: MaterialSpinner
+        private lateinit var age1: MaterialSpinner
+        private lateinit var age2: MaterialSpinner
+        private lateinit var ageType: MaterialSpinner
+
+    // Schedule section
+        // UI
+        private lateinit var scheduleDaysView: RecyclerView
+
+        // Utility
+        private val scheduleDaysList: MutableList<ScheduleDay> = LinkedList()
+        private lateinit var scheduleDaysAdapter: ScheduleDayAdapter
+
+
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -94,10 +108,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
         navController = container!!.findNavController()
 
-        val toolbar: Toolbar = layout.findViewById(R.id.groupEditToolbar)
-        (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
-
+        toolbar = layout.findViewById(R.id.groupEditToolbar)
         toolbar.setNavigationOnClickListener {
             navController.navigateUp()
         }
@@ -124,6 +135,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
         ageType.selection = 0
 
+        createSaveOrCreateGroupWithoutScheduleWarningDialog(group.name.isBlank())
         if (group.name.isNotBlank())
         {
             setExistGroupData()
@@ -276,40 +288,24 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         }
 
         saveOrCreateGroup.setOnClickListener {
-            currentGroup.name = name.text.toString()
-            currentGroup.isPaid = paymentType.selection.toBoolean()
-
-            ageType.selection = 0
-            val ageStart = age1.selectedItem?.toString()?.toInt()
-            val ageFinish = age2.selectedItem?.toString()?.toInt()
-
-            if (ageStart != null)
+            var hasScheduleDays = false
+            for (scheduleDay in scheduleDaysList)
             {
-                if (ageFinish != null)
+                if (scheduleDay.isNotBlank())
                 {
-                    currentGroup.availableAbsoluteAge = ageStart .. ageFinish
+                    hasScheduleDays = true
+                    break
                 }
-                else
-                {
-                    currentGroup.availableAbsoluteAge = ageStart .. ageStart
-                }
+            }
+
+            if (!hasScheduleDays)
+            {
+                saveOrCreateGroupWithoutScheduleWarningDialog.show()
             }
             else
             {
-                currentGroup.availableAbsoluteAge = null
+                createOrUpdateGroupAction()
             }
-
-            currentGroup.scheduleDays.clear()
-            for (scheduleDay in scheduleDaysList)
-            {
-                e("save scheduleDay: $scheduleDay")
-                if (scheduleDay.isNotBlank())
-                {
-                    currentGroup.scheduleDays.add(scheduleDay)
-                }
-            }
-
-            presenter.updateOrCreateGroup()
         }
 
         setSchedule()
@@ -352,18 +348,13 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             }
             .create()
 
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
-        }
-
         dialog.show()
     }
 
     private fun setExistGroupData()
     {
         deleteGroup.visible = true
-        (activity as AppCompatActivity).supportActionBar!!.setTitle(R.string.group_edit_screen_toolbar_title)
+        toolbar.setTitle(R.string.group_edit_screen_toolbar_title)
         saveOrCreateGroup.text = getString(R.string.save)
 
         name.text = SpannableStringBuilder(currentGroup.name)
@@ -397,6 +388,68 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         scheduleDaysAdapter = ScheduleDayAdapter(scheduleDaysList, requireContext())
         scheduleDaysView.adapter = scheduleDaysAdapter
         scheduleDaysView.layoutManager = LinearLayoutManager(context)
+    }
+
+    private fun createSaveOrCreateGroupWithoutScheduleWarningDialog(isCreatingNewGroup: Boolean)
+    {
+        val builder =  MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.group_edit_screen_no_schedule_title)
+            .setMessage(R.string.group_edit_screen_no_schedule_message)
+            .setPositiveButton(R.string.group_edit_screen_no_schedule_cancel) { dialog, _ -> dialog.dismiss()}
+
+        val saveOrUpdateListener = DialogInterface.OnClickListener { dialog, _ ->
+            createOrUpdateGroupAction()
+            dialog.dismiss()
+        }
+
+        if (isCreatingNewGroup)
+        {
+            builder.setNegativeButton(R.string.group_edit_screen_no_schedule_force_create_button, saveOrUpdateListener)
+        }
+        else
+        {
+            builder.setNegativeButton(R.string.group_edit_screen_no_schedule_force_update_button, saveOrUpdateListener)
+        }
+
+        saveOrCreateGroupWithoutScheduleWarningDialog = builder.create()
+    }
+
+    private fun createOrUpdateGroupAction()
+    {
+        currentGroup.name = name.text.toString()
+        currentGroup.isPaid = paymentType.selection.toBoolean()
+
+        ageType.selection = 0
+        val ageStart = age1.selectedItem?.toString()?.toInt()
+        val ageFinish = age2.selectedItem?.toString()?.toInt()
+
+        if (ageStart != null)
+        {
+            if (ageFinish != null)
+            {
+                currentGroup.availableAbsoluteAge = ageStart .. ageFinish
+            }
+            else
+            {
+                currentGroup.availableAbsoluteAge = ageStart .. ageStart
+            }
+        }
+        else
+        {
+            currentGroup.availableAbsoluteAge = null
+        }
+
+        currentGroup.scheduleDays.clear()
+        for (scheduleDay in scheduleDaysList)
+        {
+            e("save scheduleDay: $scheduleDay")
+            if (scheduleDay.isNotBlank())
+            {
+                currentGroup.scheduleDays.add(scheduleDay)
+            }
+        }
+
+        presenter.updateOrCreateGroup()
     }
 
     private fun generateAbsoluteYears(): List<String>

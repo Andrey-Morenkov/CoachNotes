@@ -91,7 +91,7 @@ class ScheduleDayViewHolder(itemView: View, val context: Context): RecyclerView.
             with(timeStartCalendar)
             {
                 set(Calendar.HOUR_OF_DAY, scheduleDay.startTime!!.hour)
-                set(Calendar.MINUTE, scheduleDay.endTime!!.minute)
+                set(Calendar.MINUTE, scheduleDay.startTime!!.minute)
             }
 
             with(timeFinishCalendar)

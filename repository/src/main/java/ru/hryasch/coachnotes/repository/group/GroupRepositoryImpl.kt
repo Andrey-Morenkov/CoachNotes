@@ -2,6 +2,7 @@ package ru.hryasch.coachnotes.repository.group
 
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.w
 import io.realm.ObjectChangeSet
 import io.realm.Realm
 import io.realm.kotlin.where
@@ -113,6 +114,8 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
 
                 isAddingGroup = ( existGroup == null )
 
+                e("updating group: $group")
+
                 it.copyToRealmOrUpdate(group.toDao())
             }
 
@@ -125,8 +128,16 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
 
     override suspend fun deleteGroup(group: Group)
     {
+
         withContext(dbContext)
         {
+            withContext(Dispatchers.Main)
+            {
+                GroupChannelsStorage.groupById[group.id]!!.observable?.removeAllChangeListeners()
+                GroupChannelsStorage.groupById[group.id]!!.observable = null
+            }
+
+            // FIX: because realm has strange behaviour if you next add group with same name and it will have previous members and schedule days
             db.executeTransaction {
                 val target = it.where<GroupDAO>()
                                .equalTo("id", group.id)
@@ -134,12 +145,6 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
                 target?.members?.clear()
                 target?.scheduleDays?.clear()
                 it.copyToRealmOrUpdate(target!!)
-            }
-
-            withContext(Dispatchers.Main)
-            {
-                GroupChannelsStorage.groupById[group.id]!!.observable?.removeAllChangeListeners()
-                GroupChannelsStorage.groupById[group.id]!!.observable = null
             }
 
             db.executeTransaction {

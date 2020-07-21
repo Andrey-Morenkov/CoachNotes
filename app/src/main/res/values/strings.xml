@@ -4,10 +4,10 @@
 
     // Permissions
     <string name="permission_external_storage_rationale">Чтобы иметь возможность генерировать файлы, нужно разрешение</string>
-    <string name="permission_external_storage_rationale_dialog_title">Ратионале ТИТЛЕ</string>
-    <string name="permission_external_storage_rationale_dialog_message">Ратионале МЕССАГЕ</string>
-    <string name="permission_external_storage_settings_dialog_title">Сеттингс ТИТЛЕ</string>
-    <string name="permission_external_storage_settings_dialog_message">Сеттингс МЕССАГЕ</string>
+    <string name="permission_external_storage_rationale_dialog_title">RationaleTitle</string>
+    <string name="permission_external_storage_rationale_dialog_message">RationaleMessage</string>
+    <string name="permission_external_storage_settings_dialog_title">SettingsTitle</string>
+    <string name="permission_external_storage_settings_dialog_message">SettingsMessage</string>
 
     // Folders and files
     <string name="coachNotesSubdirectoryName">Тренерские журналы</string>
@@ -74,7 +74,8 @@
 
 
     // Groups screen
-    <string name="groups_screen_toolbar_title">Мои группы</string>
+    <string name="groups_screen_toolbar_no_count_title">Мои группы</string>
+    <string name="groups_screen_toolbar_with_count_title">Мои группы: %1$d</string>
     <string name="groups_screen_no_data">Нет групп</string>
         // Samples
         <string name="groups_screen_toolbar_subtitle_sample">5 шт</string>
@@ -87,13 +88,19 @@
     <string name="group_edit_screen_toolbar_new_title">Новая группа</string>
     <string name="group_edit_screen_delete_group">Удалить группу</string>
     <string name="group_edit_screen_age_type">Возраст</string>
+    <string name="group_edit_screen_no_schedule_title">Расписание не выбрано</string>
+    <string name="group_edit_screen_no_schedule_message">Группа не будет отображаться в расписании на главном экране</string>
+    <string name="group_edit_screen_no_schedule_force_create_button">Всё равно создать</string>
+    <string name="group_edit_screen_no_schedule_force_update_button">Всё равно сохранить</string>
+    <string name="group_edit_screen_no_schedule_cancel">Отмена</string>
 
     // Group journal screen
         // Samples
         <string name="group_journal_screen_date_sample">Март 2020</string>
 
     // Persons screen
-    <string name="persons_screen_toolbar_title">Мои ученики</string>
+    <string name="persons_screen_toolbar_no_count_title">Мои ученики</string>
+    <string name="persons_screen_toolbar_with_count_title">Мои ученики: %1$d</string>
     <string name="person_full_name_pattern">%1$s %2$s</string>
     <string name="persons_screen_no_data">Нет учеников</string>
 

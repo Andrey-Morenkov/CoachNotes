@@ -17,7 +17,7 @@
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:title="@string/groups_screen_toolbar_title">
+        app:title="@string/groups_screen_toolbar_no_count_title">
 
         <ImageButton
             android:id="@+id/groupsButtonAddGroup"

@@ -65,13 +65,6 @@
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right"/>
         <action
-            android:id="@+id/action_groupInfoFragment_to_personEditFragment"
-            app:destination="@id/personEditFragment"
-            app:enterAnim="@anim/slide_in_right_custom"
-            app:exitAnim="@anim/slide_out_left_custom"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right"/>
-        <action
             android:id="@+id/action_groupInfoFragment_to_personInfoFragment"
             app:destination="@id/personInfoFragment"
             app:enterAnim="@anim/slide_in_right_custom"
@@ -81,6 +74,13 @@
         <argument
             android:name="groupData"
             app:argType="ru.hryasch.coachnotes.domain.group.data.Group" />
+        <action
+            android:id="@+id/action_groupInfoFragment_to_journalGroupFragment"
+            app:destination="@id/journalGroupFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/groupEditFragment"

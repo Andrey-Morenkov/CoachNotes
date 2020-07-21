@@ -32,14 +32,13 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
     override fun applyInitialArgumentGroupAsync(group: Group?)
     {
         // for prevent unnecessary apply group when fragment re-create
-        e("try applyInitialArgumentGroupAsync")
         if (currentGroup != null)
         {
             e("return applyGroupDataAsync")
             return
         }
 
-        w("call applyGroupDataAsync INITIAL")
+        w("call applyGroupDataAsync INITIAL $group")
         applyGroupDataAsync(group)
     }
 

@@ -9,6 +9,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorTertiary">@color/colorText</item>
         <item name="android:textColor">@color/colorText</item>
+        <item name="alertDialogTheme">@style/CustomAlertDialogTheme</item>
+        <item name="materialAlertDialogTheme">@style/CustomAlertDialogTheme</item>
     </style>
 
     <style name="SplashTheme" parent="Theme.MaterialComponents.NoActionBar">
@@ -23,11 +25,11 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorTertiary">@color/colorText</item>
         <item name="android:textColor">@color/colorText</item>
+        <item name="alertDialogTheme">@style/CustomAlertDialogTheme</item>
+        <item name="materialAlertDialogTheme">@style/CustomAlertDialogTheme</item>
     </style>
-
-//"android:fontFamily">@font/montserrat
-
-    // Cards
+    
+// Cards
     <style name="StraightCard" parent="AppTheme">
         <item name="cardCornerRadius">@dimen/card_straight_type_corner_radius_size</item>
     </style>
@@ -47,7 +49,19 @@
         <item name="cardBackgroundColor">@color/colorPrimary</item>
     </style>
 
+// Dialogs
+    <style name="CustomAlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarNegativeButtonStyle">@style/CustomNegativeButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/CustomPositiveButtonStyle</item>
+    </style>
+    
+    <style name="CustomPositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
 
+    <style name="CustomNegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/colorPrimaryLight</item>
+    </style>
 
 // Elements (buttons, etc)
     <style name="TransparentBackgroundImageButton">
@@ -117,18 +131,21 @@
         <item name="backgroundTint">@color/colorPrimaryDarkHighlight</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
-    
+
     <style name="DefaultToolbar" parent="Widget.MaterialComponents.Toolbar">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="elevation">4dp</item>
-        <item name="navigationIcon">?attr/homeAsUpIndicator</item>
         <item name="title">@string/universal_toolbar_title</item>
         <item name="maxButtonHeight">48dp</item>
         <item name="android:paddingEnd">4dp</item>
         <item name="paddingStart">4dp</item>
         <item name="contentInsetStart">16dp</item>
+    </style>
+    
+    <style name="DefaultToolbar.WithBackButton">
+        <item name="navigationIcon">?attr/homeAsUpIndicator</item>
     </style>
 
     <style name="DefaultToolbar.subtitle">

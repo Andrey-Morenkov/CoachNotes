@@ -106,9 +106,6 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         loadingState()
 
         val toolbar: Toolbar = layout.findViewById(R.id.journalToolbar)
-        (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
-
         toolbar.setNavigationOnClickListener {
             navController.navigateUp()
         }
@@ -140,7 +137,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
 
         val groupData = JournalGroupFragmentArgs.fromBundle(requireArguments()).groupData
-        (activity as AppCompatActivity).supportActionBar!!.title = "${groupData.name}"
+        toolbar.title = groupData.name
 
         GlobalScope.launch(Dispatchers.Default)
         {
@@ -276,11 +273,6 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                     dialog, _ -> dialog.cancel()
             }
             .create()
-
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
-        }
 
         dialog.show()
     }
@@ -422,9 +414,6 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                                 dialog, _ -> dialog.cancel()
                             }
                             .create()
-            dialog.setOnShowListener {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
-            }
 
             dialog.show()
         }

@@ -9,7 +9,7 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/journalToolbar"
-        style="@style/DefaultToolbar">
+        style="@style/DefaultToolbar.WithBackButton">
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/journalButtonShare"

@@ -7,14 +7,13 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.pawegio.kandroid.e
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.android.ext.android.get
@@ -29,6 +28,7 @@ import ru.hryasch.coachnotes.people.presenters.impl.PeoplePresenterImpl
 
 class PeopleListFragment : MvpAppCompatFragment(), PeopleView
 {
+    @ExperimentalCoroutinesApi
     @InjectPresenter
     lateinit var presenter: PeoplePresenterImpl
 
@@ -36,10 +36,10 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
     private lateinit var navController: NavController
 
     private lateinit var addNewPerson: ImageButton
-
     private lateinit var peopleView: RecyclerView
     private lateinit var peopleLoading: ProgressBar
     private lateinit var noPeopleLabel: TextView
+    private lateinit var toolbar: Toolbar
 
     private lateinit var currentGroupNames: Map<GroupId, String>
 
@@ -53,15 +53,11 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
         peopleLoading = layout.findViewById(R.id.peopleProgressBarLoading)
         addNewPerson = layout.findViewById(R.id.peopleButtonAddPerson)
         noPeopleLabel = layout.findViewById(R.id.peopleTextViewNoData)
+        noPeopleLabel.visibility = View.INVISIBLE
 
         navController = container!!.findNavController()
 
-        val toolbar: Toolbar = layout.findViewById(R.id.peopleToolbar)
-        (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
-
-        noPeopleLabel.visibility = View.INVISIBLE
-
+        toolbar = layout.findViewById(R.id.peopleToolbar)
         toolbar.setNavigationOnClickListener {
             navController.navigateUp()
         }
@@ -126,11 +122,14 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
             {
                 noPeopleLabel.visibility = View.INVISIBLE
             }
+
+            toolbar.title = getString(R.string.persons_screen_toolbar_with_count_title, peopleAdapter.itemCount)
         }
     }
 
     override fun refreshData()
     {
         peopleAdapter.notifyDataSetChanged()
+        toolbar.title = getString(R.string.persons_screen_toolbar_with_count_title, peopleAdapter.itemCount)
     }
 }

@@ -6,10 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.alamkanak.weekview.WeekView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.visible
 import kotlinx.coroutines.*
@@ -44,8 +46,11 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
             private lateinit var todayScheduleDate: TextView
             private lateinit var scheduleLoading: ProgressBar
             private lateinit var scheduleView: WeekView<HomeScheduleCell>
+        // Dialogs
+            private lateinit var groupHasNoMembersDialog: AlertDialog
         // Classes
             private lateinit var scheduleGeneratingJob: Job
+
 
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -61,6 +66,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
 
         setTodayDate()
         tuneScheduleView()
+        createGroupHasNoMembersWarningDialog()
 
         return layout
     }
@@ -82,6 +88,17 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
     {
         scheduleLoading.visible = true
         scheduleView.visible = false
+    }
+
+    private fun createGroupHasNoMembersWarningDialog()
+    {
+        groupHasNoMembersDialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Невозможно отобразить журнал")
+            .setMessage("В группе нет учеников")
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
     }
 
     private fun showingState(groups: List<Group>)
@@ -112,6 +129,8 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
         {
             return LinkedList()
         }
+
+        e("prepareScheduleCells of groups: $groups")
 
         val groupDataByDays: MutableMap<Int, MutableList<ScheduleDayInfo>> = HashMap() // <DayOfWeek0, List<scheduleInfos>>
         for (i in 0 until 7)
@@ -158,7 +177,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[0]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group.name, it.group.id, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
                         id++
                     }
                 }
@@ -168,7 +187,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[1]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group.name, it.group.id, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
                         id++
                     }
                 }
@@ -178,7 +197,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[2]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group.name, it.group.id, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
                         id++
                     }
                 }
@@ -188,7 +207,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[3]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group.name, it.group.id, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
                         id++
                     }
                 }
@@ -198,7 +217,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[4]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group.name, it.group.id, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
                         id++
                     }
                 }
@@ -208,7 +227,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[5]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group.name, it.group.id, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
                         id++
                     }
                 }
@@ -218,7 +237,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[6]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group.name, it.group.id, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
                         id++
                     }
                 }
@@ -238,8 +257,16 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
 
         scheduleView.minDate = min
         scheduleView.maxDate = max
-        scheduleView.setOnEventClickListener { data, rect ->
-            // go to schedule
+        scheduleView.setOnEventClickListener { data, _ ->
+            if (data.group.membersList.isEmpty())
+            {
+                groupHasNoMembersDialog.show()
+            }
+            else
+            {
+                val action = HomeFragmentDirections.actionHomeFragmentImplToJournalGroupFragment(data.group)
+                navController.navigate(action)
+            }
         }
     }
 
@@ -256,25 +283,9 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
         }
     }
 
-    private fun updateJournalPickerDialog(groups: List<Group>?)
-    {
-        /*journalPickerDialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Выберите группу")
-            .setItems(dataArray) { dialog, position ->
-                val action = HomeFragmentDirections.actionHomeFragmentImplToJournalGroupFragment(sortedGroups[position])
-                navController.navigate(action)
-                dialog.cancel()
-            }
-            .create()
-
-         */
-    }
-
-    private data class ScheduleDayInfo(
-        val group: Group,
-        val startTime: Calendar,
-        val endTime: Calendar
-    )
+    private data class ScheduleDayInfo(val group: Group,
+                                       val startTime: Calendar,
+                                       val endTime: Calendar)
     {
         override fun toString(): String
         {

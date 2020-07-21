@@ -37,4 +37,15 @@ open class GroupDAO(): RealmObject()
         this.availableAgeHigh = availableAgeHigh
         this.isPaid = isPaid
     }
+
+    override fun toString(): String
+    {
+        var scheduleDaysString = ""
+        for (scheduleDay in scheduleDays)
+        {
+            scheduleDaysString += scheduleDay.toString()
+        }
+
+        return "Group[$id]:$name scheduleDays: $scheduleDaysString"
+    }
 }

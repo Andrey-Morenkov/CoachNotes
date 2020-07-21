@@ -15,7 +15,7 @@
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:title="@string/persons_screen_toolbar_title">
+        app:title="@string/persons_screen_toolbar_no_count_title">
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/peopleButtonAddPerson"

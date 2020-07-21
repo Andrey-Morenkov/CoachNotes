@@ -9,6 +9,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,6 +39,7 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
     private lateinit var groupsLoading: ProgressBar
     private lateinit var addNewGroup: ImageButton
     private lateinit var noGroupsLabel: TextView
+    private lateinit var toolbar: Toolbar
 
     lateinit var navController: NavController
 
@@ -51,15 +53,11 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
         groupsLoading = layout.findViewById(R.id.groupsProgressBarLoading)
         addNewGroup = layout.findViewById(R.id.groupsButtonAddGroup)
         noGroupsLabel = layout.findViewById(R.id.groupsTextViewNoData)
+        noGroupsLabel.visibility = View.INVISIBLE
 
         navController = container!!.findNavController()
 
-        val toolbar: Toolbar = layout.findViewById(R.id.groupsToolbar)
-        (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
-
-        noGroupsLabel.visibility = View.INVISIBLE
-
+        toolbar = layout.findViewById(R.id.groupsToolbar)
         toolbar.setNavigationOnClickListener {
             navController.navigateUp()
         }
@@ -111,11 +109,14 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
             {
                 noGroupsLabel.visibility = View.INVISIBLE
             }
+
+            toolbar.title = getString(R.string.groups_screen_toolbar_with_count_title, groupsAdapter.itemCount)
         }
     }
 
     override fun refreshData()
     {
         groupsAdapter.notifyDataSetChanged()
+        toolbar.title = getString(R.string.groups_screen_toolbar_with_count_title, groupsAdapter.itemCount)
     }
 }
