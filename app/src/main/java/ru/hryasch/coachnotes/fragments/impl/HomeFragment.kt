@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
@@ -177,7 +178,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[0]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
                         id++
                     }
                 }
@@ -187,7 +188,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[1]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
                         id++
                     }
                 }
@@ -197,7 +198,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[2]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
                         id++
                     }
                 }
@@ -207,7 +208,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[3]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
                         id++
                     }
                 }
@@ -217,7 +218,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[4]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
                         id++
                     }
                 }
@@ -227,7 +228,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[5]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
                         id++
                     }
                 }
@@ -237,7 +238,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                     groupDataByDays[6]!!.forEach {
                         it.startTime.set(Calendar.DAY_OF_MONTH, day)
                         it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCell)))
+                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
                         id++
                     }
                 }
@@ -245,6 +246,19 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
         }
 
         return result
+    }
+
+    @ColorInt
+    private fun getScheduleDayColor(isPaidGroup: Boolean): Int
+    {
+        return if (isPaidGroup)
+               {
+                   ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCellPaidGroup)
+               }
+               else
+               {
+                   ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCellFreeGroup)
+               }
     }
 
     private fun tuneScheduleView()
