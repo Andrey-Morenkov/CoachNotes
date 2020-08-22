@@ -45,7 +45,7 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
     override fun applyGroupDataAsync(group: Group?)
     {
         GlobalScope.launch(Dispatchers.Default) {
-            currentGroup = group ?: GroupImpl(groupInteractor.getMaxGroupId() + 1, "")
+            currentGroup = group ?: GroupImpl.generateNew()
 
             withContext(Dispatchers.Main)
             {

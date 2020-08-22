@@ -254,7 +254,27 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 is PresenceData,
                 is AbsenceData ->
                 {
-                    cell.data = AbsenceData("Б")
+                    // TODO: hotfix for manual set no exist data
+                    if (cell.data!!.mark == "Б")
+                    {
+                        chunksStates[col]--
+                        cell.data = NoExistData()
+                        if (isChunkEmpty(col))
+                        {
+                            for (i in 0 until tableModel.cellContent.size) // for each row
+                            {
+                                if (tableModel.cellContent[i][col].data !is NoExistData)
+                                {
+                                    tableModel.cellContent[i][col].data = null
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        cell.data = AbsenceData("Б")
+                    }
+
                     saveChunkOnBackground(col)
                 }
 
@@ -262,10 +282,35 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 {
                     chunksStates[col]++
                     cell.data = AbsenceData("Б")
+
+                    for (i in 0 until tableModel.cellContent.size) // for each row
+                    {
+                        if (i != row && tableModel.cellContent[i][col].data == null)
+                        {
+                            tableModel.cellContent[i][col].data = UnknownData()
+                        }
+                    }
+
                     saveChunkOnBackground(col)
                 }
 
-                is NoExistData -> { /* nothing */ }
+                is NoExistData ->
+                {
+                    /* nothing */
+                    // TODO: hotfix for manual set no exist data
+                    chunksStates[col]++
+                    cell.data = PresenceData()
+
+                    for (i in 0 until tableModel.cellContent.size) // for each row
+                    {
+                        if (tableModel.cellContent[i][col].data == null)
+                        {
+                            tableModel.cellContent[i][col].data = UnknownData()
+                        }
+                    }
+
+                    saveChunkOnBackground(col)
+                }
 
                 else ->
                 {

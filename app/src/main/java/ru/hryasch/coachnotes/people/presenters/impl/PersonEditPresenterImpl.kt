@@ -43,7 +43,7 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
     {
         GlobalScope.launch(Dispatchers.Default)
         {
-            currentPerson = person ?: PersonImpl("", "", id = peopleInteractor.getMaxPersonId() + 1)
+            currentPerson = person ?: PersonImpl.generateNew()
             val groups = groupInteractor.getGroupsList()
 
             withContext(Dispatchers.Main)

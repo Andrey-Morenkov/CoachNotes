@@ -8,6 +8,8 @@ interface GroupRepository: AbstractRepository
 {
     suspend fun getGroup(groupId: GroupId): Group?
     suspend fun getAllGroups(): List<Group>?
+    suspend fun getAllExistGroups(): List<Group>?
+    suspend fun getAllDeletedGroups(): List<Group>?
     suspend fun getGroupsByScheduleDay(dayPosition0: Int): List<Group>?
 
     suspend fun addOrUpdateGroup(group: Group)

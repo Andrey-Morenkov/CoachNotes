@@ -73,7 +73,7 @@ data class JournalChunkDAOId (val date: LocalDate, val groupId: GroupId)
         {
             d("deserialize chunkDAO id: $str")
             val components = str.split(delimiter)
-            return JournalChunkDAOId(LocalDate.parse(components[0], DateTimeFormatter.ofPattern(daoDateFormat)), components[1].toInt())
+            return JournalChunkDAOId(LocalDate.parse(components[0], DateTimeFormatter.ofPattern(daoDateFormat)), components[1])
         }
     }
 }
