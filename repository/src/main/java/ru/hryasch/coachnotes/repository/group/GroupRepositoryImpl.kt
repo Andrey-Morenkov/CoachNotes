@@ -19,6 +19,7 @@ import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.repository.common.GroupChannelsStorage
 import ru.hryasch.coachnotes.repository.converters.fromDAO
 import ru.hryasch.coachnotes.repository.converters.toDao
+import ru.hryasch.coachnotes.repository.dao.DeletedGroupDAO
 import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import java.util.concurrent.Executors
 
@@ -41,7 +42,7 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
 
     override suspend fun getGroup(groupId: GroupId): Group?
     {
-        var groupDAO: GroupDAO? = null
+        var group: Group? = null
 
         withContext(dbContext)
         {
@@ -50,13 +51,28 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
                                .equalTo("id", groupId)
                                .findFirst()
 
-                result?.let { res ->
-                    groupDAO = it.copyFromRealm(res)
+                if (result != null)
+                {
+                    group = it.copyFromRealm(result).fromDAO()
+                }
+                else
+                {
+                    val resultDel = it.where<DeletedGroupDAO>()
+                                      .equalTo("id", groupId)
+                                      .findFirst()
+                    resultDel?.let { res ->
+                        group = it.copyFromRealm(res).fromDAO()
+                    }
                 }
             }
         }
 
-        return groupDAO?.fromDAO()
+        return group
+    }
+
+    override suspend fun getGroups(groups: List<GroupId>): List<Group>?
+    {
+        TODO("Not yet implemented")
     }
 
     override suspend fun getAllGroups(): List<Group>?
@@ -78,6 +94,16 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
         }
 
         return groupsList?.fromDAO()
+    }
+
+    override suspend fun getAllExistingGroups(): List<Group>?
+    {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getAllDeletedGroups(): List<Group>?
+    {
+        TODO("Not yet implemented")
     }
 
     override suspend fun getGroupsByScheduleDay(dayPosition0: Int): List<Group>?
@@ -154,6 +180,11 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
                 target?.deleteFromRealm()
             }
         }
+    }
+
+    override suspend fun deleteGroupPermanently(group: Group)
+    {
+        TODO("Not yet implemented")
     }
 
     override suspend fun updatePeopleGroupAffiliation(people: List<Person>)

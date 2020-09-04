@@ -2,7 +2,7 @@ package ru.hryasch.coachnotes.repository.converters
 
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.repository.dao.*
-import java.util.*
+import java.util.LinkedList
 
 const val daoDateFormat = "dd.MM.yyyy"
 

@@ -18,11 +18,8 @@ import ru.hryasch.coachnotes.domain.person.interactors.impl.PersonInteractorImpl
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
-import ru.hryasch.coachnotes.repository.group.GroupFakeRepositoryImpl
 import ru.hryasch.coachnotes.repository.group.GroupRepositoryImpl
-import ru.hryasch.coachnotes.repository.journal.JournalFakeRepositoryImpl
 import ru.hryasch.coachnotes.repository.journal.JournalRepositoryImpl
-import ru.hryasch.coachnotes.repository.person.PersonFakeRepositoryImpl
 import ru.hryasch.coachnotes.repository.person.PersonRepositoryImpl
 
 
@@ -34,9 +31,6 @@ val appModule = module {
     single { GroupInteractorImpl() as GroupInteractor }
     single { PersonInteractorImpl() as PersonInteractor }
 
-    single(named("mock")) { JournalFakeRepositoryImpl() as JournalRepository }
-    single(named("mock")) { PersonFakeRepositoryImpl() as PersonRepository }
-    single(named("mock")) { GroupFakeRepositoryImpl()  as GroupRepository }
     single(named("release")) { JournalRepositoryImpl() as JournalRepository }
     single(named("release")) { PersonRepositoryImpl() as PersonRepository }
     single(named("release")) { GroupRepositoryImpl()  as GroupRepository }

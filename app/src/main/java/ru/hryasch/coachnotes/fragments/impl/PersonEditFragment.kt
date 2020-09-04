@@ -12,7 +12,6 @@ import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -33,7 +32,6 @@ import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.activity.MainActivity
-import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
@@ -161,11 +159,11 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
             if (selectedDay > 0 && selectedMonth > 0 && selectedYear > 0)
             {
-                currentPerson.birthday = LocalDate.of(selectedYear, selectedMonth, selectedDay)
+                currentPerson.fullBirthday = LocalDate.of(selectedYear, selectedMonth, selectedDay)
             }
             else
             {
-                currentPerson.birthday = null
+                currentPerson.fullBirthday = null
             }
 
             if (groupChooser.selection == MaterialSpinner.INVALID_POSITION)
@@ -446,7 +444,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             patronymic.text = SpannableStringBuilder(it)
         }
 
-        currentPerson.birthday?.let {
+        currentPerson.fullBirthday?.let {
             selectedDay = it.dayOfMonth
             selectedMonth = it.month.value
             selectedYear = it.year

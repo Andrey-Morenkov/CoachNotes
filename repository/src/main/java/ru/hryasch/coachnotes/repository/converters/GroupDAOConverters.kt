@@ -3,33 +3,47 @@ package ru.hryasch.coachnotes.repository.converters
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.group.data.GroupImpl
 import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
+import ru.hryasch.coachnotes.repository.dao.DeletedGroupDAO
 import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import ru.hryasch.coachnotes.repository.dao.ScheduleDayDAO
 import java.time.LocalTime
-import java.util.*
+import java.util.Calendar
+import java.util.LinkedList
 
 @JvmName("DAOGroupListConverter")
 fun List<GroupDAO>.fromDAO(): List<Group>
 {
     val groupList: MutableList<Group> = LinkedList()
-
     this.forEach { groupList.add(it.fromDAO()) }
 
     return groupList
 }
 
+@JvmName("DeletedDAOGroupListConverter")
+fun List<DeletedGroupDAO>.fromDAO(): List<Group>
+{
+    val groupList: MutableList<Group> = LinkedList()
+    this.forEach { groupList.add(it.fromDAO()) }
+
+    return groupList
+}
+
+
+
 fun GroupDAO.fromDAO(): Group
 {
+    val group = GroupImpl(this.id!!, this.name!!).apply {
+        isPaid = this@fromDAO.isPaid
+        deletedTimestamp = null
+    }
+
     val lowAge = this.availableAgeLow
     val highAge = this.availableAgeHigh
-
-    val group = GroupImpl(this.id!!, this.name!!, isPaid = this.isPaid)
     if (lowAge != null)
     {
         val ageRange = IntRange(lowAge, highAge ?: lowAge)
         group.availableAbsoluteAge = ageRange
     }
-
 
     this.members.forEach {
         group.membersList.add(it)
@@ -42,8 +56,41 @@ fun GroupDAO.fromDAO(): Group
     return group
 }
 
-fun Group.toDao(): GroupDAO
+fun DeletedGroupDAO.fromDAO(): Group
 {
+    val group = GroupImpl(this.id!!, this.name!!).apply {
+        isPaid = this@fromDAO.isPaid
+        deletedTimestamp = this@fromDAO.deleteTimestamp
+    }
+
+    val lowAge = this.availableAgeLow
+    val highAge = this.availableAgeHigh
+    if (lowAge != null)
+    {
+        val ageRange = IntRange(lowAge, highAge ?: lowAge)
+        group.availableAbsoluteAge = ageRange
+    }
+
+    this.members.forEach {
+        group.membersList.add(it)
+    }
+
+    this.scheduleDays.forEach {
+        group.scheduleDays.add(it.fromDAO())
+    }
+
+    return group
+}
+
+
+
+fun Group.toDao(): GroupDAO?
+{
+    if (this.deletedTimestamp != null)
+    {
+        return null
+    }
+
     val dao = GroupDAO(this.id, this.name, availableAgeLow = this.availableAbsoluteAge!!.first)
 
     dao.isPaid = isPaid
@@ -64,6 +111,18 @@ fun Group.toDao(): GroupDAO
 
     return dao
 }
+
+fun Group.toDeletedDao(): DeletedGroupDAO?
+{
+    if (this.deletedTimestamp == null)
+    {
+        return null
+    }
+
+    return DeletedGroupDAO(this.toDao()!!, this.deletedTimestamp!!)
+}
+
+
 
 fun ScheduleDayDAO.fromDAO(): ScheduleDay
 {

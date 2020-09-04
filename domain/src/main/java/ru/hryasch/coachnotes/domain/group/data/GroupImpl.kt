@@ -8,11 +8,12 @@ import ru.hryasch.coachnotes.domain.common.PersonId
 import java.util.LinkedList
 import java.util.UUID
 
-class GroupImpl private constructor(override val id: GroupId,
-                                    override var name: String,
-                                    override var availableAbsoluteAge: IntRange? = null,
-                                    override var isPaid: Boolean = false) : Group
+class GroupImpl (override val id: GroupId,
+                 override var name: String) : Group
 {
+    override var deletedTimestamp: Long? = null
+    override var availableAbsoluteAge: IntRange? = null
+    override var isPaid: Boolean = false
     override val membersList: MutableList<PersonId> = LinkedList()
     override val scheduleDays: MutableList<ScheduleDay> = LinkedList()
 

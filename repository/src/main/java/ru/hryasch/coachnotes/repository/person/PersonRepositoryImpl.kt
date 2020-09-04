@@ -19,7 +19,10 @@ import ru.hryasch.coachnotes.repository.common.PeopleChannelsStorage
 import ru.hryasch.coachnotes.repository.converters.fromDAO
 import ru.hryasch.coachnotes.repository.converters.fromDao
 import ru.hryasch.coachnotes.repository.converters.toDao
+import ru.hryasch.coachnotes.repository.dao.DeletedPersonDAO
 import ru.hryasch.coachnotes.repository.dao.PersonDAO
+import java.util.Collections
+import java.util.LinkedList
 import java.util.concurrent.Executors
 
 @ExperimentalCoroutinesApi
@@ -40,7 +43,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
 
     override suspend fun getPerson(personId: PersonId): Person?
     {
-        var personDao: PersonDAO? = null
+        var person: Person? = null
 
         withContext(dbContext)
         {
@@ -50,12 +53,64 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
                                .findFirst()
 
                 result?.let {res ->
-                    personDao = it.copyFromRealm(res)
+                    person = it.copyFromRealm(res).fromDao()
+                    return@executeTransaction
+                }
+
+                val result2 = it.where<DeletedPersonDAO>()
+                                .equalTo("id", personId)
+                                .findFirst()
+
+                result2?.let { res ->
+                    person = it.copyFromRealm(res).fromDao()
                 }
             }
         }
 
-        return personDao?.fromDao()
+        return person
+    }
+
+    override suspend fun getDeletedPerson(personId: PersonId): Person?
+    {
+        var person: Person? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<DeletedPersonDAO>()
+                               .equalTo("id", personId)
+                               .findFirst()
+
+                result?.let {res ->
+                    person = it.copyFromRealm(res).fromDao()
+                }
+            }
+        }
+
+        return null
+    }
+
+    override suspend fun getPeople(peopleIds: List<PersonId>): List<Person>?
+    {
+        val people: MutableList<Person> = LinkedList()
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                for (personId in peopleIds)
+                {
+                    val result = it.where<DeletedPersonDAO>()
+                                   .equalTo("id", personId)
+                                   .findFirst()
+
+                    result?.let {res ->
+                        people.add(it.copyFromRealm(res).fromDao())
+                    }
+                }
+            }
+        }
+
+        return people
     }
 
     override suspend fun getPeopleByGroup(groupId: GroupId): List<Person>?
@@ -82,12 +137,56 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
     {
         if (initializingJob.isActive) initializingJob.join()
 
+        val existingPeople = getAllExistingPeople()
+        val deletedPeople = getAllDeletedPeople()
+
+        val peopleList: MutableList<Person> = LinkedList()
+        existingPeople?.let {
+            peopleList.addAll(it)
+        }
+        deletedPeople?.let {
+            peopleList.addAll(it)
+        }
+
+        if (peopleList.isEmpty())
+        {
+            return null
+        }
+
+        return peopleList
+    }
+
+    override suspend fun getAllExistingPeople(): List<Person>?
+    {
+        if (initializingJob.isActive) initializingJob.join()
+
         var peopleList: List<PersonDAO>? = null
 
         withContext(dbContext)
         {
             db.executeTransaction {
                 val result = it.where<PersonDAO>()
+                               .findAll()
+
+                result?.let { res ->
+                    peopleList = it.copyFromRealm(res)
+                }
+            }
+        }
+
+        return peopleList?.fromDAO()
+    }
+
+    override suspend fun getAllDeletedPeople(): List<Person>?
+    {
+        if (initializingJob.isActive) initializingJob.join()
+
+        var peopleList: List<DeletedPersonDAO>? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<DeletedPersonDAO>()
                                .findAll()
 
                 result?.let { res ->
@@ -114,7 +213,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
                         val peopleByGroup = it.where<PersonDAO>()
                                               .equalTo("groupId", person.groupId)
                                               .findAll()
-                        if (peopleByGroup == null && person.groupId != null)
+                        if (peopleByGroup == null)
                         {
                             setSpecificGroupPeopleTrigger(person.groupId!!)
                         }
@@ -126,7 +225,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
 
                     isAddingPeople[i] = ( existPerson == null )
 
-                    it.copyToRealmOrUpdate(person.toDao())
+                    it.copyToRealmOrUpdate(person.toDao()!!)
                 }
             } // transaction
 
@@ -140,23 +239,81 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
         }
     }
 
-    override suspend fun deletePerson(person: Person)
+    override suspend fun deletePerson(personId: PersonId)
     {
         withContext(Dispatchers.Main)
         {
-            PeopleChannelsStorage.personById[person.id]!!.observable?.removeAllChangeListeners()
-            PeopleChannelsStorage.personById[person.id]!!.observable == null
+            PeopleChannelsStorage.personById[personId]?.observable?.removeAllChangeListeners()
+            PeopleChannelsStorage.personById[personId]?.observable == null
         }
+
         withContext(dbContext)
         {
             db.executeTransaction {
                 val target = it.where<PersonDAO>()
-                               .equalTo("id", person.id)
+                               .equalTo("id", personId)
                                .findFirst()
 
-                target?.deleteFromRealm()
+                target?.run {
+                    val deletedPerson = it.copyFromRealm(this).delete()
+                    it.copyToRealmOrUpdate(deletedPerson)
+                    this.deleteFromRealm()
+                }
             }
         }
+    }
+
+    override suspend fun deletePersonPermanently(personId: PersonId)
+    {
+        withContext(Dispatchers.Main)
+        {
+            PeopleChannelsStorage.personById[personId]?.observable?.removeAllChangeListeners()
+            PeopleChannelsStorage.personById[personId]?.observable == null
+        }
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val targetDeleted = it.where<DeletedPersonDAO>()
+                                      .equalTo("id", personId)
+                                      .findFirst()
+
+                targetDeleted?.run {
+                    this.deleteFromRealm()
+                    return@executeTransaction
+                }
+
+                val targetAlive = it.where<PersonDAO>()
+                                    .equalTo("id", personId)
+                                    .findFirst()
+
+                targetAlive?.deleteFromRealm()
+            }
+        }
+    }
+
+    override suspend fun revivePerson(personId: PersonId): Person?
+    {
+        var revivedPerson: Person? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val target = it.where<DeletedPersonDAO>()
+                               .equalTo("id", personId)
+                               .findFirst()
+
+                target?.run {
+                    revivedPerson = it.copyFromRealm(this).revive().fromDao()
+                }
+            }
+        }
+
+        revivedPerson?.let {
+            addOrUpdatePeople(Collections.singletonList(it))
+        }
+
+        return revivedPerson
     }
 
     override suspend fun closeDb()
