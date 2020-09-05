@@ -14,7 +14,6 @@ interface PersonRepository: AbstractRepository
     suspend fun getAllDeletedPeople(): List<Person>?
     suspend fun getPeopleByGroup(groupId: GroupId): List<Person>?
 
-
     suspend fun addOrUpdatePeople(people: List<Person>)
     suspend fun deletePerson(personId: PersonId)
     suspend fun deletePersonPermanently(personId: PersonId)

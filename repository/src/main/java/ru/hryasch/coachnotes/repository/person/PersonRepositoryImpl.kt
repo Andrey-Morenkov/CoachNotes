@@ -52,7 +52,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
                                .equalTo("id", personId)
                                .findFirst()
 
-                result?.let {res ->
+                result?.let { res ->
                     person = it.copyFromRealm(res).fromDao()
                     return@executeTransaction
                 }
@@ -81,7 +81,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
                                .equalTo("id", personId)
                                .findFirst()
 
-                result?.let {res ->
+                result?.let { res ->
                     person = it.copyFromRealm(res).fromDao()
                 }
             }
@@ -94,19 +94,10 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
     {
         val people: MutableList<Person> = LinkedList()
 
-        withContext(dbContext)
+        for (personId in peopleIds)
         {
-            db.executeTransaction {
-                for (personId in peopleIds)
-                {
-                    val result = it.where<DeletedPersonDAO>()
-                                   .equalTo("id", personId)
-                                   .findFirst()
-
-                    result?.let {res ->
-                        people.add(it.copyFromRealm(res).fromDao())
-                    }
-                }
+            getPerson(personId)?.let {
+                people.add(it)
             }
         }
 
@@ -305,6 +296,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
 
                 target?.run {
                     revivedPerson = it.copyFromRealm(this).revive().fromDao()
+                    this.deleteFromRealm()
                 }
             }
         }
