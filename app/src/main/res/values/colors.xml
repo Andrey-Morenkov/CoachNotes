@@ -10,6 +10,7 @@
     <color name="colorAccentDisabled">#7F814529</color>
     <color name="colorAccentTint">#7FF5824E</color>
     <color name="colorDisabledText">#65878787</color>
+    <color name="colorError">#F86F65</color>
 
     <color name="colorPaid">#C27A11</color>
     <color name="colorSelected">#65000000</color>

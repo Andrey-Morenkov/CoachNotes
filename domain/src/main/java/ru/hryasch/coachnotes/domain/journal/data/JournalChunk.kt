@@ -11,7 +11,7 @@ data class ChunkPersonName (val personId: PersonId, val surname: String, val nam
 {
     override fun compareTo(other: ChunkPersonName): Int
     {
-        return "$surname $name".compareTo("${other.surname} ${other.name}")
+        return "$surname $name $personId".compareTo("${other.surname} ${other.name} ${other.personId}")
     }
 
     constructor(person: Person): this(person.id, person.surname, person.name)

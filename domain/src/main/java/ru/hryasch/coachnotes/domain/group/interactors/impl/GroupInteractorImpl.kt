@@ -30,12 +30,6 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
         return groups
     }
 
-    override suspend fun getMaxGroupId(): GroupId
-    {
-        val maxId = groupRepository.getAllGroups()?.map { it.id }?.max()
-        return maxId ?: 0
-    }
-
     override suspend fun getGroupNames(): Map<GroupId, String>
     {
         val groupsList = groupRepository.getAllGroups()
@@ -56,6 +50,7 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
         groupRepository.addOrUpdateGroup(group)
     }
 
+    // TODO: add variants with move people etc
     override suspend fun deleteGroup(group: Group)
     {
         val groupPeople = LinkedList<Person>()
@@ -72,6 +67,25 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
 
         peopleRepository.addOrUpdatePeople(groupPeople)
         groupRepository.deleteGroup(group)
+        //journalRepository.deleteAllJournalsByGroup(group.id)
+    }
+
+    override suspend fun deleteGroupPermanently(group: Group)
+    {
+        val groupPeople = LinkedList<Person>()
+
+        group.membersList.forEach {
+            val person = peopleRepository.getPerson(it)
+            person?.apply {
+                groupId = null
+                isPaid = false }
+                ?.let {
+                    groupPeople.add(it)
+                }
+        }
+
+        peopleRepository.addOrUpdatePeople(groupPeople)
+        groupRepository.deleteGroupPermanently(group)
         journalRepository.deleteAllJournalsByGroup(group.id)
     }
 }

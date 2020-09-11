@@ -12,8 +12,6 @@ interface PersonInteractor
 
     suspend fun getPeopleWithoutGroup(): List<Person>?
 
-    suspend fun getMaxPersonId(): PersonId
-
 
 
     suspend fun addOrUpdatePeople(people: List<Person>)
@@ -23,6 +21,8 @@ interface PersonInteractor
 
 
     suspend fun deletePerson(person: Person)
+
+    suspend fun deletePersonPermanently(person: Person)
 
     suspend fun deletePersonFromGroup(personId: PersonId, groupId: GroupId)
 }

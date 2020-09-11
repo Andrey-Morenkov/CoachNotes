@@ -52,7 +52,7 @@ buildscript
         moxy_version = '2.1.1'
 
         // Realm (DB)
-        realm_version = '7.0.0'
+        realm_version = '7.0.5'
         realm_ext_version = "2.5.0"
 
         // POI (Microsoft office exporter)

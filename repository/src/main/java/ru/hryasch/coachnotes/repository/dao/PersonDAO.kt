@@ -28,10 +28,10 @@ open class PersonDAO(): RealmObject()
     var fullBirthday: String? = null
     var groupId: GroupId? = null
     var isPaid: Boolean = false
-    val relativeInfos: RealmList<RelativeInfoDAO> = RealmList()
+    var relativeInfos: RealmList<RelativeInfoDAO> = RealmList()
 
     // History info
-    val groupsHistory: RealmList<PersonGroupHistoryInfoElement> = RealmList()
+    //val groupsHistory: RealmList<PersonGroupHistoryInfoElement> = RealmList()
 
     constructor(id: PersonId, name: String, surname: String, birthdayYear: Int): this()
     {
@@ -73,7 +73,7 @@ open class DeletedPersonDAO(): RealmObject()
     var relativeInfos: RealmList<RelativeInfoDAO> = RealmList()
 
     // History info
-    var groupsHistory: RealmList<PersonGroupHistoryInfoElement> = RealmList()
+    //var groupsHistory: RealmList<PersonGroupHistoryInfoElement> = RealmList()
 
     constructor(personDAO: PersonDAO, timestamp: Long): this()
     {
@@ -87,7 +87,7 @@ open class DeletedPersonDAO(): RealmObject()
         groupId = personDAO.groupId
         isPaid = personDAO.isPaid
         relativeInfos.addAll(personDAO.relativeInfos)
-        groupsHistory.addAll(personDAO.groupsHistory)
+        //groupsHistory.addAll(personDAO.groupsHistory)
     }
 
     fun revive(): PersonDAO
@@ -99,7 +99,7 @@ open class DeletedPersonDAO(): RealmObject()
                 groupId = this@DeletedPersonDAO.groupId
                 isPaid = this@DeletedPersonDAO.isPaid
                 relativeInfos.addAll(this@DeletedPersonDAO.relativeInfos)
-                groupsHistory.addAll(this@DeletedPersonDAO.groupsHistory)
+                //groupsHistory.addAll(this@DeletedPersonDAO.groupsHistory)
             }
     }
 }

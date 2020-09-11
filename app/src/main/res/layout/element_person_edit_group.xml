@@ -11,18 +11,38 @@
         android:text="@string/group"
         android:textSize="@dimen/default_subtitle_text_size" />
 
-    <com.tiper.MaterialSpinner
-        android:id='@+id/personEditSpinnerGroup'
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_indent"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="@dimen/default_indent"
-        android:layout_marginBottom="@dimen/default_indent"
-        android:hint="@string/group"
-        app:boxBackgroundMode="outline"
-        app:hintTextColor="@color/colorAccent"
-        app:spinnerMode="dropdown" />
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <com.tiper.MaterialSpinner
+            android:id='@+id/personEditSpinnerGroup'
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/default_indent"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="@dimen/default_indent"
+            android:layout_weight="1"
+            android:hint="@string/group"
+            app:boxBackgroundMode="outline"
+            app:hintTextColor="@color/colorAccent"
+            app:spinnerMode="dropdown">
+
+        </com.tiper.MaterialSpinner>
+
+        <ImageView
+            android:id="@+id/personEditImageViewClearGroup"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="19dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="20dp"
+            android:layout_weight="1"
+            android:tint="@color/colorError"
+            app:srcCompat="@drawable/ic_no_exist" />
+    </LinearLayout>
 
 </LinearLayout>

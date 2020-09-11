@@ -8,13 +8,11 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -55,6 +53,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private lateinit var contentView: NestedScrollView
     private lateinit var loadingBar: ProgressBar
 
+    private val additionalViews: MutableList<View> = LinkedList()
+
     // Toolbar
     private lateinit var saveOrCreatePerson: MaterialButton
 
@@ -64,30 +64,46 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     // General section
     private lateinit var surname: TextInputEditText
     private lateinit var name: TextInputEditText
-    private lateinit var patronymic: TextInputEditText
+    private lateinit var patronymic: TextInputEditText // Additional view
 
     // Birthday section
-    private lateinit var birthdayDay: MaterialSpinner
-    private lateinit var birthdayMonth: MaterialSpinner
-    private lateinit var birthdayYear: MaterialSpinner
-    private lateinit var relativeYears: TextView
-    private lateinit var daysOfMonthList: List<String>
-    private lateinit var monthsList: List<String>
-    private lateinit var yearsList: List<String>
-    private var selectedDay: Int = -1
-    private var selectedMonth: Int = -1
-    private var selectedYear: Int = -1
+        // Views
+        private lateinit var birthdayTitle: View // Additional view
+        private lateinit var birthdayDay: MaterialSpinner // Additional view
+        private lateinit var birthdayMonth: MaterialSpinner // Additional view
+        private lateinit var birthdayYear: MaterialSpinner
+        private lateinit var relativeYears: TextView
+
+        // Data
+        private lateinit var daysOfMonthList: List<String>
+        private lateinit var monthsList: List<String>
+        private lateinit var yearsList: List<String>
+        private var selectedDay: Int = -1
+        private var selectedMonth: Int = -1
+        private var selectedYear: Int = -1
 
     // Group section
-    private lateinit var groupChooser: MaterialSpinner
-    private val groupIdByPosition: MutableMap<Int, Pair<GroupId?, Boolean>> = HashMap()
-    private val groupPositionById: MutableMap<GroupId?, Int> = HashMap()
+        // Views
+        private lateinit var groupChooser: MaterialSpinner
+        private lateinit var clearGroup: ImageView
+
+        // Data
+        private val groupIdByPosition: MutableMap<Int, Pair<GroupId?, Boolean>> = HashMap()
+        private val groupPositionById: MutableMap<GroupId?, Int> = HashMap()
+
+    // Show more fields section
+    private lateinit var showMoreButton: TextView
 
     // Relatives section
-    private lateinit var addNewRelativeButton: MaterialButton
-    private lateinit var relativesInfoContainer: LinearLayout
-    private val relativesInfoList: MutableList<RelativeInfoHolder> = ArrayList()
-    private lateinit var deleteRelativeInfoHolder: OnDeleteRelativeInfoHolder
+        // Views
+        private lateinit var relativesSection: View // Additional view
+        private lateinit var addNewRelativeButton: MaterialButton
+        private lateinit var relativesInfoContainer: LinearLayout
+
+        // Data
+        private val relativesInfoList: MutableList<RelativeInfoHolder> = ArrayList()
+        private lateinit var deleteRelativeInfoHolder: OnDeleteRelativeInfoHolder
+
 
     private lateinit var currentPerson: Person
 
@@ -106,6 +122,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         inflateGeneralSection(layout)
         inflateBirthdaySection(layout)
         inflateGroupSection(layout)
+        inflateShowMoreSection(layout)
         inflateRelativesSection(layout)
 
         contentView = layout.findViewById(R.id.personEditContent)
@@ -116,6 +133,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         presenter.applyInitialArgumentPersonAsync(PersonEditFragmentArgs.fromBundle(requireArguments()).personData)
 
         setSaveOrCreateButtonDisabled()
+        hideAdditionalViews()
 
         return layout
     }
@@ -141,10 +159,12 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                                         id: Long)
             {
                 currentPerson.groupId = groupIdByPosition[position]?.first
+                clearGroup.visible = true
             }
 
             override fun onNothingSelected(parent: MaterialSpinner)
             {
+                clearGroup.visible = false
             }
         }
 
@@ -155,7 +175,16 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         saveOrCreatePerson.setOnClickListener {
             currentPerson.surname = surname.text.toString()
             currentPerson.name = name.text.toString()
-            currentPerson.patronymic = patronymic.text?.toString()
+
+            if (patronymic.isVisible)
+            {
+                currentPerson.patronymic = patronymic.text?.toString()
+            }
+            else
+            {
+                currentPerson.patronymic = null
+            }
+
 
             if (selectedDay > 0 && selectedMonth > 0 && selectedYear > 0)
             {
@@ -165,6 +194,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             {
                 currentPerson.fullBirthday = null
             }
+            currentPerson.birthdayYear = selectedYear
+
 
             if (groupChooser.selection == MaterialSpinner.INVALID_POSITION)
             {
@@ -176,6 +207,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                 currentPerson.groupId = groupIdByPosition[groupChooser.selection]!!.first
                 currentPerson.isPaid = groupIdByPosition[groupChooser.selection]!!.second
             }
+
 
             currentPerson.relativeInfos.clear()
             for (relativeHolder in relativesInfoList)
@@ -190,13 +222,6 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
             presenter.updateOrCreatePerson()
         }
-    }
-
-    override fun loadingState()
-    {
-        contentView.visible = false
-        loadingBar.visible = true
-        saveOrCreatePerson.visible = false
     }
 
     override fun deletePersonFinished()
@@ -228,6 +253,14 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         dialog.show()
     }
+
+    override fun loadingState()
+    {
+        contentView.visible = false
+        loadingBar.visible = true
+        saveOrCreatePerson.visible = false
+    }
+
 
 
     private fun showingState(isNewPerson: Boolean)
@@ -261,6 +294,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         surname = layout.findViewById(R.id.editPersonEditTextSurname)
         name = layout.findViewById(R.id.editPersonEditTextName)
         patronymic = layout.findViewById(R.id.editPersonEditTextPatronymic)
+        additionalViews.add(patronymic)
 
         surname.addTextChangedListener(object: TextWatcher
                                        {
@@ -317,8 +351,15 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     private fun inflateBirthdaySection(layout: View)
     {
+        birthdayTitle = layout.findViewById(R.id.personEditBirthdayTitle)
+        additionalViews.add(birthdayTitle)
+
         birthdayDay = layout.findViewById(R.id.personEditBirthdaySpinnerDay)
+        additionalViews.add(birthdayDay)
+
         birthdayMonth = layout.findViewById(R.id.personEditBirthdaySpinnerMonth)
+        additionalViews.add(birthdayMonth)
+
         birthdayYear = layout.findViewById(R.id.personEditBirthdaySpinnerYear)
         relativeYears = layout.findViewById(R.id.personEditRelativeAges)
 
@@ -387,10 +428,53 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private fun inflateGroupSection(layout: View)
     {
         groupChooser = layout.findViewById(R.id.personEditSpinnerGroup)
+        clearGroup = layout.findViewById(R.id.personEditImageViewClearGroup)
+        clearGroup.visible = false
+        clearGroup.setOnClickListener {
+            groupChooser.selection = MaterialSpinner.INVALID_POSITION
+        }
+    }
+
+    private fun inflateShowMoreSection(layout: View)
+    {
+        showMoreButton = layout.findViewById(R.id.personEditTextViewShowMoreFields)
+        showMoreButton.setOnClickListener {
+            showAdditionalViews()
+        }
+    }
+
+
+
+    private fun checkIfAllAdditionalViewsVisibleHideShowMore()
+    {
+        for (view in additionalViews)
+        {
+            if (!view.isVisible)
+            {
+                return
+            }
+        }
+
+        showMoreButton.visible = false
+    }
+
+    private fun showAdditionalViews()
+    {
+        additionalViews.forEach { v -> v.visible = true }
+        showMoreButton.visible = false
+    }
+
+    private fun hideAdditionalViews()
+    {
+        additionalViews.forEach { v -> v.visible = false }
+        showMoreButton.visible = true
     }
 
     private fun inflateRelativesSection(layout: View)
     {
+        relativesSection = layout.findViewById(R.id.editPersonRelativesSection)
+        additionalViews.add(relativesSection)
+
         addNewRelativeButton = layout.findViewById(R.id.editPersonRelativeInfoAddRelative)
         relativesInfoContainer = layout.findViewById(R.id.editPersonRelativeInfoContainer)
 
@@ -442,7 +526,11 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         currentPerson.patronymic?.let {
             patronymic.text = SpannableStringBuilder(it)
+            patronymic.visible = true
         }
+
+        selectedYear = currentPerson.birthdayYear
+        birthdayYear.selection = yearsList.indexOf(selectedYear.toString())
 
         currentPerson.fullBirthday?.let {
             selectedDay = it.dayOfMonth
@@ -452,6 +540,10 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             birthdayDay.selection = daysOfMonthList.indexOf(selectedDay.toString())
             birthdayMonth.selection = selectedMonth - 1
             birthdayYear.selection = yearsList.indexOf(selectedYear.toString())
+
+            birthdayTitle.visible = true
+            birthdayDay.visible = true
+            birthdayMonth.visible = true
         }
 
         deletePerson.setOnClickListener {
@@ -469,8 +561,10 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             {
                 relativeHolder.applyExistData(currentPerson.relativeInfos[i])
             }
+            relativesSection.visible = true
         }
 
+        checkIfAllAdditionalViewsVisibleHideShowMore()
         checkRequiredFields()
     }
 
@@ -536,7 +630,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     private fun checkRequiredFields()
     {
-        if (!surname.text.isNullOrBlank() && !name.text.isNullOrBlank() && isBirthdaySet())
+        if (!surname.text.isNullOrBlank() && !name.text.isNullOrBlank() && birthdayYear.selectedItem != null)
         {
             setSaveOrCreateButtonEnabled()
         }
@@ -558,12 +652,5 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         saveOrCreatePerson.isEnabled = false
         saveOrCreatePerson.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorAccentDisabled))
         saveOrCreatePerson.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorDisabledText))
-    }
-
-    private fun isBirthdaySet(): Boolean
-    {
-        return (birthdayDay.selectedItem != null) &&
-               (birthdayMonth.selectedItem != null) &&
-               (birthdayYear.selectedItem != null)
     }
 }

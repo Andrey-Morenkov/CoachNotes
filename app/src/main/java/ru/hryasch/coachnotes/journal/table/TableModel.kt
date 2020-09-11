@@ -8,7 +8,7 @@ import ru.hryasch.coachnotes.journal.table.viewholders.RowHeaderModel
 
 class TableModel()
 {
-    var groupId: GroupId = 0
+    var groupId: GroupId = ""
     var columnHeaderContent: MutableList<ColumnHeaderModel> = ArrayList()
     var rowHeaderContent: MutableList<RowHeaderModel> = ArrayList()
     var cellContent: MutableList<MutableList<CellModel>> = ArrayList()

@@ -203,7 +203,14 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
                                    .equalTo("id", group.id)
                                    .findFirst()
 
-                isAddingGroup = ( existGroup == null )
+                var removedGroup: DeletedGroupDAO? = null
+                if (existGroup == null) {
+                    removedGroup = it.where<DeletedGroupDAO>()
+                                     .equalTo("id", group.id)
+                                     .findFirst()
+                }
+
+                isAddingGroup = ( existGroup == null && removedGroup == null )
 
                 e("updating group: $group")
 

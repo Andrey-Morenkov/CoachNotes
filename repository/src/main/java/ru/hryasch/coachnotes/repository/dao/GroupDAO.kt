@@ -24,12 +24,12 @@ open class GroupDAO(): RealmObject()
     var availableAgeLow: AbsoluteAge? = null
     var availableAgeHigh: AbsoluteAge? = null
     var isPaid: Boolean = false
-    val members: RealmList<PersonId> = RealmList()
-    val scheduleDays: RealmList<ScheduleDayDAO> = RealmList()
+    var members: RealmList<PersonId> = RealmList()
+    var scheduleDays: RealmList<ScheduleDayDAO> = RealmList()
     var scheduleDaysCode0: String = ""
 
     // History info
-    val historicMembers: RealmList<PersonId> = RealmList()
+    //val historicMembers: RealmList<PersonId> = RealmList()
 
     constructor(id: GroupId,
                 name: String,
@@ -82,7 +82,7 @@ open class DeletedGroupDAO(): RealmObject()
     var scheduleDaysCode0: String = ""
 
     // History info
-    var historicMembers: RealmList<PersonId> = RealmList()
+    //var historicMembers: RealmList<PersonId> = RealmList()
 
     constructor(groupDAO: GroupDAO, timestamp: Long): this()
     {
@@ -95,7 +95,7 @@ open class DeletedGroupDAO(): RealmObject()
         members.addAll(groupDAO.members)
         scheduleDays.addAll(groupDAO.scheduleDays)
         scheduleDaysCode0 = groupDAO.scheduleDaysCode0
-        historicMembers.addAll(groupDAO.historicMembers)
+        //historicMembers.addAll(groupDAO.historicMembers)
     }
 
     fun revive(): GroupDAO
@@ -105,7 +105,7 @@ open class DeletedGroupDAO(): RealmObject()
                 members.addAll(this@DeletedGroupDAO.members)
                 scheduleDays.addAll(this@DeletedGroupDAO.scheduleDays)
                 scheduleDaysCode0 = this@DeletedGroupDAO.scheduleDaysCode0
-                historicMembers.addAll(this@DeletedGroupDAO.historicMembers)
+                //historicMembers.addAll(this@DeletedGroupDAO.historicMembers)
             }
     }
 }

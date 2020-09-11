@@ -2,6 +2,7 @@ package ru.hryasch.coachnotes.domain.person.interactors.impl
 
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.w
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -40,12 +41,6 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
         return peopleRepository.getAllPeople()?.filter { person -> person.groupId == null }
     }
 
-    override suspend fun getMaxPersonId(): PersonId
-    {
-        val maxId = peopleRepository.getAllPeople()?.map { it.id }?.max()
-        return maxId ?: 0
-    }
-
 
 
     @ExperimentalCoroutinesApi
@@ -65,6 +60,12 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
 
     override suspend fun deletePerson(person: Person)
     {
+        if (person.deletedTimestamp != null)
+        {
+            w("Try delete person ${person.id}, but it already deleted, skip")
+            return
+        }
+
         person.groupId?.let {
             val group = groupRepository.getGroup(it)
             if (group != null)
@@ -74,7 +75,21 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
                 groupRepository.addOrUpdateGroup(group)
             }
         }
-        peopleRepository.deletePerson(person)
+        peopleRepository.deletePerson(person.id)
+    }
+
+    override suspend fun deletePersonPermanently(person: Person)
+    {
+        person.groupId?.let {
+            val group = groupRepository.getGroup(it)
+            if (group != null)
+            {
+                group.membersList.remove(person.id)
+                i("membersList size after remove = ${group.membersList.size}")
+                groupRepository.addOrUpdateGroup(group)
+            }
+        }
+        peopleRepository.deletePersonPermanently(person.id)
     }
 
     @ExperimentalCoroutinesApi

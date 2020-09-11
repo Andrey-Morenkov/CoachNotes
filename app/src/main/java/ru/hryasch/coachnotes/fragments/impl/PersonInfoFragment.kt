@@ -115,11 +115,19 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
             isPaid.visibility = View.INVISIBLE
         }
 
-        val birthdayDate = LocalDate.of(person.fullBirthday!!.year, person.fullBirthday!!.month.value, person.fullBirthday!!.dayOfMonth)
-        val nowDate = LocalDate.now()
-        val diffYears = ChronoUnit.YEARS.between(birthdayDate, nowDate)
+        if (person.fullBirthday == null)
+        {
+            age.text = getString(R.string.person_info_header_age_only_year_pattern, person.birthdayYear)
+        }
+        else
+        {
+            val birthdayDate = LocalDate.of(person.fullBirthday!!.year, person.fullBirthday!!.month.value, person.fullBirthday!!.dayOfMonth)
+            val nowDate = LocalDate.now()
+            val diffYears = ChronoUnit.YEARS.between(birthdayDate, nowDate)
 
-        age.text = getString(R.string.person_info_header_age_pattern, person.fullBirthday!!.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), diffYears)
+            age.text = getString(R.string.person_info_header_age_pattern, person.fullBirthday!!.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), diffYears)
+        }
+
         groupName.text = groupNames[person.groupId] ?: "Нет группы"
 
         editPerson.setOnClickListener {

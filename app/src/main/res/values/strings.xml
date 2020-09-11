@@ -111,6 +111,10 @@
     <string name="person_edit_screen_toolbar_title">Редактор ученика</string>
     <string name="person_edit_screen_toolbar_new_title">Новый ученик</string>
     <string name="person_edit_screen_delete_person">Удалить ученика</string>
+    <string name="person_edit_birthday_title_short">Год рождения</string>
+    <string name="person_edit_birthday_year_full">год</string>
+    <string name="person_edit_birthday_month_full">месяц</string>
+    <string name="person_edit_birthday_day_full">день</string>
     <string name="person_edit_screen_group_pattern_range">%1$s (%2$s - %3$s г.р)</string>
     <string name="person_edit_screen_group_pattern_single">%1$s (%2$s г.р)</string>
     <string name="person_edit_screen_relative_age_pattern">%1$s лет</string>
@@ -159,6 +163,7 @@
             // Person header element
             <string name="person_info_header_name_surname_pattern">%1$s %2$s</string>
             <string name="person_info_header_age_pattern">%1$s (%2$d лет)</string>
+            <string name="person_info_header_age_only_year_pattern">%1$d г.р</string>
                 // Samples
                 <string name="person_header_name_surname_sample">Иван Иванович</string>
                 <string name="person_header_patronymic_sample">Иванов</string>

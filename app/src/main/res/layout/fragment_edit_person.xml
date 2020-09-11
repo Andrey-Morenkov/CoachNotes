@@ -98,6 +98,16 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/default_indent" />
 
+                <TextView
+                    android:id="@+id/personEditTextViewShowMoreFields"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/default_indent"
+                    android:layout_marginEnd="@dimen/default_indent"
+                    android:layout_marginBottom="@dimen/default_indent"
+                    android:text="Показать другие поля"
+                    android:textColor="@color/colorAccent" />
+
                 <include
                     layout="@layout/element_person_edit_parents"
                     android:layout_width="match_parent"

@@ -81,6 +81,9 @@
             app:exitAnim="@anim/slide_out_left_custom"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_groupInfoFragment_to_personEditFragment"
+            app:destination="@id/personEditFragment" />
     </fragment>
     <fragment
         android:id="@+id/groupEditFragment"

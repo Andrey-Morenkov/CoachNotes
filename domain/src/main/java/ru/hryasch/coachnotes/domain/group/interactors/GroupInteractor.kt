@@ -8,8 +8,6 @@ interface GroupInteractor
 {
     suspend fun getGroupsList(): List<Group>
 
-    suspend fun getMaxGroupId(): GroupId
-
     suspend fun getGroupNames(): Map<GroupId, String>
 
     suspend fun getPeopleListByGroup(groupId: GroupId): List<Person>
@@ -17,4 +15,6 @@ interface GroupInteractor
     suspend fun addOrUpdateGroup(group: Group)
 
     suspend fun deleteGroup(group: Group)
+
+    suspend fun deleteGroupPermanently(group: Group)
 }

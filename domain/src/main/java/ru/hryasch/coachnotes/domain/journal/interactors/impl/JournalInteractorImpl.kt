@@ -7,6 +7,7 @@ import org.koin.core.inject
 import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.domain.common.GroupId
+import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 import ru.hryasch.coachnotes.domain.person.data.Person
@@ -58,13 +59,14 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         val group = groupRepository.getGroup(groupId)!!
         val chunks = journalRepository.getJournalChunks(period, groupId)!!
 
+        // TODO: get fresh people data before exporting
+
         exporter.export(chunks, group, period)
     }
 
 
     private fun generateTableData(period: YearMonth, groupId: GroupId, chunks: List<JournalChunk>?, groupPeople: List<Person>): TableData?
     {
-
         val tableData = TableData()
 
         tableData.groupId = groupId
@@ -90,7 +92,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
     private fun generateNames(chunks: List<JournalChunk>?, groupPeople: List<Person>, period: YearMonth): List<RowHeaderData>?
     {
-        val allPeople: MutableSet<Person> = HashSet()
+        val allPeople: MutableMap<PersonId, Person> = HashMap()
 
         if (period.isHistorical())
         {
@@ -98,38 +100,31 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             if (chunks == null)
             {
                 // no chunks => no data
-                e("historical, no chunks")
+                i("historical, no chunks")
                 return null
             }
-            e("historical, have chunks")
+            i("historical, have chunks")
         }
         else
         {
             e("non historical")
             // using mix of chunks people (if chunks exist) and current people
-            allPeople.addAll(groupPeople)
+            groupPeople.forEach {
+                allPeople[it.id] = it
+            }
         }
 
         chunks?.forEach {
             it.content.forEach { entry ->
-                if (allPeople.find { it.surname == entry.key.surname && it.name == entry.key.name } == null)
-                {
-                    allPeople.add(
-                        PersonImpl(
-                            entry.key.surname,
-                            entry.key.name,
-                            null,
-                            -1
-                        )
-                    )
-                }
+                // Group data has more priority because it has freshest data
+                allPeople.putIfAbsent(entry.key.personId, PersonImpl(entry.key.personId, entry.key.surname, entry.key.name, 0))
             }
         }
 
         val headers: MutableList<RowHeaderData> = LinkedList()
 
         var number = 1
-        allPeople.toList().sorted().forEach {
+        allPeople.values.toList().sorted().forEach {
             headers.add(RowHeaderData(it, number))
             number++
         }
@@ -158,8 +153,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             {
                 for (row in cells.indices)
                 {
-                    val personDataByDay = chunk.content.filter { it.key.surname == allPeople[row].person.surname &&
-                                                                 it.key.name == allPeople[row].person.name }
+                    val personDataByDay = chunk.content.filter { it.key.personId == allPeople[row].person.id }
                     // No person data for this date => no exist
                     if (personDataByDay.isEmpty())
                     {
@@ -258,7 +252,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                 }
             }
 
-            if (!period.isHistorical() && allPeople[row].person.id == -1)
+            if (!period.isHistorical() && allPeople[row].person.id == "")
             {
                 val startCol = ZonedDateTime.now().dayOfMonth - 1
                 for (col in startCol until cells[row].size)
@@ -275,7 +269,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         val todayCol = LocalDate.now().dayOfMonth - 1
         for ((i, personHeader) in allPeople.withIndex())
         {
-            if (personHeader.person.id == -1)
+            if (personHeader.person.id == "")
             {
                 cells[i][todayCol] = NoExistData()
             }
