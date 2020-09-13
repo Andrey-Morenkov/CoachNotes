@@ -14,7 +14,7 @@ interface GroupInteractor
 
     suspend fun addOrUpdateGroup(group: Group)
 
-    suspend fun deleteGroup(group: Group)
+    suspend fun deleteGroupAndRemoveAllPeopleFromThisGroup(group: Group)
 
     suspend fun deleteGroupPermanently(group: Group)
 }

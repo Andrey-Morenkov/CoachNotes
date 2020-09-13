@@ -70,23 +70,30 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
         }
     }
 
-    override fun onDeleteGroupClicked()
-    {
-        viewState.showDeleteGroupNotification(currentGroup)
-    }
-
-    override fun deleteGroup(group: Group)
+    override fun deleteGroupAndRemoveAllPeopleFromThisGroup(group: Group)
     {
         viewState.loadingState()
 
         GlobalScope.launch(Dispatchers.Main)
         {
-            groupInteractor.deleteGroup(group)
+            groupInteractor.deleteGroupAndRemoveAllPeopleFromThisGroup(group)
 
             withContext(Dispatchers.Main)
             {
                 viewState.deleteGroupFinished()
             }
         }
+    }
+
+    override fun deleteGroupAndMoveAllPeopleToAnotherGroup(group: Group, targetGroup: Group)
+    {
+        // TODO
+        //viewState.loadingState()
+    }
+
+    override fun deleteGroupAnDeleteAllPeople(group: Group)
+    {
+        // TODO
+        //viewState.loadingState()
     }
 }

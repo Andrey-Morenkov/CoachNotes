@@ -10,7 +10,9 @@ interface GroupEditPresenter
 
     fun updateOrCreateGroup()
 
-    fun onDeleteGroupClicked()
+    fun deleteGroupAndRemoveAllPeopleFromThisGroup(group: Group)
 
-    fun deleteGroup(group: Group)
+    fun deleteGroupAndMoveAllPeopleToAnotherGroup(group: Group, targetGroup: Group)
+
+    fun deleteGroupAnDeleteAllPeople(group: Group)
 }

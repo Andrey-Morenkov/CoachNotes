@@ -19,7 +19,4 @@ interface GroupEditView: MvpView
 
     @StateStrategyType(SingleStateStrategy::class)
     fun updateOrCreateGroupFinished()
-
-    @StateStrategyType(AddToEndSingleStrategy::class)
-    fun showDeleteGroupNotification(group: Group?)
 }

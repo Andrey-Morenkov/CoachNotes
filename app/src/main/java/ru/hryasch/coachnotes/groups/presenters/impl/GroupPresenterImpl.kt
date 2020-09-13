@@ -78,19 +78,12 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
         }
     }
 
-    override fun onDeletePersonFromCurrentGroupClicked(person: Person)
-    {
-        viewState.showDeletePersonFromGroupNotification(person)
-    }
-
     override fun deletePersonFromCurrentGroup(personId: PersonId)
     {
         GlobalScope.launch(Dispatchers.Default)
         {
             peopleInteractor.deletePersonFromGroup(personId, currentGroup!!.id)
         }
-
-        viewState.showDeletePersonFromGroupNotification(null)
     }
 
     override fun onAddPeopleToGroupClicked()

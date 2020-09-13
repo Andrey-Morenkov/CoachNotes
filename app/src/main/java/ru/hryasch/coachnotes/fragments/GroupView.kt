@@ -17,8 +17,5 @@ interface GroupView: MvpView
     fun loadingState()
 
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun showDeletePersonFromGroupNotification(person: Person?)
-
-    @StateStrategyType(AddToEndSingleStrategy::class)
     fun showAddPeopleToGroupNotification(people: List<Person>?)
 }

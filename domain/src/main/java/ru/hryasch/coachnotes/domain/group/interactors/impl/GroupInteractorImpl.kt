@@ -51,7 +51,7 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
     }
 
     // TODO: add variants with move people etc
-    override suspend fun deleteGroup(group: Group)
+    override suspend fun deleteGroupAndRemoveAllPeopleFromThisGroup(group: Group)
     {
         val groupPeople = LinkedList<Person>()
 

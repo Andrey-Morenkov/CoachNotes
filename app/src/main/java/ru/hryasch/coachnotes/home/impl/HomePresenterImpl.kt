@@ -13,6 +13,7 @@ import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.home.HomeInteractor
 import ru.hryasch.coachnotes.fragments.HomeView
 import ru.hryasch.coachnotes.home.HomePresenter
+import java.util.Collections
 
 @ExperimentalCoroutinesApi
 @InjectViewState
@@ -31,7 +32,7 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
             val groups = homeInteractor.getAllGroups()
             withContext(Dispatchers.Main)
             {
-                viewState.setGroups(groups)
+                viewState.setGroups(groups ?: Collections.emptyList())
                 subscribeOnGroupsChanges()
             }
         }

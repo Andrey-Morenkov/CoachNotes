@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.pawegio.kandroid.toast
 import com.pawegio.kandroid.visible
 import com.tiper.MaterialSpinner
 import kotlinx.coroutines.*
@@ -62,6 +64,9 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         private lateinit var deleteGroup: MaterialButton
         private lateinit var contentView: NestedScrollView
         private lateinit var loadingBar: ProgressBar
+
+        // Dialogs
+        private lateinit var deleteGroupVariantsDialog: AlertDialog
 
     // General section
         // UI
@@ -149,6 +154,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
                 delay(500) //hotfix for animation
                 setAgesAdapters()
                 createSaveOrCreateGroupWithoutScheduleWarningDialog(group.name.isBlank())
+                createDeleteGroupVariantsDialog()
                 if (group.name.isNotBlank())
                 {
                     setExistGroupData()
@@ -179,27 +185,6 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
     override fun updateOrCreateGroupFinished()
     {
         navController.navigateUp()
-    }
-
-    override fun showDeleteGroupNotification(group: Group?)
-    {
-        if (group == null)
-        {
-            return
-        }
-
-        val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setMessage("Удалить группу и все связанные с ней журналы?")
-            .setPositiveButton("Удалить") { dialog, _ ->
-                dialog.cancel()
-                presenter.deleteGroup(currentGroup)
-            }
-            .setNegativeButton("Отмена") { dialog, _ ->
-                dialog.cancel()
-            }
-            .create()
-
-        dialog.show()
     }
 
 
@@ -440,12 +425,39 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             }
 
             deleteGroup.setOnClickListener {
-                presenter.onDeleteGroupClicked()
+                deleteGroupVariantsDialog.show()
             }
         }
     }
 
 
+    private fun createDeleteGroupVariantsDialog()
+    {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_delete_group, null)
+        deleteGroupVariantsDialog = MaterialAlertDialogBuilder(requireContext())
+                                       .setView(dialogView)
+                                       .setTitle("Удалить группу, а так же ...")
+                                       .create()
+
+        dialogView.findViewById<LinearLayout>(R.id.deleteGroupRemoveAllPeopleFromGroup).setOnClickListener {
+            presenter.deleteGroupAndRemoveAllPeopleFromThisGroup(currentGroup)
+            deleteGroupVariantsDialog.dismiss()
+        }
+
+        dialogView.findViewById<LinearLayout>(R.id.deleteGroupMoveAllPeopleToAnotherGroup).setOnClickListener {
+            // TODO
+            //presenter.deleteGroupAndMoveAllPeopleToAnotherGroup(currentGroup, currentGroup)
+            toast("Еще не реализовано")
+            deleteGroupVariantsDialog.dismiss()
+        }
+
+        dialogView.findViewById<LinearLayout>(R.id.deleteGroupDeleteAllPeople).setOnClickListener {
+            // TODO
+            //presenter.deleteGroupAnDeleteAllPeople(currentGroup)
+            toast("Еще не реализовано")
+            deleteGroupVariantsDialog.dismiss()
+        }
+    }
 
     private suspend fun createSaveOrCreateGroupWithoutScheduleWarningDialog(isCreatingNewGroup: Boolean)
     {
