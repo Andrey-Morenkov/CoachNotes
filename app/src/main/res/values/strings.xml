@@ -108,10 +108,11 @@
     <string name="person_info_screen_toolbar_title">Профиль ученика</string>
 
     // Person edit screen
+    <string name="person_edit_screen_no_group">Нет группы</string>
     <string name="person_edit_screen_toolbar_title">Редактор ученика</string>
     <string name="person_edit_screen_toolbar_new_title">Новый ученик</string>
     <string name="person_edit_screen_delete_person">Удалить ученика</string>
-    <string name="person_edit_birthday_title_short">Год рождения</string>
+    <string name="person_edit_birthday_title_short">год рождения</string>
     <string name="person_edit_birthday_year_full">год</string>
     <string name="person_edit_birthday_month_full">месяц</string>
     <string name="person_edit_birthday_day_full">день</string>

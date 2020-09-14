@@ -26,7 +26,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="@dimen/default_indent"
             android:layout_weight="1"
-            android:hint="@string/group"
+            android:hint="@string/person_edit_screen_no_group"
             app:boxBackgroundMode="outline"
             app:hintTextColor="@color/colorAccent"
             app:spinnerMode="dropdown">

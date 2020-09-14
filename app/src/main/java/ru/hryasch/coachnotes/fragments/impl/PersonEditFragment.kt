@@ -30,6 +30,7 @@ import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.activity.MainActivity
+import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
@@ -64,7 +65,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     // General section
     private lateinit var surname: TextInputEditText
     private lateinit var name: TextInputEditText
-    private lateinit var patronymic: TextInputEditText // Additional view
+    private lateinit var patronymicContainer: View // Additional View
+    private lateinit var patronymic: TextInputEditText
 
     // Birthday section
         // Views
@@ -150,7 +152,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         showingState(!isExistPerson)
 
-        groupChooser.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, getGroupNamesSpinnerData(groups))
+        val groupNames = getGroupNamesSpinnerData(groups)
+        groupChooser.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, groupNames)
         groupChooser.onItemSelectedListener = object : MaterialSpinner.OnItemSelectedListener
         {
             override fun onItemSelected(parent: MaterialSpinner,
@@ -167,16 +170,19 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                 clearGroup.visible = false
             }
         }
+        groupChooser.selection = groupPositionById[person.groupId] ?: MaterialSpinner.INVALID_POSITION
+        if (groupNames.isEmpty())
+        {
+            groupChooser.isEnabled = false
+            groupChooser.boxBackgroundColor = ContextCompat.getColor(App.getCtx(), R.color.colorDisabledText)
+        }
 
-        i("selected person.groupId = ${person.groupId}")
-
-        groupChooser.selection = groupPositionById[person.groupId]!!
 
         saveOrCreatePerson.setOnClickListener {
             currentPerson.surname = surname.text.toString()
             currentPerson.name = name.text.toString()
 
-            if (patronymic.isVisible)
+            if (patronymicContainer.isVisible)
             {
                 currentPerson.patronymic = patronymic.text?.toString()
             }
@@ -235,25 +241,6 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         navController.navigateUp()
     }
 
-    override fun showDeletePersonNotification(person: Person?)
-    {
-        if (person == null)
-        {
-            return
-        }
-
-        val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setMessage("Удалить ученика?")
-            .setPositiveButton("Удалить") { dialog, _ ->
-                dialog.cancel()
-                presenter.deletePerson(currentPerson)
-            }
-            .setNegativeButton("Отмена") { dialog, _ -> dialog.cancel() }
-            .create()
-
-        dialog.show()
-    }
-
     override fun loadingState()
     {
         contentView.visible = false
@@ -294,7 +281,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         surname = layout.findViewById(R.id.editPersonEditTextSurname)
         name = layout.findViewById(R.id.editPersonEditTextName)
         patronymic = layout.findViewById(R.id.editPersonEditTextPatronymic)
-        additionalViews.add(patronymic)
+        patronymicContainer = layout.findViewById(R.id.editPersonTextContainerPatronymic)
+        additionalViews.add(patronymicContainer)
 
         surname.addTextChangedListener(object: TextWatcher
                                        {
@@ -462,12 +450,16 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     {
         additionalViews.forEach { v -> v.visible = true }
         showMoreButton.visible = false
+
+        birthdayYear.hint = getString(R.string.person_edit_birthday_year_full)
     }
 
     private fun hideAdditionalViews()
     {
         additionalViews.forEach { v -> v.visible = false }
         showMoreButton.visible = true
+
+        birthdayYear.hint = getString(R.string.person_edit_birthday_title_short)
     }
 
     private fun inflateRelativesSection(layout: View)
@@ -526,7 +518,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         currentPerson.patronymic?.let {
             patronymic.text = SpannableStringBuilder(it)
-            patronymic.visible = true
+            patronymicContainer.visible = true
         }
 
         selectedYear = currentPerson.birthdayYear
@@ -547,7 +539,16 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         }
 
         deletePerson.setOnClickListener {
-            presenter.onDeletePersonClicked()
+            val dialog = MaterialAlertDialogBuilder(requireContext())
+                .setMessage("Удалить ученика?")
+                .setPositiveButton("Удалить") { dialog, _ ->
+                    dialog.cancel()
+                    presenter.deletePerson(currentPerson)
+                }
+                .setNegativeButton("Отмена") { dialog, _ -> dialog.cancel() }
+                .create()
+
+            dialog.show()
         }
 
         for (i in 1 until currentPerson.relativeInfos.size)
@@ -571,15 +572,12 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private fun getGroupNamesSpinnerData(groups: List<Group>): List<String>
     {
         val groupsListItems = LinkedList<String>()
-        groupsListItems.add("Нет группы")
-        groupIdByPosition[0] = Pair(null, false)
-        groupPositionById[null] = 0
 
         val groupListSorted = groups.sorted()
         for ((i, group) in groupListSorted.withIndex())
         {
-            groupIdByPosition[i + 1] = Pair(group.id, group.isPaid)
-            groupPositionById[group.id] = i + 1
+            groupIdByPosition[i] = Pair(group.id, group.isPaid)
+            groupPositionById[group.id] = i
 
             var age1 = "?"
             var age2 = "?"

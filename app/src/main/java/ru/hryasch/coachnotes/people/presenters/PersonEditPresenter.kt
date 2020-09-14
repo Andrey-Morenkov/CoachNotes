@@ -6,7 +6,5 @@ interface PersonEditPresenter: PersonPresenter
 {
     fun updateOrCreatePerson()
 
-    fun onDeletePersonClicked()
-
     fun deletePerson(person: Person)
 }
