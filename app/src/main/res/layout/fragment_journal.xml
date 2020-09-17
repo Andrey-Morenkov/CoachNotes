@@ -1,35 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/colorBackground">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/journalToolbar"
-        style="@style/DefaultToolbar.WithBackButton">
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/journalButtonShare"
-            style="@style/ToolbarImageButton"
-            android:layout_gravity="center_vertical|end"
-            android:src="@drawable/ic_microsoft_word" />
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/journalButtonLock"
-            style="@style/ToolbarImageButton"
-            android:layout_gravity="center_vertical|end"
-            android:src="@drawable/ic_lock" />
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/journalButtonVisibilityDeleted"
-            style="@style/ToolbarImageButton"
-            android:layout_gravity="center_vertical|end"
-            android:src="@drawable/ic_baseline_visibility_24" />
-
-    </androidx.appcompat.widget.Toolbar>
+        style="@style/DefaultToolbar.WithBackButton"
+        app:title="Название группы" />
 
     <LinearLayout
         android:id="@+id/journalContent"
@@ -40,10 +22,8 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatImageButton
@@ -55,6 +35,7 @@
 
             <TextView
                 android:id="@+id/journalTextViewPeriod"
+                style="@style/ViewWithRipple"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -78,23 +59,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <include
+                android:id="@+id/journalNoData"
+                layout="@layout/empty_view_default"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+
             <ProgressBar
-                android:id="@+id/journalProgressBar"
+                android:id="@+id/journalLoading"
                 style="@android:style/Widget.Material.Light.ProgressBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:indeterminate="true"
                 android:indeterminateBehavior="repeat" />
-
-            <TextView
-                android:id="@+id/journalTextViewNoData"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/no_data"
-                android:textAlignment="center"
-                android:textSize="30sp" />
 
             <com.evrencoskun.tableview.TableView
                 android:id="@+id/journalTable"
@@ -107,9 +86,11 @@
                 app:selected_color="@color/colorJournalSelected"
                 app:separator_color="@color/colorJournalSeparator"
                 app:shadow_color="@color/colorJournalSelectedShadow"
-                app:unselected_color="@color/colorJournalBackground" />
+                app:unselected_color="@color/colorJournalBackground" >
+
+            </com.evrencoskun.tableview.TableView>
         </FrameLayout>
 
     </LinearLayout>
 
-</com.google.android.material.appbar.AppBarLayout>
+</LinearLayout>

@@ -75,4 +75,19 @@ val toolsModule = module {
         return@single listOf(App.getCtx().getString(R.string.age_type_absolute),
                              App.getCtx().getString(R.string.age_type_relative))
     }
+
+    single(named("journalYears"))
+    {
+        val currYear = ZonedDateTime.now().year
+        val firstYear = 2020
+
+        val result: Array<Int> = Array((currYear - firstYear) + 1) { 0 }
+
+        for ((i, year) in (firstYear .. currYear).withIndex())
+        {
+            result[i] = year
+        }
+
+        return@single result
+    }
 }

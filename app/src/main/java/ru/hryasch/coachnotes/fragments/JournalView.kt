@@ -5,6 +5,7 @@ import moxy.viewstate.strategy.*
 
 
 import ru.hryasch.coachnotes.journal.table.TableModel
+import java.time.YearMonth
 
 //TODO: custom strategy as: GeneralState(waiting/showing) + CurrentPeriod + some other additions?
 
@@ -19,10 +20,16 @@ interface JournalView: MvpView
 
     // Permanent state (level 1)
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun setPeriod(month: String, year: Int)
+    fun setPeriod(period: YearMonth)
 
     @StateStrategyType(AddToEndSingleStrategy::class)
     fun lockJournal(isLocked: Boolean? = true)
+
+    @StateStrategyType(AddToEndSingleStrategy::class)
+    fun showAllPeople(isShowAll: Boolean? = false)
+
+    @StateStrategyType(AddToEndSingleStrategy::class)
+    fun showAllDays(isShowAll: Boolean? = false)
 
     // Timed events (level 2)
     @StateStrategyType(AddToEndSingleStrategy::class)

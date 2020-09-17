@@ -5,8 +5,7 @@ import kotlinx.coroutines.*
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import org.koin.core.KoinComponent
-import org.koin.core.inject
-import org.koin.core.qualifier.named
+import org.koin.core.get
 
 import ru.hryasch.coachnotes.converters.toModel
 import ru.hryasch.coachnotes.fragments.JournalView
@@ -16,33 +15,36 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
+
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-
-// TODO: add "not synced" states to cells
 
 @InjectViewState
 class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinComponent
 {
-    private val journalInteractor: JournalInteractor by inject()
-    private val monthNames:Array<String> by inject(named("months_RU"))
+    private val journalInteractor: JournalInteractor = get()
 
-    private val tableHelper: TableHelper = TableHelper()
+    // Current params
+        // Data
+        private lateinit var currentGroup: Group
+        private var selectedPeriod: YearMonth = YearMonth.now()
+
+        // Flags
+        private var isJournalLocked: Boolean = true
+        private var isShowAllPeople: Boolean = false
+        private var isShowAllDays:   Boolean = false
+
+    // Others
     private lateinit var findingTableJob: Job
-    private var chosenPeriod: YearMonth = YearMonth.now()
-    private var isJournalLocked: Boolean = true
+    private val tableHelper: TableHelper = TableHelper()
 
-    private lateinit var currentGroup: Group
 
-    init
-    {
-        loadingState()
-    }
 
+    // Events
     override fun onCellClicked(col: Int, row: Int)
     {
         tableHelper.onCellCLicked(col, row)
@@ -61,7 +63,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         viewState.showDeleteColNotification(date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), col)
     }
 
-    override fun onExportButtonClicked()
+    override fun onExportDocButtonClicked()
     {
         i("==== EXPORT CLICKED ====")
 
@@ -72,7 +74,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             i("wait for saving...")
             tableHelper.saveAllChunksImmediatelyAndWait()
             i("all saved")
-            journalInteractor.exportJournal(chosenPeriod, tableHelper.getGroupId())
+            journalInteractor.exportJournal(selectedPeriod, tableHelper.getGroupId())
             viewState.showSavingJournalNotification(true)
         }
     }
@@ -83,29 +85,38 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         viewState.lockJournal(isJournalLocked)
     }
 
+    override fun onShowAllPeopleClicked(isShowAll: Boolean)
+    {
+        isShowAllPeople = isShowAll
+        viewState.showAllPeople(isShowAllPeople)
+    }
+
+    override fun onShowAllDaysClicked(isShowAll: Boolean)
+    {
+        isShowAllDays = isShowAll
+        viewState.showAllPeople(isShowAllDays)
+    }
+
     override fun onJournalSaveNotificationDismiss()
     {
         viewState.showSavingJournalNotification(null)
     }
 
-    override fun nextMonth()
-    {
-        chosenPeriod = chosenPeriod.plusMonths(1)
-        changePeriod()
-    }
 
-    override fun prevMonth()
+    // Commands
+    override fun changePeriod(newPeriod: YearMonth)
     {
-        chosenPeriod = chosenPeriod.minusMonths(1)
-        changePeriod()
-    }
+        selectedPeriod = newPeriod
 
-    override fun changePeriod(month: String, year: Int)
-    {
-        //TODO: custom strategy
-        viewState.loadingState()
-        viewState.setPeriod(month, year)
-        viewState.lockJournal(null)
+        // TODO: custom strategy
+        with(viewState)
+        {
+            loadingState()
+            setPeriod(selectedPeriod)
+            lockJournal(null)
+            showAllDays(null)
+            showAllPeople(null)
+        }
 
         tableHelper.onChangePeriod()
 
@@ -117,7 +128,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         findingTableJob = GlobalScope.launch(Dispatchers.IO)
         {
             i("findingTableJob launched")
-            val newModel = journalInteractor.getJournal(chosenPeriod, currentGroup.id)?.toModel()
+            val newModel = journalInteractor.getJournal(selectedPeriod, currentGroup.id)?.toModel()
 
             if (newModel != null)
             {
@@ -135,12 +146,18 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 }
             }
 
+            // Finally apply other data
             withContext(Dispatchers.Main)
             {
-                viewState.setPeriod(month, year)
+                resetFlags()
 
-                isJournalLocked = true
-                viewState.lockJournal(isJournalLocked)
+                with(viewState)
+                {
+                    setPeriod(selectedPeriod)
+                    lockJournal(isJournalLocked)
+                    showAllDays(isShowAllDays)
+                    showAllPeople(isShowAllPeople)
+                }
             }
         }
     }
@@ -161,18 +178,23 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     override fun applyGroupData(group: Group)
     {
         currentGroup = group
-        changePeriod()
+        changePeriod(selectedPeriod)
     }
+
+
 
     private fun loadingState()
     {
         viewState.loadingState()
     }
 
-    private fun changePeriod()
+    private fun resetFlags()
     {
-        changePeriod(monthNames[chosenPeriod.month.value - 1], chosenPeriod.year)
+        isJournalLocked = true
+        isShowAllDays = false
+        isShowAllPeople = false
     }
+
 
 
     inner class TableHelper
@@ -399,7 +421,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         fun getGroupId(): GroupId = tableModel.groupId
 
         @Synchronized
-        fun isChunkShowingNow(chunk: JournalChunk): Boolean = (chunk.groupId == tableModel.groupId && (chosenPeriod == YearMonth.of(chunk.date.year, chunk.date.month)))
+        fun isChunkShowingNow(chunk: JournalChunk): Boolean = (chunk.groupId == tableModel.groupId && (selectedPeriod == YearMonth.of(chunk.date.year, chunk.date.month)))
 
         private fun clearTableMetadata()
         {

@@ -6,10 +6,12 @@ import ru.hryasch.coachnotes.journal.table.viewholders.ColumnHeaderModel
 import ru.hryasch.coachnotes.journal.table.viewholders.RowHeaderModel
 
 
-class TableModel()
+class TableModel
 {
     var groupId: GroupId = ""
     var columnHeaderContent: MutableList<ColumnHeaderModel> = ArrayList()
     var rowHeaderContent: MutableList<RowHeaderModel> = ArrayList()
+    var rowFullHeaderContent: MutableList<RowHeaderModel> = ArrayList()
     var cellContent: MutableList<MutableList<CellModel>> = ArrayList()
+    var cellFullContent: MutableList<MutableList<CellModel>> = ArrayList()
 }

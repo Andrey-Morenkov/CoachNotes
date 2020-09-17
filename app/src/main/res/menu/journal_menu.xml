@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/journal_lock_item"
+        android:icon="@drawable/ic_lock"
+        android:title="Разблокировать журнал"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/journal_visibility_item"
+        android:icon="@drawable/ic_baseline_visibility_24"
+        android:title="Настройки отображения"
+        app:showAsAction="always">
+
+        <menu>
+
+            <item
+                android:id="@+id/journal_visibility_all_days_item"
+                android:title="Показывать все дни"
+                android:checkable="true"
+                app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/journal_visibility_all_people_item"
+                android:title="Показывать всех учеников"
+                android:checkable="true"
+                app:showAsAction="never"/>
+
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/journal_upload_item"
+        android:icon="@drawable/ic_file_upload"
+        android:title="Выгрузить журнал"
+        app:showAsAction="ifRoom">
+
+        <menu>
+
+            <item
+                android:id="@+id/journal_upload_docx_item"
+                android:title="Microsoft word (Docx)"
+                android:icon="@drawable/ic_microsoft_word"
+                app:showAsAction="never"/>
+
+        </menu>
+
+    </item>
+
+</menu>

@@ -5,9 +5,8 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.NumberPicker
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -39,6 +38,7 @@ import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
+import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.NoExistData
 import ru.hryasch.coachnotes.domain.journal.data.UnknownData
 import ru.hryasch.coachnotes.fragments.JournalView
@@ -46,8 +46,8 @@ import ru.hryasch.coachnotes.journal.table.TableAdapter
 import ru.hryasch.coachnotes.journal.table.TableModel
 import ru.hryasch.coachnotes.journal.presenters.impl.JournalPresenterImpl
 import java.io.File
-import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -57,94 +57,106 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: JournalPresenterImpl
-
-    private lateinit var buttonExportJournal: AppCompatImageButton
-    private lateinit var buttonLock: AppCompatImageButton
-
-    private lateinit var viewJournalTable: TableView
-    private lateinit var tableAdapter: TableAdapter
-
-    private lateinit var spinnerLoadingTable: ProgressBar
-    private lateinit var noDataLabel: TextView
-
-    private lateinit var buttonNextMonth: AppCompatImageButton
-    private lateinit var buttonPrevMonth: AppCompatImageButton
-    private lateinit var textViewPeriod: TextView
-
-    private lateinit var okJournalShareClickListener: JournalShareOkListener
-    private lateinit var errorJournalShareClickListener: JournalShareErrorListener
-    private val snackProgressBarManager by lazy { SnackProgressBarManager(requireActivity().findViewById(R.id.nav_host_fragment), lifecycleOwner = this) }
-
-    private val monthNames: Array<String> = get(named("months_RU"))
-    private val dayOfWeekLongNames: Array<String> = get(named("daysOfWeekLong_RU"))
-
     private lateinit var navController: NavController
+    private lateinit var currentGroup: Group
 
+    // Toolbar items
+    private lateinit var lockUnlockButton: MenuItem
+    private lateinit var showAllDaysButton: MenuItem
+    private lateinit var showAllPeopleButton: MenuItem
+    private lateinit var exportDocButton: MenuItem
+
+    // Period section
+        // Views
+        private lateinit var buttonNextMonth: AppCompatImageButton
+        private lateinit var buttonPrevMonth: AppCompatImageButton
+        private lateinit var textViewPeriod: TextView
+
+        // Data
+        private lateinit var selectedPeriod: YearMonth
+
+    // Journal section
+        // Views
+        private lateinit var viewJournalTable: TableView
+        private lateinit var loadingView: View
+        private lateinit var emptyView: View
+
+        // Data
+        private lateinit var tableAdapter: TableAdapter
+
+    // Others
+        // Views
+        private val snackProgressBarManager by lazy { SnackProgressBarManager(requireActivity().findViewById(R.id.nav_host_fragment), lifecycleOwner = this) }
+
+        // Data
+        private val initializerHelper: InflaterAndInitializer
+        private lateinit var okJournalShareClickListener: JournalShareOkListener
+        private lateinit var errorJournalShareClickListener: JournalShareErrorListener
+        private val monthNames: Array<String> = get(named("months_RU"))
+        private val dayOfWeekLongNames: Array<String> = get(named("daysOfWeekLong_RU"))
+
+
+    init
+    {
+        initializerHelper = InflaterAndInitializer()
+    }
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_journal, container, false)
+        currentGroup = JournalGroupFragmentArgs.fromBundle(requireArguments()).groupData
+        navController = container!!.findNavController()
 
-        buttonExportJournal = layout.findViewById(R.id.journalButtonShare)
-        buttonLock = layout.findViewById(R.id.journalButtonLock)
+        initializerHelper.initToolbar(layout)
+        initializerHelper.initPeriodSection(layout)
+        initializerHelper.initJournalSection(layout)
 
-        spinnerLoadingTable = layout.findViewById(R.id.journalProgressBar)
-        noDataLabel = layout.findViewById(R.id.journalTextViewNoData)
-        viewJournalTable = layout.findViewById(R.id.journalTable)
 
-        buttonNextMonth = layout.findViewById(R.id.journalButtonNextPeriod)
-        buttonPrevMonth = layout.findViewById(R.id.journalButtonPrevPeriod)
-        textViewPeriod = layout.findViewById(R.id.journalTextViewPeriod)
-
-        okJournalShareClickListener = JournalShareOkListener(container!!)
+        okJournalShareClickListener = JournalShareOkListener(container)
         errorJournalShareClickListener = JournalShareErrorListener()
 
         navController = container.findNavController()
 
         loadingState()
 
-        val toolbar: Toolbar = layout.findViewById(R.id.journalToolbar)
-        toolbar.setNavigationOnClickListener {
-            navController.navigateUp()
-        }
-
-        buttonNextMonth.setOnClickListener {
-            presenter.nextMonth()
-        }
-
-        buttonPrevMonth.setOnClickListener {
-            presenter.prevMonth()
-        }
-
         snackProgressBarManager
             .setMessageMaxLines(1)
             .setBackgroundColor(R.color.colorPrimaryDarkHighlight)
             .setOverlayLayoutAlpha(0f)
-            .setOnDisplayListener(object: SnackProgressBarManager.OnDisplayListener
-            {
-                override fun onDismissed(snackProgressBar: SnackProgressBar, onDisplayId: Int)
-                {
-                    presenter.onJournalSaveNotificationDismiss()
-                    snackProgressBarManager.dismissAll()
-                    super.onDismissed(snackProgressBar, onDisplayId)
-                }
-            })
+            .setOnDisplayListener(object : SnackProgressBarManager.OnDisplayListener
+                                  {
+                                      override fun onDismissed(
+                                          snackProgressBar: SnackProgressBar,
+                                          onDisplayId: Int
+                                      )
+                                      {
+                                          presenter.onJournalSaveNotificationDismiss()
+                                          snackProgressBarManager.dismissAll()
+                                          super.onDismissed(snackProgressBar, onDisplayId)
+                                      }
+                                  })
 
-        buttonLock.setOnClickListener {
-            presenter.onLockUnlockJournal()
-        }
 
-        val groupData = JournalGroupFragmentArgs.fromBundle(requireArguments()).groupData
-        toolbar.title = groupData.name
+
 
         GlobalScope.launch(Dispatchers.Default)
         {
-            presenter.applyGroupData(groupData)
+            presenter.applyGroupData(currentGroup)
         }
 
         return layout
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu)
+    {
+        lockUnlockButton = menu.findItem(R.id.journal_lock_item)
+        showAllDaysButton = menu.findItem(R.id.journal_visibility_all_days_item)
+        showAllPeopleButton = menu.findItem(R.id.journal_visibility_all_people_item)
+        exportDocButton = menu.findItem(R.id.journal_upload_docx_item)
+
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun lockJournal(isLocked: Boolean?)
@@ -153,21 +165,69 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         {
             true ->
             {
-                buttonLock.visible = true
-                buttonLock.setImageResource(R.drawable.ic_lock)
-                DrawableCompat.wrap(buttonLock.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorText))
+                lockUnlockButton.isVisible = true
+                lockUnlockButton.setIcon(R.drawable.ic_lock)
+                DrawableCompat.wrap(lockUnlockButton.icon)
+                    .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorText))
             }
 
             false ->
             {
-                buttonLock.visible = true
-                buttonLock.setImageResource(R.drawable.ic_unlock)
-                DrawableCompat.wrap(buttonLock.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+                lockUnlockButton.isVisible = true
+                lockUnlockButton.setIcon(R.drawable.ic_unlock)
+                DrawableCompat.wrap(lockUnlockButton.icon)
+                    .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
             }
 
-            else ->
+            else  ->
             {
-                buttonLock.visible = false
+                lockUnlockButton.isVisible = false
+            }
+        }
+    }
+
+    override fun showAllPeople(isShowAll: Boolean?)
+    {
+        when (isShowAll)
+        {
+            true ->
+            {
+                showAllPeopleButton.isVisible = true
+                showAllPeopleButton.isChecked = true
+            }
+
+            false ->
+            {
+                showAllPeopleButton.isVisible = true
+                showAllPeopleButton.isChecked = false
+            }
+
+            else  ->
+            {
+                showAllPeopleButton.isVisible = false
+            }
+        }
+    }
+
+    override fun showAllDays(isShowAll: Boolean?)
+    {
+        when (isShowAll)
+        {
+            true ->
+            {
+                showAllDaysButton.isVisible = true
+                showAllDaysButton.isChecked = true
+            }
+
+            false ->
+            {
+                showAllDaysButton.isVisible = true
+                showAllDaysButton.isChecked = false
+            }
+
+            else  ->
+            {
+                showAllDaysButton.isVisible = false
             }
         }
     }
@@ -181,7 +241,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         buttonExportJournal.visible = false
     }
 
-    override fun setPeriod(month: String, year: Int)
+    override fun setPeriod(period: YearMonth)
     {
         val str = "$month $year"
         textViewPeriod.text = str
@@ -207,7 +267,8 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                     .setIsIndeterminate(true)
                     .setAllowUserInput(true)
                     .setSwipeToDismiss(true)
-                    .setAction("Открыть папку", object: SnackProgressBar.OnActionClickListener {
+                    .setAction("Открыть папку", object : SnackProgressBar.OnActionClickListener
+                    {
                         override fun onActionClick()
                         {
                         }
@@ -226,7 +287,8 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                     ?.setMessage("Журнал сохранен")
                     ?.setIsIndeterminate(false)
                     ?.setProgressMax(1)
-                    ?.setAction("Открыть папку", object: SnackProgressBar.OnActionClickListener {
+                    ?.setAction("Открыть папку", object : SnackProgressBar.OnActionClickListener
+                    {
                         override fun onActionClick()
                         {
                             val savingDir: File = get(named("journalDirectory"))
@@ -269,8 +331,8 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                 dialog.cancel()
                 presenter.deleteColumnData(col)
             }
-            .setNegativeButton("Отмена") {
-                    dialog, _ -> dialog.cancel()
+            .setNegativeButton("Отмена") { dialog, _ ->
+                dialog.cancel()
             }
             .create()
 
@@ -335,6 +397,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         return false
     }
 
+
     private fun isEmpty(): Boolean
     {
         tableAdapter.tableContent.cellContent.forEach {
@@ -354,17 +417,19 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         {
             hasUnknownData() ->
             {
-                DrawableCompat.wrap(buttonExportJournal.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
+                DrawableCompat.wrap(buttonExportJournal.drawable)
+                    .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
                 buttonExportJournal.setOnClickListener(errorJournalShareClickListener.apply { setMessage("Нужно задать данные для всех людей") })
             }
 
-            isEmpty() ->
+            isEmpty()        ->
             {
-                DrawableCompat.wrap(buttonExportJournal.drawable).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
+                DrawableCompat.wrap(buttonExportJournal.drawable)
+                    .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
                 buttonExportJournal.setOnClickListener(errorJournalShareClickListener.apply { setMessage("Журнал пуст") })
             }
 
-            else ->
+            else             ->
             {
                 DrawableCompat.wrap(buttonExportJournal.drawable).setTint(Color.WHITE)
                 buttonExportJournal.setOnClickListener(okJournalShareClickListener)
@@ -372,31 +437,145 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
     }
 
-    inner class JournalShareOkListener(private val container: ViewGroup): View.OnClickListener
+    inner class InflaterAndInitializer: KoinComponent
+    {
+        private lateinit var changePeriodDialog: AlertDialog
+
+        fun initToolbar(layout: View)
+        {
+            val toolbar = layout.findViewById<Toolbar>(R.id.journalToolbar)
+            with(toolbar)
+            {
+                title = currentGroup.name
+                setNavigationOnClickListener {
+                    navController.navigateUp()
+                }
+                inflateMenu(R.menu.journal_menu)
+                setOnMenuItemClickListener {
+                    when (it.itemId)
+                    {
+                        R.id.journal_lock_item -> presenter.onLockUnlockJournal()
+                        R.id.journal_visibility_all_days_item -> presenter.onShowAllDaysClicked(it.isChecked)
+                        R.id.journal_visibility_all_people_item -> presenter.onShowAllPeopleClicked(it.isChecked)
+                        R.id.journal_upload_docx_item -> presenter.onExportDocButtonClicked()
+                    }
+
+                    return@setOnMenuItemClickListener false
+                }
+            }
+        }
+
+        fun initPeriodSection(layout: View)
+        {
+            buttonNextMonth = layout.findViewById(R.id.journalButtonNextPeriod)
+            buttonPrevMonth = layout.findViewById(R.id.journalButtonPrevPeriod)
+            textViewPeriod = layout.findViewById(R.id.journalTextViewPeriod)
+
+            initChangePeriodDialog()
+
+            textViewPeriod.setOnClickListener {
+                changePeriodDialog.show()
+            }
+
+            buttonNextMonth.setOnClickListener {
+                selectedPeriod = selectedPeriod.plusMonths(1)
+                presenter.changePeriod(selectedPeriod)
+            }
+
+            buttonPrevMonth.setOnClickListener {
+                selectedPeriod = selectedPeriod.minusMonths(1)
+                presenter.changePeriod(selectedPeriod)
+            }
+        }
+
+        fun initJournalSection(layout: View)
+        {
+            viewJournalTable = layout.findViewById(R.id.journalTable)
+            loadingView = layout.findViewById(R.id.journalLoading)
+            emptyView = layout.findViewById(R.id.journalNoData)
+        }
+
+        fun initStuff(layout: View)
+        {
+
+        }
+
+        private fun initChangePeriodDialog()
+        {
+            val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_journal_month_year_picker, null)
+
+            val years: Array<Int> = get(named("journalYears"))
+
+            val yearPicker: NumberPicker  = dialogView.findViewById(R.id.journalYearPicker)
+            val monthPicker: NumberPicker = dialogView.findViewById(R.id.journalMonthPicker)
+
+            with(yearPicker)
+            {
+                minValue = years[0]
+                maxValue = years[years.size - 1]
+                wrapSelectorWheel = false
+                value = selectedPeriod.year
+            }
+
+            with(monthPicker)
+            {
+                minValue = 1
+                maxValue = monthNames.size
+                wrapSelectorWheel = false
+                displayedValues = monthNames
+                value = selectedPeriod.monthValue
+            }
+
+            val dialogBuilder = MaterialAlertDialogBuilder(requireContext())
+                .setView(dialogView)
+                .setTitle("Выбор периода")
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    presenter.changePeriod(YearMonth.of(yearPicker.value, monthPicker.value))
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Отмена") { dialog, _ ->
+                    dialog.dismiss()
+                }
+
+            val now = YearMonth.now()
+            if (selectedPeriod.monthValue != now.monthValue || selectedPeriod.year != now.year)
+            {
+                dialogBuilder.setNeutralButton("Текущий месяц") { dialog, _ ->
+                    presenter.changePeriod(now)
+                    dialog.dismiss()
+                }
+            }
+
+            changePeriodDialog = dialogBuilder.create()
+        }
+    }
+
+    inner class JournalShareOkListener(private val container: ViewGroup) : View.OnClickListener
     {
         override fun onClick(p0: View?)
         {
             i("clicked OK")
             Permissions
                 .check(container.context,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
-                    container.context.getString(R.string.permission_external_storage_rationale),
-                    Permissions.Options()
-                        .setRationaleDialogTitle(container.context.getString(R.string.permission_external_storage_rationale_dialog_title))
-                        .setSettingsDialogMessage(container.context.getString(R.string.permission_external_storage_rationale_dialog_message))
-                        .setSettingsDialogTitle(container.context.getString(R.string.permission_external_storage_settings_dialog_title))
-                        .setSettingsText(container.context.getString(R.string.permission_external_storage_settings_dialog_message)),
-                    object: PermissionHandler()
-                    {
-                        override fun onGranted()
-                        {
-                            presenter.onExportButtonClicked()
-                        }
-                    })
+                       arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
+                       container.context.getString(R.string.permission_external_storage_rationale),
+                       Permissions.Options()
+                           .setRationaleDialogTitle(container.context.getString(R.string.permission_external_storage_rationale_dialog_title))
+                           .setSettingsDialogMessage(container.context.getString(R.string.permission_external_storage_rationale_dialog_message))
+                           .setSettingsDialogTitle(container.context.getString(R.string.permission_external_storage_settings_dialog_title))
+                           .setSettingsText(container.context.getString(R.string.permission_external_storage_settings_dialog_message)),
+                       object : PermissionHandler()
+                       {
+                           override fun onGranted()
+                           {
+                               presenter.onExportDocButtonClicked()
+                           }
+                       })
         }
     }
 
-    inner class JournalShareErrorListener(private var message: String = "Ошибка"): View.OnClickListener
+    inner class JournalShareErrorListener(private var message: String = "Ошибка") :
+        View.OnClickListener
     {
         fun setMessage(message: String)
         {
@@ -408,12 +587,12 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             i("clicked ERROR")
 
             val dialog = MaterialAlertDialogBuilder(this@JournalGroupFragment.requireContext())
-                            .setTitle("Невозможно экспортировать журнал")
-                            .setMessage(message)
-                            .setPositiveButton("Ок") {
-                                dialog, _ -> dialog.cancel()
-                            }
-                            .create()
+                .setTitle("Невозможно экспортировать журнал")
+                .setMessage(message)
+                .setPositiveButton("Ок") { dialog, _ ->
+                    dialog.cancel()
+                }
+                .create()
 
             dialog.show()
         }
