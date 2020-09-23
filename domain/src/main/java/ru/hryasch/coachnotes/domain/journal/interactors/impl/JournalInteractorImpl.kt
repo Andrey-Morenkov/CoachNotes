@@ -2,6 +2,10 @@ package ru.hryasch.coachnotes.domain.journal.interactors.impl
 
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import org.koin.core.qualifier.named
@@ -20,7 +24,10 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZonedDateTime
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.stream.IntStream
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
 
@@ -45,7 +52,14 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             }
         }
 
-        return generateTableData(period, groupId, chunks, personRepository.getPeopleByGroup(groupId)!!)
+        return if (period.isHistorical())
+               {
+                   generateTableData(period, groupId, chunks, null)
+               }
+               else
+               {
+                   generateTableData(period, groupId, chunks, personRepository.getPeopleByGroup(groupId))
+               }
     }
 
     override suspend fun saveJournalChunk(chunk: JournalChunk)
@@ -65,32 +79,52 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     }
 
 
-    private fun generateTableData(period: YearMonth, groupId: GroupId, chunks: List<JournalChunk>?, groupPeople: List<Person>): TableData?
+
+    private suspend fun generateTableData(period: YearMonth, groupId: GroupId, chunks: List<JournalChunk>?, groupPeople: List<Person>?): TableData?
     {
-        val tableData = TableData()
+        if (period.isHistorical() && chunks == null)
+        {
+            // No data about historical period
+            return null
+        }
 
-        tableData.groupId = groupId
-        tableData.columnHeadersData.addAll(generateDayOfMonthDescription(period))
+        val columnHeaders: ArrayList<LocalDate> = ArrayList()
+        val rowHeaders: ArrayList<Person> = ArrayList()
 
+        GlobalScope.launch(Dispatchers.Default)
+        {
+            val days  = async(Dispatchers.Default) { generateDayOfMonthDescription(period) }
+            val names = async(Dispatchers.Default) { generateNames(chunks, groupPeople, period) }
 
-        generateNames(chunks, groupPeople, period)?.also { tableData.rowHeadersData.addAll(it) } ?: return null
-        tableData.cellsData.addAll(generateCellData(chunks, tableData.rowHeadersData, tableData.columnHeadersData, period))
+            columnHeaders.addAll(days.await())
+            rowHeaders.addAll(names.await()!!)
+        }.join()
 
-        return tableData
+        val cellData: List<List<CellData?>>
+        cellData = if (chunks == null)
+                   {
+                       generateEmptyCellTable(columnHeaders.size, rowHeaders.size)
+                   }
+                   else
+                   {
+                       generateCellTable(chunks, rowHeaders, columnHeaders, period)
+                   }
+
+        return TableData(groupId, rowHeaders, columnHeaders, cellData)
     }
 
-    private fun generateDayOfMonthDescription(period: YearMonth): List<ColumnHeaderData>
+    private fun generateDayOfMonthDescription(period: YearMonth): List<LocalDate>
     {
-        val headers: MutableList<ColumnHeaderData> = LinkedList<ColumnHeaderData>()
+        val headers: MutableList<LocalDate> = ArrayList(period.month.length(period.isLeapYear))
 
         for (day in (1 .. period.month.length(period.isLeapYear)))
         {
-            headers.add(ColumnHeaderData(LocalDate.of(period.year, period.month, day)))
+            headers[day - 1] = LocalDate.of(period.year, period.month, day)
         }
         return headers
     }
 
-    private fun generateNames(chunks: List<JournalChunk>?, groupPeople: List<Person>, period: YearMonth): List<RowHeaderData>?
+    private fun generateNames(chunks: List<JournalChunk>?, groupPeople: List<Person>?, period: YearMonth): List<Person>?
     {
         val allPeople: MutableMap<PersonId, Person> = HashMap()
 
@@ -109,7 +143,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         {
             e("non historical")
             // using mix of chunks people (if chunks exist) and current people
-            groupPeople.forEach {
+            groupPeople?.forEach {
                 allPeople[it.id] = it
             }
         }
@@ -117,57 +151,78 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         chunks?.forEach {
             it.content.forEach { entry ->
                 // Group data has more priority because it has freshest data
-                allPeople.putIfAbsent(entry.key.personId, PersonImpl(entry.key.personId, entry.key.surname, entry.key.name, 0))
+                allPeople.putIfAbsent(entry.key.personId, PersonImpl(entry.key.personId, entry.key.surname, entry.key.name, -1))
             }
         }
 
-        val headers: MutableList<RowHeaderData> = LinkedList()
-
-        var number = 1
+        val headers: MutableList<Person> = LinkedList()
         allPeople.values.toList().sorted().forEach {
-            headers.add(RowHeaderData(it, number))
-            number++
+            headers.add(it)
         }
 
         return headers
     }
 
-    private fun generateCellData(chunks: List<JournalChunk>?,
-                                 allPeople: List<RowHeaderData>,
-                                 days: List<ColumnHeaderData>,
-                                 period: YearMonth): MutableList<MutableList<CellData?>>
+    private fun generateEmptyCellTable(width: Int, height: Int): List<List<CellData?>>
     {
-        val cells = Array(allPeople.size) { arrayOfNulls<CellData?>(days.size)}
-
-        for (col in cells[0].indices)
+        val cellsList: ArrayList<ArrayList<CellData?>> = ArrayList(height)
+        for (i in 0 until height)
         {
-            val chunk = chunks?.find { it.date == days[col].timestamp }
-            if (chunk == null)
+            cellsList[i] = ArrayList(width)
+            for (j in 0 until width)
             {
-                for (row in cells.indices)
-                {
-                    cells[row][col] = generateEmptyCellData()
-                }
-            }
-            else
-            {
-                for (row in cells.indices)
-                {
-                    val personDataByDay = chunk.content.filter { it.key.personId == allPeople[row].person.id }
-                    // No person data for this date => no exist
-                    if (personDataByDay.isEmpty())
-                    {
-                        cells[row][col] = generateNoExistData()
-                    }
-                    else
-                    {
-                        cells[row][col] = personDataByDay.values.first()
-                    }
-                }
+                cellsList[i][j] = null
             }
         }
 
-        postProcessCells(cells, period, allPeople)
+        return cellsList
+    }
+
+    private fun generateCellTable(chunks   : List<JournalChunk>,
+                                  allPeople: ArrayList<Person>,
+                                  days     : ArrayList<LocalDate>,
+                                  period   : YearMonth): List<List<CellData?>>
+    {
+        // <Date <PersonId, CellData?>>
+        val chunksMap: ConcurrentHashMap<LocalDate, ConcurrentHashMap<PersonId, CellData?>> = ConcurrentHashMap()
+        chunks.forEach {chunk ->
+            chunksMap[chunk.date] = ConcurrentHashMap()
+            chunk.content.forEach {
+                chunksMap[chunk.date]!![it.key.personId] = it.value
+            }
+        }
+
+        val cells = Array(allPeople.size) { arrayOfNulls<CellData?>(days.size)}
+        IntStream
+            .range(0, cells.size) // for each person
+            .parallel()
+            .forEach { row ->
+                val rowData = cells[row]
+                val noExistDaysPositions: MutableList<Int> = LinkedList()
+
+                for (col in rowData.indices) // for each day
+                {
+                    if (!chunksMap.contains(days[col]))
+                    {
+                        // No chunk data for this day
+                        rowData[col] = generateEmptyCellData() // empty cell
+                        continue
+                    }
+
+                    if (!chunksMap[days[col]]!!.contains(allPeople[row].id))
+                    {
+                        // No chunk data for this person
+                        rowData[col] = generateNoExistData() // "x"
+                        noExistDaysPositions.add(col)
+                        continue
+                    }
+
+                    // Have chunk data for this person
+                    rowData[col] = chunksMap[days[col]]!![allPeople[row].id]
+                }
+
+                postProcessRowCells(rowData, allPeople[row], noExistDaysPositions, period.isHistorical())
+            }
 
         val cellsList: MutableList<MutableList<CellData?>> = ArrayList()
         cells.forEach {
@@ -180,124 +235,73 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     private fun generateEmptyCellData(): CellData? = null
     private fun generateNoExistData(): CellData = NoExistData()
 
-    private fun postProcessCells(cells: Array<Array<CellData?>>, period: YearMonth, allPeople: List<RowHeaderData>)
+    private fun postProcessRowCells(cells: Array<CellData?>, person: Person, noExistDaysPositions: List<Int>, isHistorical: Boolean)
     {
-        if (period.isHistorical())
+        if (isHistorical)
         {
-            postProcessCellsGeneral(cells, period, allPeople)
+            postProcessHistorical(cells, noExistDaysPositions)
         }
         else
         {
-            postProcessCellsNonHistorical(cells, period, allPeople)
+            postProcessNonHistorical(cells, person, noExistDaysPositions)
         }
     }
 
-    private fun postProcessCellsGeneral(cells: Array<Array<CellData?>>, period: YearMonth, allPeople: List<RowHeaderData>)
+    private fun fillNoExistDataWaveAlgorithm(noExistPosition: Int, array: Array<CellData?>, rightExcludeBorderPosition: Int? = null)
     {
-        for (row in cells.indices)
+        // fills both sides of "no exist" data like waves from a stone thrown into the water  ((( <- X -> )))
+
+        var currPos = noExistPosition - 1
+        while((currPos >= 0) && (array[currPos] == null))
         {
-            val personHasNoExistData = cells[row].find { it is NoExistData }
-            if (personHasNoExistData == null)
-            {
-                e("cells[$row] has NO NoExist data")
-                continue
-            }
+            array[currPos] = NoExistData()
+            currPos--
+        }
 
-            e("cells[$row] has NoExist data")
-
-            var firstDataIndex = -1
-            var lastDataIndex = -1
-            for (col in cells[row].indices)
-            {
-                if (cells[row][col] != null && cells[row][col] !is NoExistData)
-                {
-                    if (firstDataIndex == -1)
-                    {
-                        firstDataIndex = col
-                    }
-                    lastDataIndex = col
-                }
-            }
-
-            i("cells[$row]: first DataIndex = $firstDataIndex, last DataIndex = $lastDataIndex")
-
-            var firstNoExistDataIndex = -1
-            var lastNoExistDataIndex = -1
-            for (col in cells[row].indices)
-            {
-                if (cells[row][col] is NoExistData)
-                {
-                    if (firstNoExistDataIndex == -1)
-                    {
-                        firstNoExistDataIndex = col
-                    }
-                    lastNoExistDataIndex = col
-                }
-            }
-
-            i("cells[$row]: first NoExistDataIndex = $firstNoExistDataIndex, last NoExistDataIndex = $lastNoExistDataIndex")
-
-            if (firstNoExistDataIndex < firstDataIndex)
-            {
-                for (col in 0 until firstDataIndex)
-                {
-                    cells[row][col] = NoExistData()
-                }
-            }
-            if (lastDataIndex < lastNoExistDataIndex)
-            {
-                for (col in lastDataIndex + 1 until cells[row].size)
-                {
-                    cells[row][col] = NoExistData()
-                }
-            }
-
-            if (!period.isHistorical() && allPeople[row].person.id == "")
-            {
-                val startCol = ZonedDateTime.now().dayOfMonth - 1
-                for (col in startCol until cells[row].size)
-                {
-                    cells[row][col] = NoExistData()
-                }
-            }
+        val stopPos = rightExcludeBorderPosition ?: array.size
+        currPos = noExistPosition + 1
+        while ((currPos < array.size) && (currPos < stopPos) && (array[currPos] == null))
+        {
+            array[currPos] = NoExistData()
+            currPos++
         }
     }
 
-    private fun postProcessCellsNonHistorical(cells: Array<Array<CellData?>>, period: YearMonth, allPeople: List<RowHeaderData>)
+    private fun postProcessHistorical(cells: Array<CellData?>, noExistDaysPositions: List<Int>)
     {
-        // generate today no exist data (for deleted persons)
-        val todayCol = LocalDate.now().dayOfMonth - 1
-        for ((i, personHeader) in allPeople.withIndex())
+        if (noExistDaysPositions.isEmpty())
         {
-            if (personHeader.person.id == "")
-            {
-                cells[i][todayCol] = NoExistData()
-            }
+            return
         }
 
-        // hotfix
-        // save today data before post process general
-        val savedTodayData = Array<CellData?>(allPeople.size) { null }
-        for (row in cells.indices)
+        for (noExistDay in noExistDaysPositions)
         {
-            savedTodayData[row] = cells[row][todayCol]
+            fillNoExistDataWaveAlgorithm(noExistDay, cells)
+        }
+    }
+
+    private fun postProcessNonHistorical(cells: Array<CellData?>, person: Person, noExistDaysPositions: List<Int>)
+    {
+        val todayPosition = LocalDate.now().dayOfMonth - 1
+        if (person.isNotInGroupNow())
+        {
+            val noExistDaysExtended: MutableList<Int> = LinkedList(noExistDaysPositions)
+            noExistDaysExtended.add(todayPosition)
+            
+            for (noExistDay in noExistDaysExtended)
+            {
+                fillNoExistDataWaveAlgorithm(noExistDay, cells, todayPosition)
+            }
+            return
         }
 
-        postProcessCellsGeneral(cells, period, allPeople)
-
-        // fix cells from now until end of table
-        for (row in cells.indices)
+        for (noExistDay in noExistDaysPositions)
         {
-            if (cells[row][todayCol] != savedTodayData[row] && (cells[row].find { cellData -> (cellData is AbsenceData || cellData is PresenceData)} == null))
-            {
-                i("fixing row[$row]")
-                for (fixCol in todayCol until cells[row].size)
-                {
-                    cells[row][fixCol] = null
-                }
-            }
+            fillNoExistDataWaveAlgorithm(noExistDay, cells, todayPosition)
         }
     }
 }
 
 private fun YearMonth.isHistorical(): Boolean = this.month != LocalDate.now().month
+
+private fun Person.isNotInGroupNow(): Boolean = this.birthdayYear <= 0
