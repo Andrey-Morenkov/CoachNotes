@@ -5,7 +5,7 @@ import com.evrencoskun.tableview.listener.ITableViewListener
 import org.koin.dsl.module
 import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
 import ru.hryasch.coachnotes.journal.table.TableAdapter
-import ru.hryasch.coachnotes.journal.table.TableModel
+import ru.hryasch.coachnotes.journal.table.data.TableModel
 import ru.hryasch.coachnotes.journal.table.TableViewClickListener
 
 val journalModule = module {

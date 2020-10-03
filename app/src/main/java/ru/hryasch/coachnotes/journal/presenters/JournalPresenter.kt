@@ -17,7 +17,7 @@ interface JournalPresenter
 
     // Commands
     fun changePeriod(newPeriod: YearMonth)
-    fun deleteColumnData(col: Int?)
+    fun deleteColumnData(col: Int)
 
     fun applyGroupData(group: Group)
 }

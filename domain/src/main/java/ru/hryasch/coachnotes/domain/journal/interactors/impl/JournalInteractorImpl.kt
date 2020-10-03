@@ -12,6 +12,7 @@ import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
+import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 import ru.hryasch.coachnotes.domain.person.data.Person
@@ -22,13 +23,11 @@ import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import ru.hryasch.coachnotes.domain.tools.DataExporter
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.ZonedDateTime
-import java.util.*
+import java.util.LinkedList
 import java.util.concurrent.ConcurrentHashMap
 import java.util.stream.IntStream
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 
 
 class JournalInteractorImpl: JournalInteractor, KoinComponent
@@ -39,7 +38,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
     private val exporter: DataExporter by inject(named("docx"))
 
-    override suspend fun getJournal(period: YearMonth, groupId: GroupId): TableData?
+    override suspend fun getJournal(period: YearMonth, groupId: GroupId): RawTableData?
     {
         val chunks = journalRepository.getJournalChunks(period, groupId)
 
@@ -54,11 +53,11 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
         return if (period.isHistorical())
                {
-                   generateTableData(period, groupId, chunks, null)
+                   generateTableData(period, groupRepository.getGroup(groupId), chunks, null)
                }
                else
                {
-                   generateTableData(period, groupId, chunks, personRepository.getPeopleByGroup(groupId))
+                   generateTableData(period, groupRepository.getGroup(groupId), chunks, personRepository.getPeopleByGroup(groupId))
                }
     }
 
@@ -80,7 +79,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
 
 
-    private suspend fun generateTableData(period: YearMonth, groupId: GroupId, chunks: List<JournalChunk>?, groupPeople: List<Person>?): TableData?
+    private suspend fun generateTableData(period: YearMonth, group: Group?, chunks: List<JournalChunk>?, groupPeople: List<Person>?): RawTableData?
     {
         if (period.isHistorical() && chunks == null)
         {
@@ -110,7 +109,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                        generateCellTable(chunks, rowHeaders, columnHeaders, period)
                    }
 
-        return TableData(groupId, rowHeaders, columnHeaders, cellData)
+        return RawTableData(group, rowHeaders, columnHeaders, cellData)
     }
 
     private fun generateDayOfMonthDescription(period: YearMonth): List<LocalDate>
@@ -155,7 +154,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             }
         }
 
-        val headers: MutableList<Person> = LinkedList()
+        val headers: MutableList<Person> = ArrayList(allPeople.values.size)
         allPeople.values.toList().sorted().forEach {
             headers.add(it)
         }
@@ -192,7 +191,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             }
         }
 
-        val cells = Array(allPeople.size) { arrayOfNulls<CellData?>(days.size)}
+        val cells = Array(allPeople.size) { arrayOfNulls<CellData?>(days.size) }
         IntStream
             .range(0, cells.size) // for each person
             .parallel()
@@ -205,7 +204,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                     if (!chunksMap.contains(days[col]))
                     {
                         // No chunk data for this day
-                        rowData[col] = generateEmptyCellData() // empty cell
+                        rowData[col] = generateEmptyCellData()
                         continue
                     }
 
@@ -224,7 +223,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                 postProcessRowCells(rowData, allPeople[row], noExistDaysPositions, period.isHistorical())
             }
 
-        val cellsList: MutableList<MutableList<CellData?>> = ArrayList()
+        val cellsList: MutableList<MutableList<CellData?>> = ArrayList(cells.size)
         cells.forEach {
             cellsList.add(it.toMutableList())
         }
@@ -287,7 +286,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         {
             val noExistDaysExtended: MutableList<Int> = LinkedList(noExistDaysPositions)
             noExistDaysExtended.add(todayPosition)
-            
+
             for (noExistDay in noExistDaysExtended)
             {
                 fillNoExistDataWaveAlgorithm(noExistDay, cells, todayPosition)

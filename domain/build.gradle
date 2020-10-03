@@ -72,9 +72,6 @@ dependencies
     implementation "org.koin:koin-android:$koin_version"
     implementation "org.koin:koin-androidx-scope:$koin_version"
 
-    // Klock
-    //implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
-
     // Java8 support
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$java8_support_version"
 }

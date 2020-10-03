@@ -1,9 +1,11 @@
-package ru.hryasch.coachnotes.journal.table.viewholders
+package ru.hryasch.coachnotes.journal.table.data
 
 import com.evrencoskun.tableview.sort.ISortableModel
 import ru.hryasch.coachnotes.domain.journal.data.*
+import ru.hryasch.coachnotes.domain.person.data.Person
+import java.time.LocalDate
 
-data class CellModel(private var id: String,
+data class CellModel(private val id: String,
                      var       data: CellData?) : ISortableModel
 {
     override fun getContent(): Any? = data
@@ -15,6 +17,7 @@ data class CellModel(private var id: String,
     }
 }
 
-class ColumnHeaderModel(var data: ColumnHeaderData)
+data class ColumnHeaderModel(val date: LocalDate)
 
-class RowHeaderModel(var data: RowHeaderData)
+data class RowHeaderModel(var index: Int,
+                          val person: Person)

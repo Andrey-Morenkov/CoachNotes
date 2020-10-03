@@ -14,6 +14,7 @@ import ru.hryasch.coachnotes.domain.journal.data.AbsenceData
 import ru.hryasch.coachnotes.domain.journal.data.NoExistData
 import ru.hryasch.coachnotes.domain.journal.data.PresenceData
 import ru.hryasch.coachnotes.domain.journal.data.UnknownData
+import ru.hryasch.coachnotes.journal.table.data.CellModel
 
 
 class CellViewHolder (cellItem: View, private val context: Context) : AbstractViewHolder(cellItem)

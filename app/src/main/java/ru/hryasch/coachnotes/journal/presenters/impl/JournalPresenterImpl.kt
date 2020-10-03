@@ -1,5 +1,6 @@
 package ru.hryasch.coachnotes.journal.presenters.impl
 
+import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
 import kotlinx.coroutines.*
 import moxy.InjectViewState
@@ -7,9 +8,8 @@ import moxy.MvpPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.get
 
-import ru.hryasch.coachnotes.converters.toModel
 import ru.hryasch.coachnotes.fragments.JournalView
-import ru.hryasch.coachnotes.journal.table.TableModel
+import ru.hryasch.coachnotes.journal.table.data.TableModel
 import ru.hryasch.coachnotes.journal.presenters.JournalPresenter
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.data.Group
@@ -18,7 +18,8 @@ import ru.hryasch.coachnotes.domain.journal.interactors.JournalInteractor
 
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
+import java.util.Collections
+import java.util.stream.IntStream
 
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -40,27 +41,26 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
     // Others
     private lateinit var findingTableJob: Job
-    private val tableHelper: TableHelper = TableHelper()
+    private val journalTableProxy: TableProxy = TableProxy()
 
 
 
     // Events
     override fun onCellClicked(col: Int, row: Int)
     {
-        tableHelper.onCellCLicked(col, row)
+        journalTableProxy.onCellClicked(col, row)
         viewState.refreshData()
     }
 
     override fun onCellLongPressed(col: Int, row: Int)
     {
-        tableHelper.onCellLongPressed(col, row)
+        journalTableProxy.onCellLongPressed(col, row)
         viewState.refreshData()
     }
 
     override fun onColumnLongPressed(col: Int)
     {
-        val date = tableHelper.tableModel.columnHeaderContent[col].data.timestamp
-        viewState.showDeleteColNotification(date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), col)
+        viewState.showDeleteColumnNotification(journalTableProxy.tableModel.columnHeaderContent[col].date, col)
     }
 
     override fun onExportDocButtonClicked()
@@ -72,9 +72,9 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         GlobalScope.launch(Dispatchers.Default)
         {
             i("wait for saving...")
-            tableHelper.saveAllChunksImmediatelyAndWait()
+            journalTableProxy.saveAllChunksImmediatelyAndWait()
             i("all saved")
-            journalInteractor.exportJournal(selectedPeriod, tableHelper.getGroupId())
+            journalInteractor.exportJournal(selectedPeriod, journalTableProxy.getGroupId())
             viewState.showSavingJournalNotification(true)
         }
     }
@@ -88,13 +88,31 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
     override fun onShowAllPeopleClicked(isShowAll: Boolean)
     {
         isShowAllPeople = isShowAll
-        viewState.showAllPeople(isShowAllPeople)
+        if (isShowAllPeople)
+        {
+            updatePeopleSeqNumbers(null)
+            viewState.hideRows(Collections.emptyList())
+            viewState.refreshData()
+        }
+        else
+        {
+            updatePeopleSeqNumbers(journalTableProxy.tableModel.rowsToHide)
+            viewState.hideRows(journalTableProxy.tableModel.rowsToHide)
+            viewState.refreshData()
+        }
     }
 
     override fun onShowAllDaysClicked(isShowAll: Boolean)
     {
         isShowAllDays = isShowAll
-        viewState.showAllPeople(isShowAllDays)
+        if (isShowAllDays)
+        {
+            viewState.hideColumns(Collections.emptyList())
+        }
+        else
+        {
+            viewState.hideColumns(journalTableProxy.tableModel.columnsToHide)
+        }
     }
 
     override fun onJournalSaveNotificationDismiss()
@@ -114,35 +132,35 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             loadingState()
             setPeriod(selectedPeriod)
             lockJournal(null)
-            showAllDays(null)
-            showAllPeople(null)
+            hideColumns(null)
+            hideRows(null)
         }
 
-        tableHelper.onChangePeriod()
+        journalTableProxy.onChangePeriod()
 
         if (this::findingTableJob.isInitialized && findingTableJob.isActive)
         {
             findingTableJob.cancel()
         }
 
-        findingTableJob = GlobalScope.launch(Dispatchers.IO)
+        findingTableJob = GlobalScope.launch(Dispatchers.Default)
         {
             i("findingTableJob launched")
-            val newModel = journalInteractor.getJournal(selectedPeriod, currentGroup.id)?.toModel()
+            val rawTableData = journalInteractor.getJournal(selectedPeriod, currentGroup.id)
 
-            if (newModel != null)
-            {
-                tableHelper.changeDataModel(newModel)
-                withContext(Dispatchers.Main)
-                {
-                    viewState.showingState(tableHelper.tableModel)
-                }
-            }
-            else
+            if (rawTableData == null)
             {
                 withContext(Dispatchers.Main)
                 {
                     viewState.showingState(null)
+                }
+            }
+            else
+            {
+                journalTableProxy.changeDataModel(rawTableData)
+                withContext(Dispatchers.Main)
+                {
+                    viewState.showingState(journalTableProxy.tableModel)
                 }
             }
 
@@ -155,38 +173,33 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 {
                     setPeriod(selectedPeriod)
                     lockJournal(isJournalLocked)
-                    showAllDays(isShowAllDays)
-                    showAllPeople(isShowAllPeople)
+                    hideColumns(Collections.emptyList())
+                    hideRows(Collections.emptyList())
                 }
             }
+            i("findingTableJob ended")
         }
     }
 
-    override fun deleteColumnData(col: Int?)
+    override fun deleteColumnData(col: Int)
     {
-        if (col == null)
-        {
-            viewState.showDeleteColNotification(null)
-        }
-        else
-        {
-            tableHelper.onColumnLongPressed(col)
-            viewState.refreshData()
-        }
+        journalTableProxy.clearColumnData(col)
+        viewState.refreshData()
     }
 
     override fun applyGroupData(group: Group)
     {
+        if (currentGroup === group || currentGroup.id == group.id)
+        {
+            d("Skip applying same group data from fragment re-create")
+            return
+        }
+
         currentGroup = group
         changePeriod(selectedPeriod)
     }
 
 
-
-    private fun loadingState()
-    {
-        viewState.loadingState()
-    }
 
     private fun resetFlags()
     {
@@ -195,11 +208,35 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         isShowAllPeople = false
     }
 
-
-
-    inner class TableHelper
+    private fun updatePeopleSeqNumbers(rowsToHide: List<Int>?)
     {
-        var tableModel: TableModel = TableModel()
+        if (rowsToHide == null || rowsToHide.isEmpty())
+        {
+            var newSeq = 0
+            journalTableProxy.tableModel.rowHeaderContent.forEach {
+                it.index = newSeq
+                newSeq++
+            }
+        }
+        else
+        {
+            var newSeq = 0
+            for ((i, rhc) in journalTableProxy.tableModel.rowHeaderContent.withIndex())
+            {
+                if (!rowsToHide.contains(i))
+                {
+                    rhc.index = newSeq
+                    newSeq++
+                }
+            }
+        }
+    }
+
+
+    // TODO: rework save chunks logic
+    inner class TableProxy
+    {
+        lateinit var tableModel: TableModel
         private set
 
         private var chunksStates: MutableList<Int> = ArrayList()
@@ -209,25 +246,24 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         private var chunksToSave: MutableMap<Int, JournalChunk> = HashMap()
 
         @Synchronized
-        fun changeDataModel(newModel: TableModel)
+        fun changeDataModel(newRawData: RawTableData)
         {
             i("changeDataModel")
-            tableModel = newModel
+            tableModel = TableModel(newRawData)
 
-            for (col in 0 until tableModel.cellContent[0].size)
+            for (col in 0 until tableModel.cellsContent[0].size)
             {
                 changingChunkJobs.add(Job())
                 var chunkState = 0
-                for (row in 0 until tableModel.cellContent.size)
+                for (row in 0 until tableModel.cellsContent.size)
                 {
-                    val cellData = tableModel.cellContent[row][col].data
+                    val cellData = tableModel.cellsContent[row][col].data
                     if ((cellData is AbsenceData) || (cellData is PresenceData))
                     {
                         chunkState++
                     }
                 }
                 chunksStates.add(chunkState)
-                //i("changeDataModel: chunk[$col]State = $chunkState")
             }
         }
 
@@ -244,13 +280,13 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         suspend fun saveAllChunksImmediatelyAndWait()
         {
             changingChunkSupervisor.cancelChildren(CancellationException("fflush"))
-            changingChunkSupervisor.children.toList().forEach { it.join() }
+            changingChunkSupervisor.children.forEach { it.join() }
         }
 
         @Synchronized
-        fun onColumnLongPressed(col: Int)
+        fun clearColumnData(col: Int)
         {
-            tableModel.cellContent.forEach {
+            tableModel.cellsContent.forEach {
                 val data = it[col].data
                 if (data !is NoExistData)
                 {
@@ -270,7 +306,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 return
             }
 
-            val cell = tableModel.cellContent[row][col]
+            val cell = tableModel.cellsContent[row][col]
             when (cell.data)
             {
                 is PresenceData,
@@ -283,11 +319,11 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                         cell.data = NoExistData()
                         if (isChunkEmpty(col))
                         {
-                            for (i in 0 until tableModel.cellContent.size) // for each row
+                            for (i in 0 until tableModel.cellsContent.size) // for each row
                             {
-                                if (tableModel.cellContent[i][col].data !is NoExistData)
+                                if (tableModel.cellsContent[i][col].data !is NoExistData)
                                 {
-                                    tableModel.cellContent[i][col].data = null
+                                    tableModel.cellsContent[i][col].data = null
                                 }
                             }
                         }
@@ -305,11 +341,11 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     chunksStates[col]++
                     cell.data = AbsenceData("Б")
 
-                    for (i in 0 until tableModel.cellContent.size) // for each row
+                    for (i in 0 until tableModel.cellsContent.size) // for each row
                     {
-                        if (i != row && tableModel.cellContent[i][col].data == null)
+                        if (i != row && tableModel.cellsContent[i][col].data == null)
                         {
-                            tableModel.cellContent[i][col].data = UnknownData()
+                            tableModel.cellsContent[i][col].data = UnknownData()
                         }
                     }
 
@@ -323,11 +359,11 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     chunksStates[col]++
                     cell.data = PresenceData()
 
-                    for (i in 0 until tableModel.cellContent.size) // for each row
+                    for (i in 0 until tableModel.cellsContent.size) // for each row
                     {
-                        if (tableModel.cellContent[i][col].data == null)
+                        if (tableModel.cellsContent[i][col].data == null)
                         {
-                            tableModel.cellContent[i][col].data = UnknownData()
+                            tableModel.cellsContent[i][col].data = UnknownData()
                         }
                     }
 
@@ -337,11 +373,11 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 else ->
                 {
                     chunksStates[col] = 1
-                    for (i in 0 until tableModel.cellContent.size) // for each row
+                    for (i in 0 until tableModel.cellsContent.size) // for each row
                     {
-                        if (i != row && tableModel.cellContent[i][col].data !is NoExistData)
+                        if (i != row && tableModel.cellsContent[i][col].data !is NoExistData)
                         {
-                            tableModel.cellContent[i][col].data = UnknownData()
+                            tableModel.cellsContent[i][col].data = UnknownData()
                         }
                     }
                     cell.data = AbsenceData("Б")
@@ -351,7 +387,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         }
 
         @Synchronized
-        fun onCellCLicked(col: Int, row: Int)
+        fun onCellClicked(col: Int, row: Int)
         {
             if (!isClickedTodayColumn(col) && isJournalLocked)
             {
@@ -359,7 +395,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 return
             }
 
-            val cell = tableModel.cellContent[row][col]
+            val cell = tableModel.cellsContent[row][col]
             when (cell.data)
             {
                 is PresenceData ->
@@ -374,11 +410,11 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                     i("chunksStates[$col] = ${chunksStates[col]}")
                     if (isChunkEmpty(col))
                     {
-                        for (i in 0 until tableModel.cellContent.size) // for each row
+                        for (i in 0 until tableModel.cellsContent.size) // for each row
                         {
-                            if (tableModel.cellContent[i][col].data !is NoExistData)
+                            if (tableModel.cellsContent[i][col].data !is NoExistData)
                             {
-                                tableModel.cellContent[i][col].data = null
+                                tableModel.cellsContent[i][col].data = null
                             }
                         }
                     }
@@ -401,11 +437,11 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 else -> //null
                 {
                     chunksStates[col] = 1
-                    for (i in 0 until tableModel.cellContent.size) // for each row
+                    for (i in 0 until tableModel.cellsContent.size) // for each row
                     {
-                        if (i != row && tableModel.cellContent[i][col].data !is NoExistData)
+                        if (i != row && tableModel.cellsContent[i][col].data !is NoExistData)
                         {
-                            tableModel.cellContent[i][col].data = UnknownData()
+                            tableModel.cellsContent[i][col].data = UnknownData()
                         }
                     }
                     cell.data = PresenceData()
@@ -423,6 +459,8 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         @Synchronized
         fun isChunkShowingNow(chunk: JournalChunk): Boolean = (chunk.groupId == tableModel.groupId && (selectedPeriod == YearMonth.of(chunk.date.year, chunk.date.month)))
 
+
+
         private fun clearTableMetadata()
         {
             chunksToSave.clear()
@@ -434,12 +472,12 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         private fun saveChunkOnBackground(col: Int)
         {
             i("saveChunkOnBackground")
-            val day = tableModel.columnHeaderContent[col].data.timestamp.dayOfMonth
+            val day = tableModel.columnHeaderContent[col].date.dayOfMonth
             var chunkBackup = chunksToSave[day]
             if (chunkBackup == null)
             {
                 i("chunkBackup == null")
-                chunkBackup = JournalChunk(tableModel.columnHeaderContent[col].data.timestamp, getGroupId())
+                chunkBackup = JournalChunk(tableModel.columnHeaderContent[col].date, getGroupId())
                 chunksToSave[day] = chunkBackup
             }
             else
@@ -450,7 +488,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
             for (row in 0 until tableModel.rowHeaderContent.size)
             {
-                chunkBackup.content[ChunkPersonName(tableModel.rowHeaderContent[row].data.person)] = CellData.getCopy(tableModel.cellContent[row][col].data)
+                chunkBackup.content[ChunkPersonName(tableModel.rowHeaderContent[row].person)] = CellData.getCopy(tableModel.cellsContent[row][col].data)
             }
             i("update backuped chunk")
 
@@ -460,7 +498,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 i("changingChunkJob launched")
                 try
                 {
-                    withTimeout(7000)
+                    withTimeout(7.seconds())
                     {
                         delay(Int.MAX_VALUE.toLong())
                     }
@@ -507,7 +545,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 {
                     for (row in 0 until tableModel.rowHeaderContent.size)
                     {
-                        tableModel.cellContent[row][col].data = chunkBackup.content[ChunkPersonName(tableModel.rowHeaderContent[row].data.person)]
+                        tableModel.cellsContent[row][col].data = chunkBackup.content[ChunkPersonName(tableModel.rowHeaderContent[row].person)]
                     }
                     isNeedToRefresh = true
                 }
@@ -523,6 +561,12 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             }
         }
 
-        private fun isClickedTodayColumn(col: Int): Boolean = tableModel.columnHeaderContent[col].data.timestamp == LocalDate.now()
+
+        private fun isClickedTodayColumn(col: Int): Boolean = tableModel.columnHeaderContent[col].date == LocalDate.now()
+
+        private fun Int.seconds(): Long
+        {
+            return this.toLong() * 1000
+        }
     }
 }

@@ -4,7 +4,8 @@ import moxy.MvpView
 import moxy.viewstate.strategy.*
 
 
-import ru.hryasch.coachnotes.journal.table.TableModel
+import ru.hryasch.coachnotes.journal.table.data.TableModel
+import java.time.LocalDate
 import java.time.YearMonth
 
 //TODO: custom strategy as: GeneralState(waiting/showing) + CurrentPeriod + some other additions?
@@ -26,17 +27,14 @@ interface JournalView: MvpView
     fun lockJournal(isLocked: Boolean? = true)
 
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun showAllPeople(isShowAll: Boolean? = false)
+    fun hideRows(rows: List<Int>?)
 
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun showAllDays(isShowAll: Boolean? = false)
+    fun hideColumns(columns: List<Int>?)
 
     // Timed events (level 2)
     @StateStrategyType(AddToEndSingleStrategy::class)
     fun showSavingJournalNotification(isFinished: Boolean? = true) //hotfix with null to dismiss this
-
-    @StateStrategyType(AddToEndSingleStrategy::class)
-    fun showDeleteColNotification(dateString: String?, col: Int = -1)
 
     // Runtime events (level 3)
     @StateStrategyType(SkipStrategy::class)
@@ -44,4 +42,7 @@ interface JournalView: MvpView
 
     @StateStrategyType(SkipStrategy::class)
     fun showLockedJournalNotification()
+
+    @StateStrategyType(SkipStrategy::class)
+    fun showDeleteColumnNotification(date: LocalDate, col: Int)
 }

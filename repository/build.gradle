@@ -32,9 +32,6 @@ android
         }
     }
 
-// To inline the bytecode built with JVM target 1.8 into
-// bytecode that is being built with JVM target 1.6. (e.g. navArgs)
-    
     compileOptions
     {
         coreLibraryDesugaringEnabled true
@@ -51,7 +48,6 @@ android
 dependencies
 {
     // Tests stuff
-    implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$junitImpl_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
@@ -65,9 +61,6 @@ dependencies
     // AndroidX
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.core:core-ktx:$ktxcore_version"
-
-    // Klock
-    //implementation "com.soywiz.korlibs.klock:klock-jvm:1.8.4"
 
     // Koin
     implementation "org.koin:koin-core:$koin_version"
