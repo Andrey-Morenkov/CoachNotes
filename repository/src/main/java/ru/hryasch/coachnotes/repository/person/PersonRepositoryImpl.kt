@@ -87,7 +87,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
             }
         }
 
-        return null
+        return person
     }
 
     override suspend fun getPeople(peopleIds: List<PersonId>): List<Person>?

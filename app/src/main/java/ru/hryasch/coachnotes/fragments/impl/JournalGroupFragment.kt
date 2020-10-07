@@ -125,16 +125,6 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         return layout
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu)
-    {
-        lockUnlockButton = menu.findItem(R.id.journal_lock_item)
-        showAllDaysButton = menu.findItem(R.id.journal_visibility_all_days_item)
-        showAllPeopleButton = menu.findItem(R.id.journal_visibility_all_people_item)
-        exportDocButton = menu.findItem(R.id.journal_upload_docx_item)
-
-        return super.onPrepareOptionsMenu(menu)
-    }
-
     override fun lockJournal(isLocked: Boolean?)
     {
         when (isLocked)
@@ -437,6 +427,11 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                 title = currentGroup.name
                 setNavigationOnClickListener { navController.navigateUp() }
                 inflateMenu(R.menu.journal_menu)
+                lockUnlockButton = menu.findItem(R.id.journal_lock_item)
+                showAllDaysButton = menu.findItem(R.id.journal_visibility_all_days_item)
+                showAllPeopleButton = menu.findItem(R.id.journal_visibility_all_people_item)
+                exportDocButton = menu.findItem(R.id.journal_upload_docx_item)
+
                 setOnMenuItemClickListener {
                     when (it.itemId)
                     {
@@ -457,6 +452,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             buttonPrevMonth = layout.findViewById(R.id.journalButtonPrevPeriod)
             textViewPeriod = layout.findViewById(R.id.journalTextViewPeriod)
 
+            selectedPeriod = YearMonth.now()
             initChangePeriodDialog()
 
             textViewPeriod.setOnClickListener {

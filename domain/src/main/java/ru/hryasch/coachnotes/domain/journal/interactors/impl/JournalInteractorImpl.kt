@@ -118,7 +118,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
         for (day in (1 .. period.month.length(period.isLeapYear)))
         {
-            headers[day - 1] = LocalDate.of(period.year, period.month, day)
+            headers.add(LocalDate.of(period.year, period.month, day))
         }
         return headers
     }
@@ -167,10 +167,10 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         val cellsList: ArrayList<ArrayList<CellData?>> = ArrayList(height)
         for (i in 0 until height)
         {
-            cellsList[i] = ArrayList(width)
+            cellsList.add(ArrayList(width))
             for (j in 0 until width)
             {
-                cellsList[i][j] = null
+                cellsList[i].add(null)
             }
         }
 

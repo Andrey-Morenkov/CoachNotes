@@ -21,6 +21,7 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
 import ru.hryasch.coachnotes.fragments.GroupView
 import ru.hryasch.coachnotes.groups.presenters.GroupPresenter
+import java.util.Collections
 
 @InjectViewState
 class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinComponent

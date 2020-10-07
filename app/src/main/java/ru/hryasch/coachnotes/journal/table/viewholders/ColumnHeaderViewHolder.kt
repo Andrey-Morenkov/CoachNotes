@@ -21,16 +21,16 @@ class ColumnHeaderViewHolder(columnHeaderItem: View) : AbstractViewHolder(column
 
     fun setModel(model: ColumnHeaderModel)
     {
-        dayNumber.text = model.data.timestamp.dayOfMonth.toString()
+        dayNumber.text = model.date.dayOfMonth.toString()
 
-        val dayIndex = model.data.timestamp.dayOfWeek.value - 1
+        val dayIndex = model.date.dayOfWeek.value - 1
         dayOfWeek.text = daysOfWeek[dayIndex]
 
         dayNumber.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorText))
         dayOfWeek.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
 
         colorizeWeekend(dayIndex)
-        colorizeToday(model.data.timestamp)
+        colorizeToday(model.date)
     }
 
     private fun colorizeWeekend(dayIndex: Int)

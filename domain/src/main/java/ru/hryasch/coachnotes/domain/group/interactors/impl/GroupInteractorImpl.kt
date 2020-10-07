@@ -21,7 +21,7 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
 
     override suspend fun getGroupsList(): List<Group>
     {
-        val groups = groupRepository.getAllGroups() ?: LinkedList()
+        val groups = groupRepository.getAllExistingGroups() ?: LinkedList()
 
         groups.forEach {
             i("group[${it.name} ${it.id}]: people count = ${it.membersList.size}")
@@ -32,7 +32,7 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
 
     override suspend fun getGroupNames(): Map<GroupId, String>
     {
-        val groupsList = groupRepository.getAllGroups()
+        val groupsList = groupRepository.getAllExistingGroups()
         val res: MutableMap<GroupId, String> = HashMap()
         groupsList?.forEach {
             res[it.id] = it.name
@@ -42,7 +42,7 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
 
     override suspend fun getPeopleListByGroup(groupId: GroupId): List<Person>
     {
-        return peopleRepository.getPeopleByGroup(groupId) ?: LinkedList<Person>()
+        return peopleRepository.getPeopleByGroup(groupId) ?: LinkedList()
     }
 
     override suspend fun addOrUpdateGroup(group: Group)

@@ -19,6 +19,12 @@
         <dimen name="home_screen_account_name_text_size">20sp</dimen>
         <dimen name="home_screen_account_avatar_size">65dp</dimen>
 
+    // Group info screen
+        <dimen name="group_info_add_person_dialog_width">220dp</dimen>
+
+    // Group edit screen
+        <dimen name="group_edit_delete_group_dialog_height">690dp</dimen>
+
 
 // Element specific params
     // Card

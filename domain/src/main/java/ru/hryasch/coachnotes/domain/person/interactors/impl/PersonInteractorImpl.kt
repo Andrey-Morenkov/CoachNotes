@@ -23,12 +23,12 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
 
     override suspend fun getPeopleList(): List<Person>
     {
-        return peopleRepository.getAllPeople() ?: LinkedList()
+        return peopleRepository.getAllExistingPeople() ?: LinkedList()
     }
 
     override suspend fun getGroupNames(): Map<GroupId, String>
     {
-        val groupsList = groupRepository.getAllGroups()
+        val groupsList = groupRepository.getAllExistingGroups()
         val res: MutableMap<GroupId, String> = HashMap()
         groupsList?.forEach {
             res[it.id] = it.name
@@ -38,7 +38,7 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
 
     override suspend fun getPeopleWithoutGroup(): List<Person>?
     {
-        return peopleRepository.getAllPeople()?.filter { person -> person.groupId == null }
+        return peopleRepository.getAllExistingPeople()?.filter { person -> person.groupId == null }
     }
 
 

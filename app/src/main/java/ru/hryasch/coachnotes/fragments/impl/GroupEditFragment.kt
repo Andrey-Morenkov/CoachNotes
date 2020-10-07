@@ -149,7 +149,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         currentGroup = group
 
         setGroupDataJob =
-            GlobalScope.launch(Dispatchers.Unconfined)
+            GlobalScope.launch(Dispatchers.Main)
             {
                 delay(500) //hotfix for animation
                 setAgesAdapters()
@@ -426,6 +426,9 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
             deleteGroup.setOnClickListener {
                 deleteGroupVariantsDialog.show()
+
+                // Hack to set custom dialog width
+                deleteGroupVariantsDialog.window!!.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, resources.getDimension(R.dimen.group_edit_delete_group_dialog_height).toInt())
             }
         }
     }

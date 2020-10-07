@@ -189,7 +189,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
     override fun applyGroupData(group: Group)
     {
-        if (currentGroup === group || currentGroup.id == group.id)
+        if (::currentGroup.isInitialized && (currentGroup === group || currentGroup.id == group.id))
         {
             d("Skip applying same group data from fragment re-create")
             return

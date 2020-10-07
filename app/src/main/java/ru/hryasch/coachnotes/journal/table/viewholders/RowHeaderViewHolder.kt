@@ -14,8 +14,8 @@ class RowHeaderViewHolder(rowHeaderItem: View) : AbstractViewHolder(rowHeaderIte
 
     fun setModel(model: RowHeaderModel)
     {
-        surname.text = model.data.person.surname
-        name.text = model.data.person.name
-        num.text = model.data.number.toString()
+        surname.text = model.person.surname
+        name.text = model.person.name
+        num.text = model.index.toString()
     }
 }

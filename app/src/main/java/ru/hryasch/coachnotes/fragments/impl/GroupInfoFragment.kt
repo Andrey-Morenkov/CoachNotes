@@ -133,6 +133,14 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     {
         if (people == null)
         {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Добавить учеников в группу")
+                .setMessage("Нет свободных учеников")
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+                .show()
             return
         }
 
@@ -270,11 +278,12 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
         dialogView.findViewById<LinearLayout>(R.id.addPersonNewPerson).setOnClickListener {
             val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToPersonEditFragment()
+            addMemberVariantsDialog.cancel()
             navController.navigate(action)
-            addMemberVariantsDialog.dismiss()
         }
 
         dialogView.findViewById<LinearLayout>(R.id.addPersonFindPerson).setOnClickListener {
+            addMemberVariantsDialog.cancel()
             presenter.onAddPeopleToGroupClicked()
         }
     }
@@ -379,6 +388,9 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
         addMember.setOnClickListener {
             addMemberVariantsDialog.show()
+
+            // Hack to set custom dialog width
+            addMemberVariantsDialog.window!!.setLayout(resources.getDimension(R.dimen.group_info_add_person_dialog_width).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
         }
 
         if (membersAdapter.itemCount == 0)
