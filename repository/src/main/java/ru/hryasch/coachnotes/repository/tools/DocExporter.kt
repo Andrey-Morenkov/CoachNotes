@@ -93,7 +93,27 @@ private class JournalDocument(val period: YearMonth,
         val monthNames: Array<String> by inject(named("months_RU"))
 
         val periodInfo = "${monthNames[period.month.value - 1].toLowerCase(Locale("ru"))} ${period.year}"
-        val groupInfo = "${group.availableAbsoluteAge} лет"
+
+        val ageLow = group.availableAbsoluteAgeLow
+        val ageHigh = group.availableAbsoluteAgeHigh
+
+        var groupInfo = "  лет"
+        if (ageHigh == null)
+        {
+            if (ageLow == null)
+            {
+                groupInfo.replaceFirst(" ", "?")
+            }
+            else
+            {
+                groupInfo.replaceFirst(" ", "$ageLow")
+            }
+        }
+        else
+        {
+            groupInfo.replaceFirst(" ", "$ageLow - $ageHigh")
+        }
+
 
         // "Кондратьев Январь 2020 6 лет.docx"
         val outputFile = File(saveDirectory, "$coachName $periodInfo $groupInfo.$fileExtension")

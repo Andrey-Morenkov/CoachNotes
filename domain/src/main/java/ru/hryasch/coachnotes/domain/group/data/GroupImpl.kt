@@ -12,7 +12,8 @@ class GroupImpl (override val id: GroupId,
                  override var name: String) : Group
 {
     override var deletedTimestamp: Long? = null
-    override var availableAbsoluteAge: IntRange? = null
+    override var availableAbsoluteAgeLow:  Int? = null
+    override var availableAbsoluteAgeHigh: Int? = null
     override var isPaid: Boolean = false
     override val membersList: MutableList<PersonId> = LinkedList()
     override val scheduleDays: MutableList<ScheduleDay> = LinkedList()
@@ -27,8 +28,8 @@ class GroupImpl (override val id: GroupId,
 
     override fun compareTo(other: Group): Int
     {
-        return "$availableAbsoluteAge $name $id $isPaid".compareTo("${other.availableAbsoluteAge} ${other.name} ${other.id} ${other.isPaid}")
+        return id.compareTo(other.id)
     }
 
-    override fun toString(): String = "Group[$id]: ($name, isPaid = $isPaid, ages = ${availableAbsoluteAge?.first} - ${availableAbsoluteAge?.last}, members[${membersList.size}]: $membersList, scheduleDays: $scheduleDays)"
+    override fun toString(): String = "Group[$id]: ($name, isPaid = $isPaid, ages = $availableAbsoluteAgeLow - ${availableAbsoluteAgeHigh}, members[${membersList.size}]: $membersList, scheduleDays: $scheduleDays)"
 }

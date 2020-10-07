@@ -11,7 +11,8 @@ interface Group: Comparable<Group>, Serializable
     var name: String
 
     // Optional params
-    var availableAbsoluteAge: IntRange?
+    var availableAbsoluteAgeLow: Int?
+    var availableAbsoluteAgeHigh: Int?
     val membersList: MutableList<PersonId>
     val scheduleDays: MutableList<ScheduleDay>
     var isPaid: Boolean

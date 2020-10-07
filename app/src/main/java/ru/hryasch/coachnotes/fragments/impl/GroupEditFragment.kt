@@ -419,9 +419,14 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             name.text = SpannableStringBuilder(currentGroup.name)
             paymentType.selection = currentGroup.isPaid.toInt()
 
-            currentGroup.availableAbsoluteAge?.let {
-                age1.selection = absoluteYears.indexOf(it.first.toString())
-                age2.selection = absoluteYears.indexOf(it.last.toString())
+            if (currentGroup.availableAbsoluteAgeLow != null)
+            {
+                age1.selection = absoluteYears.indexOf(currentGroup.availableAbsoluteAgeLow.toString())
+            }
+
+            if (currentGroup.availableAbsoluteAgeHigh != null)
+            {
+                age2.selection = absoluteYears.indexOf(currentGroup.availableAbsoluteAgeHigh.toString())
             }
 
             deleteGroup.setOnClickListener {
@@ -498,21 +503,8 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         val ageStart = age1.selectedItem?.toString()?.toInt()
         val ageFinish = age2.selectedItem?.toString()?.toInt()
 
-        if (ageStart != null)
-        {
-            if (ageFinish != null)
-            {
-                currentGroup.availableAbsoluteAge = ageStart .. ageFinish
-            }
-            else
-            {
-                currentGroup.availableAbsoluteAge = ageStart .. ageStart
-            }
-        }
-        else
-        {
-            currentGroup.availableAbsoluteAge = null
-        }
+        currentGroup.availableAbsoluteAgeLow = ageStart
+        currentGroup.availableAbsoluteAgeHigh = ageFinish
 
         currentGroup.scheduleDays.clear()
         for (scheduleDay in scheduleDaysList)

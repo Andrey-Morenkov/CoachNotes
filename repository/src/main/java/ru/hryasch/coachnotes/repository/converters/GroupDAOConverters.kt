@@ -37,13 +37,8 @@ fun GroupDAO.fromDAO(): Group
         deletedTimestamp = null
     }
 
-    val lowAge = this.availableAgeLow
-    val highAge = this.availableAgeHigh
-    if (lowAge != null)
-    {
-        val ageRange = IntRange(lowAge, highAge ?: lowAge)
-        group.availableAbsoluteAge = ageRange
-    }
+    group.availableAbsoluteAgeLow  = this.availableAgeLow
+    group.availableAbsoluteAgeHigh = this.availableAgeHigh
 
     this.members.forEach {
         group.membersList.add(it)
@@ -63,13 +58,8 @@ fun DeletedGroupDAO.fromDAO(): Group
         deletedTimestamp = this@fromDAO.deleteTimestamp
     }
 
-    val lowAge = this.availableAgeLow
-    val highAge = this.availableAgeHigh
-    if (lowAge != null)
-    {
-        val ageRange = IntRange(lowAge, highAge ?: lowAge)
-        group.availableAbsoluteAge = ageRange
-    }
+    group.availableAbsoluteAgeLow = this.availableAgeLow
+    group.availableAbsoluteAgeHigh = this.availableAgeHigh
 
     this.members.forEach {
         group.membersList.add(it)
@@ -91,14 +81,7 @@ fun Group.toDao(): GroupDAO?
         return null
     }
 
-    val dao = GroupDAO(this.id, this.name, availableAgeLow = this.availableAbsoluteAge!!.first)
-
-    dao.isPaid = isPaid
-
-    if (this.availableAbsoluteAge!!.first != this.availableAbsoluteAge!!.last)
-    {
-        dao.availableAgeHigh = this.availableAbsoluteAge!!.last
-    }
+    val dao = GroupDAO(this.id, this.name, this.isPaid, this.availableAbsoluteAgeLow, this.availableAbsoluteAgeHigh)
 
     this.membersList.forEach {
         dao.members.add(it)

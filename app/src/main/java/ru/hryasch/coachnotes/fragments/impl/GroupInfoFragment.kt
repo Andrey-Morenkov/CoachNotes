@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
@@ -19,7 +18,6 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
-import com.pawegio.kandroid.w
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import moxy.MvpAppCompatFragment
@@ -35,7 +33,6 @@ import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.GroupView
 import ru.hryasch.coachnotes.groups.GroupMembersAdapter
-import ru.hryasch.coachnotes.groups.isSingle
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupPresenterImpl
 import ru.hryasch.coachnotes.repository.common.toRelative
 import java.util.*
@@ -317,10 +314,10 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
     private fun setAges()
     {
-        val age1 = currentGroup.availableAbsoluteAge?.first ?: -1
-        val age2 = currentGroup.availableAbsoluteAge?.last ?: -1
+        val ageLow  = currentGroup.availableAbsoluteAgeLow
+        val ageHigh = currentGroup.availableAbsoluteAgeHigh
 
-        if (age1 == -1)
+        if (ageLow == null)
         {
             // age not set
             absoluteAge.text = getString(R.string.group_param_ages_multiple, "?", "?")
@@ -329,17 +326,17 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         }
 
         // age set
-        if (currentGroup.availableAbsoluteAge!!.isSingle())
+        if (ageHigh == null)
         {
             // set only 1 age
-            absoluteAge.text = getString(R.string.group_param_ages_single, age1.toString())
-            relativeAge.text = getString(R.string.group_param_ages_single, age1.toRelative().toString())
+            absoluteAge.text = getString(R.string.group_param_ages_single, ageLow.toString())
+            relativeAge.text = getString(R.string.group_param_ages_single, ageLow.toRelative().toString())
         }
         else
         {
             // set age range
-            absoluteAge.text = getString(R.string.group_param_ages_multiple, age1.toString(), age2.toString())
-            relativeAge.text = getString(R.string.group_param_ages_multiple, age2.toRelative().toString(), age1.toRelative().toString())
+            absoluteAge.text = getString(R.string.group_param_ages_multiple, ageLow.toString(), ageHigh.toString())
+            relativeAge.text = getString(R.string.group_param_ages_multiple, ageHigh.toRelative().toString(), ageLow.toRelative().toString())
         }
     }
 

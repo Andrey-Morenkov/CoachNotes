@@ -582,21 +582,22 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             var age1 = "?"
             var age2 = "?"
 
-            if (group.availableAbsoluteAge != null)
-            {
-                age1 = group.availableAbsoluteAge!!.first.toString()
-                age2 = group.availableAbsoluteAge!!.last.toString()
+            group.availableAbsoluteAgeLow?.let {
+                age1 = it.toString()
             }
 
-            val paidSuffix =
-                if (group.isPaid)
-                {
-                    " $"
-                }
-                else
-                {
-                    ""
-                }
+            group.availableAbsoluteAgeHigh?.let {
+                age2 = it.toString()
+            }
+
+            val paidSuffix = if (group.isPaid)
+                             {
+                                 " $"
+                             }
+                             else
+                             {
+                                 ""
+                             }
 
             if (age1 == age2)
             {

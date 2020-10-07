@@ -34,7 +34,7 @@ open class GroupDAO(): RealmObject()
     constructor(id: GroupId,
                 name: String,
                 isPaid: Boolean = false,
-                availableAgeLow: AbsoluteAge,
+                availableAgeLow: AbsoluteAge? = null,
                 availableAgeHigh: AbsoluteAge? = null): this()
     {
         this.id = id
