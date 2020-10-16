@@ -4,6 +4,7 @@ import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
 import io.realm.RealmList
 import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
 import io.realm.annotations.Required
 import ru.hryasch.coachnotes.domain.journal.data.CellData
 import ru.hryasch.coachnotes.domain.journal.data.ChunkPersonName
@@ -54,6 +55,7 @@ data class JournalChunkDAOId(val date: LocalDate, val groupId: GroupId)
 
 open class JournalChunkDAO(): RealmObject()
 {
+    @PrimaryKey
     @Required
     var id: String? = null
     var data: RealmList<JournalChunkDataDAO> = RealmList()

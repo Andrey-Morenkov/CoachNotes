@@ -1,5 +1,7 @@
 package ru.hryasch.coachnotes.journal.table.data
 
+import com.pawegio.kandroid.d
+import com.pawegio.kandroid.e
 import kotlinx.coroutines.*
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
@@ -8,6 +10,7 @@ import ru.hryasch.coachnotes.domain.journal.data.CellData
 import ru.hryasch.coachnotes.domain.journal.data.RawTableData
 import ru.hryasch.coachnotes.domain.person.data.Person
 import java.time.LocalDate
+import java.util.stream.Collectors
 import java.util.stream.IntStream
 
 class TableModel(rawTableData: RawTableData)
@@ -55,13 +58,15 @@ class TableModel(rawTableData: RawTableData)
         val columnHeaders: MutableList<ColumnHeaderModel> = ArrayList(rawDaysData.size)
         val columnHideHeaders: MutableList<Int> = ArrayList()
         val makeScheduleDayCheck = groupSchedule != null && groupSchedule.isNotEmpty()
-        val existScheduleDays = groupSchedule?.stream()?.map(ScheduleDay::dayPosition0)
+        val existScheduleDaysPositions = groupSchedule?.stream()?.map(ScheduleDay::dayPosition0)?.collect(Collectors.toList())
+        d("existScheduleDays = ${existScheduleDaysPositions.toString()}")
 
         for ((i, rawDay) in rawDaysData.withIndex())
         {
             columnHeaders.add(ColumnHeaderModel(rawDay))
-            if (makeScheduleDayCheck && existScheduleDays!!.noneMatch { existDay0 -> existDay0 == (rawDay.dayOfWeek.value - 1) })
+            if (makeScheduleDayCheck && existScheduleDaysPositions!!.stream().noneMatch { existDay0 -> existDay0 == (rawDay.dayOfWeek.value - 1) })
             {
+                d("Hide $i column (${rawDay.dayOfWeek})")
                 columnHideHeaders.add(i)
             }
         }
