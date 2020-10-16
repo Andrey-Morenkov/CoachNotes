@@ -173,8 +173,14 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
                 {
                     setPeriod(selectedPeriod)
                     lockJournal(isJournalLocked)
-                    hideColumns(Collections.emptyList())
-                    hideRows(Collections.emptyList())
+                    if (journalTableProxy.tableModel.columnsToHide.isNotEmpty())
+                    {
+                        hideColumns(journalTableProxy.tableModel.columnsToHide)
+                    }
+                    if (journalTableProxy.tableModel.rowsToHide.isNotEmpty())
+                    {
+                        hideRows(journalTableProxy.tableModel.rowsToHide)
+                    }
                 }
             }
             i("findingTableJob ended")

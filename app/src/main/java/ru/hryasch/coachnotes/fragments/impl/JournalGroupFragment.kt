@@ -91,8 +91,8 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         private val initializerHelper: InflaterAndInitializer
         private lateinit var toolbarMenuHandler: ToolbarMenuHandler
 
-        private val monthNames: Array<String> = get(named("months_RU"))
-        private val dayOfWeekLongNames: Array<String> = get(named("daysOfWeekLong_RU"))
+    private val monthNames: Array<String> = get(named("months_RU"))
+    private val dayOfWeekLongNames: Array<String> = get(named("daysOfWeekLong_RU"))
 
 
     init
@@ -100,9 +100,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         initializerHelper = InflaterAndInitializer()
     }
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View?
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_journal, container, false)
         currentGroup = JournalGroupFragmentArgs.fromBundle(requireArguments()).groupData
@@ -133,14 +131,16 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             {
                 lockUnlockButton.isVisible = true
                 lockUnlockButton.setIcon(R.drawable.ic_lock)
-                DrawableCompat.wrap(lockUnlockButton.icon).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorText))
+                DrawableCompat.wrap(lockUnlockButton.icon)
+                              .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorText))
             }
 
             false ->
             {
                 lockUnlockButton.isVisible = true
                 lockUnlockButton.setIcon(R.drawable.ic_unlock)
-                DrawableCompat.wrap(lockUnlockButton.icon).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+                DrawableCompat.wrap(lockUnlockButton.icon)
+                              .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
             }
 
             else  ->
@@ -152,46 +152,58 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     override fun hideRows(rows: List<Int>?)
     {
+        return
         if (rows == null)
         {
-            showAllPeopleButton.isVisible = false
+            showAllPeopleButton.isChecked = true
+            showAllPeopleButton.isEnabled = false
             return
         }
 
-        showAllPeopleButton.isVisible = true
+        showAllPeopleButton.isEnabled = true
         if (rows.isEmpty())
         {
             showAllPeopleButton.isChecked = true
+            viewJournalTable.showAllHiddenRows()
             return
         }
 
         showAllPeopleButton.isChecked = false
+        rows.stream().sorted(Collections.reverseOrder()).forEach {
+            viewJournalTable.hideRow(it)
+        }
     }
 
     override fun hideColumns(columns: List<Int>?)
     {
+        return
         if (columns == null)
         {
-            showAllDaysButton.isVisible = false
+            showAllDaysButton.isChecked = true
+            showAllDaysButton.isEnabled = false
             return
         }
 
-        showAllDaysButton.isVisible = true
+        showAllDaysButton.isEnabled = true
         if (columns.isEmpty())
         {
             showAllDaysButton.isChecked = true
+            viewJournalTable.showAllHiddenColumns()
             return
         }
 
         showAllDaysButton.isChecked = false
+        columns.stream().sorted(Collections.reverseOrder()).forEach {
+            viewJournalTable.hideColumn(it)
+        }
     }
 
     override fun loadingState()
     {
         i("-- Waiting State --")
         loadingView.visible = true
-        emptyView.visible         = false
-        viewJournalTable.visible  = false
+        emptyView.visible = false
+        viewJournalTable.visible = false
         exportDocButton.isVisible = false
     }
 
@@ -202,9 +214,12 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         textViewPeriod.text = str
 
         val now = ZonedDateTime.now()
-        if (now.month == selectedPeriod.month && now.year == selectedPeriod.year)
+        val showCurrentPeriod = now.month == selectedPeriod.month && now.year == selectedPeriod.year
+
+        if (showCurrentPeriod)
         {
             buttonNextMonth.visibility = View.INVISIBLE
+            viewJournalTable.scrollToColumnPosition(now.dayOfMonth - 2) // -1 because column starts from 0, -1 because need for today column be on center of screen
         }
         else
         {
@@ -305,8 +320,8 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
         else
         {
-            emptyView.visible         = true
-            viewJournalTable.visible  = false
+            emptyView.visible = true
+            viewJournalTable.visible = false
             exportDocButton.isVisible = false
         }
 
@@ -327,9 +342,8 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     {
         val today = ZonedDateTime.now()
         Snackbar.make((activity as AppCompatActivity).findViewById(android.R.id.content), "Пока журнал заблокирован, можно менять только текущий день (${today.dayOfMonth} ${today.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())} ${today.year}г. )", Snackbar.LENGTH_LONG)
-                .show()
+            .show()
     }
-
 
 
     private fun hasUnknownData(): Boolean
@@ -354,13 +368,15 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         {
             hasUnknownData() ->
             {
-                DrawableCompat.wrap(exportDocButton.icon).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
+                DrawableCompat.wrap(exportDocButton.icon)
+                    .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
                 toolbarMenuHandler.tableDataHasUnknownData()
             }
 
             isEmpty()        ->
             {
-                DrawableCompat.wrap(exportDocButton.icon).setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
+                DrawableCompat.wrap(exportDocButton.icon)
+                    .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorJournalAbsenceGeneral))
                 toolbarMenuHandler.tableDataIsEmpty()
             }
 
@@ -415,7 +431,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
     }
 
-    inner class InflaterAndInitializer: KoinComponent
+    inner class InflaterAndInitializer : KoinComponent
     {
         private lateinit var changePeriodDialog: AlertDialog
 
@@ -436,8 +452,8 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                     when (it.itemId)
                     {
                         R.id.journal_lock_item                  -> toolbarMenuHandler.onLockUnlockButtonClicked()
-                        R.id.journal_visibility_all_days_item   -> toolbarMenuHandler.onSwitchDaysVisibilityClicked(it.isChecked)
-                        R.id.journal_visibility_all_people_item -> toolbarMenuHandler.onSwitchPeopleVisibilityClicked(it.isChecked)
+                        R.id.journal_visibility_all_days_item   -> toolbarMenuHandler.onSwitchDaysVisibilityClicked(!it.isChecked)
+                        R.id.journal_visibility_all_people_item -> toolbarMenuHandler.onSwitchPeopleVisibilityClicked(!it.isChecked)
                         R.id.journal_upload_docx_item           -> toolbarMenuHandler.onExportDocClicked()
                     }
 
@@ -485,8 +501,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                 .setOverlayLayoutAlpha(0f)
                 .setOnDisplayListener(object : SnackProgressBarManager.OnDisplayListener
                                       {
-                                          override fun onDismissed(snackProgressBar: SnackProgressBar,
-                                                                   onDisplayId: Int)
+                                          override fun onDismissed(snackProgressBar: SnackProgressBar, onDisplayId: Int)
                                           {
                                               presenter.onJournalSaveNotificationDismiss()
                                               snackProgressBarManager.dismissAll()
@@ -497,11 +512,12 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
         private fun initChangePeriodDialog()
         {
-            val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_journal_month_year_picker, null)
+            val dialogView = LayoutInflater.from(context)
+                .inflate(R.layout.dialog_journal_month_year_picker, null)
 
             val years: Array<Int> = get(named("journalYears"))
 
-            val yearPicker: NumberPicker  = dialogView.findViewById(R.id.journalYearPicker)
+            val yearPicker: NumberPicker = dialogView.findViewById(R.id.journalYearPicker)
             val monthPicker: NumberPicker = dialogView.findViewById(R.id.journalMonthPicker)
 
             with(yearPicker)
@@ -522,15 +538,15 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             }
 
             val dialogBuilder = MaterialAlertDialogBuilder(requireContext())
-                                    .setView(dialogView)
-                                    .setTitle("Выбор периода")
-                                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                                        presenter.changePeriod(YearMonth.of(yearPicker.value, monthPicker.value))
-                                        dialog.dismiss()
-                                    }
-                                    .setNegativeButton("Отмена") { dialog, _ ->
-                                        dialog.dismiss()
-                                    }
+                .setView(dialogView)
+                .setTitle("Выбор периода")
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    presenter.changePeriod(YearMonth.of(yearPicker.value, monthPicker.value))
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Отмена") { dialog, _ ->
+                    dialog.dismiss()
+                }
 
             val now = YearMonth.now()
             if (selectedPeriod.monthValue != now.monthValue || selectedPeriod.year != now.year)
