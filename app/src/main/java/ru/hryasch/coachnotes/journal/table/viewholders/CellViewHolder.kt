@@ -36,6 +36,11 @@ class CellViewHolder (cellItem: View, private val context: Context) : AbstractVi
         }
     }
 
+    fun getInternalId(): String
+    {
+        return currentModel.id
+    }
+
     private fun applyCommonModel()
     {
         dataCommon.visible = true

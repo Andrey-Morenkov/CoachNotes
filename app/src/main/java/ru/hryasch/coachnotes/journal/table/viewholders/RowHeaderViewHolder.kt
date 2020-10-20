@@ -12,10 +12,16 @@ class RowHeaderViewHolder(rowHeaderItem: View) : AbstractViewHolder(rowHeaderIte
     private val name: TextView = rowHeaderItem.findViewById(R.id.journalRowHeaderName)
     private val num: TextView = rowHeaderItem.findViewById(R.id.journalRowHeaderNum)
 
+    private var internalId: Int = 0
+
     fun setModel(model: RowHeaderModel)
     {
+        internalId = model.getId()
+
         surname.text = model.person.surname
         name.text = model.person.name
         num.text = model.index.toString()
     }
+
+    fun getInternalId() = internalId
 }

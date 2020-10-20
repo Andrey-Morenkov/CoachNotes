@@ -201,14 +201,14 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
 
                 for (col in rowData.indices) // for each day
                 {
-                    if (!chunksMap.contains(days[col]))
+                    if (!chunksMap.containsKey(days[col]))
                     {
                         // No chunk data for this day
                         rowData[col] = generateEmptyCellData()
                         continue
                     }
 
-                    if (!chunksMap[days[col]]!!.contains(allPeople[row].id))
+                    if (!chunksMap[days[col]]!!.containsKey(allPeople[row].id))
                     {
                         // No chunk data for this person
                         rowData[col] = generateNoExistData() // "x"

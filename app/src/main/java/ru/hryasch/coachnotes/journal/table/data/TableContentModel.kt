@@ -17,7 +17,15 @@ data class CellModel(private val id: String,
     }
 }
 
-data class ColumnHeaderModel(val date: LocalDate)
+data class ColumnHeaderModel(private val id: Int,
+                             val date: LocalDate)
+{
+    fun getId() = id
+}
 
-data class RowHeaderModel(var index: Int,
+data class RowHeaderModel(private val id: Int,
+                          var index: Int,
                           val person: Person)
+{
+    fun getId() = id
+}

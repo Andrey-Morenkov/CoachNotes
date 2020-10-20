@@ -63,14 +63,14 @@ class TableModel(rawTableData: RawTableData)
 
         for ((i, rawDay) in rawDaysData.withIndex())
         {
-            columnHeaders.add(ColumnHeaderModel(rawDay))
+            columnHeaders.add(ColumnHeaderModel(i, rawDay))
             if (makeScheduleDayCheck && existScheduleDaysPositions!!.stream().noneMatch { existDay0 -> existDay0 == (rawDay.dayOfWeek.value - 1) })
             {
-                d("Hide $i column (${rawDay.dayOfWeek})")
                 columnHideHeaders.add(i)
             }
         }
 
+        d("hide ${columnHideHeaders.size} columns")
         return Pair(columnHeaders, columnHideHeaders)
     }
 
@@ -83,7 +83,7 @@ class TableModel(rawTableData: RawTableData)
 
         for ((i, rawPerson) in rawPeopleData.withIndex())
         {
-            rowHeaders.add(RowHeaderModel(i + 1, rawPerson))
+            rowHeaders.add(RowHeaderModel(i,i + 1, rawPerson))
             if (makeMembersCheck && existPeople!!.noneMatch { existPerson -> existPerson == rawPerson.id })
             {
                 rowHideHeaders.add(i)

@@ -19,8 +19,11 @@ class ColumnHeaderViewHolder(columnHeaderItem: View) : AbstractViewHolder(column
     private val dayNumber: TextView = columnHeaderItem.findViewById(R.id.journalColumnHeaderDayNumber)
     private val dayOfWeek: TextView = columnHeaderItem.findViewById(R.id.journalColumnHeaderDayOfWeek)
 
+    private var internalId: Int = 0
+
     fun setModel(model: ColumnHeaderModel)
     {
+        internalId = model.getId()
         dayNumber.text = model.date.dayOfMonth.toString()
 
         val dayIndex = model.date.dayOfWeek.value - 1
@@ -32,6 +35,8 @@ class ColumnHeaderViewHolder(columnHeaderItem: View) : AbstractViewHolder(column
         colorizeWeekend(dayIndex)
         colorizeToday(model.date)
     }
+
+    fun getInternalId(): Int = internalId
 
     private fun colorizeWeekend(dayIndex: Int)
     {

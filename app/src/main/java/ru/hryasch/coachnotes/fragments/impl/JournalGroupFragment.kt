@@ -152,7 +152,6 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     override fun hideRows(rows: List<Int>?)
     {
-        return
         if (rows == null)
         {
             showAllPeopleButton.isChecked = true
@@ -169,14 +168,14 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
 
         showAllPeopleButton.isChecked = false
-        rows.stream().sorted(Collections.reverseOrder()).forEach {
-            viewJournalTable.hideRow(it)
-        }
+        viewJournalTable.hideRows(rows)
+        //rows.stream().sorted(Collections.reverseOrder()).forEach {
+        //    viewJournalTable.hideRow(it)
+        //}
     }
 
     override fun hideColumns(columns: List<Int>?)
     {
-        return
         if (columns == null)
         {
             showAllDaysButton.isChecked = true
@@ -193,9 +192,10 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
 
         showAllDaysButton.isChecked = false
-        columns.stream().sorted(Collections.reverseOrder()).forEach {
-            viewJournalTable.hideColumn(it)
-        }
+        viewJournalTable.hideColumns(columns)
+        //columns.stream().sorted(Collections.reverseOrder()).forEach {
+        //    viewJournalTable.hideColumn(it)
+        //}
     }
 
     override fun loadingState()

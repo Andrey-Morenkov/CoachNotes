@@ -104,7 +104,8 @@ dependencies
     implementation "com.github.skydoves:powerspinner:$spinner_version"
 
     // TableView
-    implementation "com.evrencoskun.library:tableview:$tableview_version"
+    //implementation "com.evrencoskun.library:tableview:$tableview_version"
+    implementation "com.github.Andrey-Morenkov:tableview:0.8.9.fix-SNAPSHOT"
 
     // Custom bottom navigation
     implementation "com.github.ibrahimsn98:SmoothBottomBar:$smooth_bottom_bar_version"
