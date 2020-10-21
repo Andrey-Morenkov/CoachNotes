@@ -36,6 +36,7 @@ import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.NoExistData
@@ -62,7 +63,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     // Toolbar items
     private lateinit var lockUnlockButton: MenuItem
     private lateinit var showAllDaysButton: MenuItem
-    private lateinit var showAllPeopleButton: MenuItem
+    //private lateinit var showAllPeopleButton: MenuItem
     private lateinit var exportDocButton: MenuItem
 
     // Period section
@@ -106,6 +107,8 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         currentGroup = JournalGroupFragmentArgs.fromBundle(requireArguments()).groupData
         navController = container!!.findNavController()
         toolbarMenuHandler = ToolbarMenuHandler(container)
+
+        (activity as MainActivity).hideBottomNavigation()
 
         initializerHelper.initToolbar(layout)
         initializerHelper.initPeriodSection(layout)
@@ -152,7 +155,9 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     override fun hideRows(rows: List<Int>?)
     {
-        if (rows == null)
+        // NOT AVAILABLE FOR NOW (library limitation)
+        return
+        /*if (rows == null)
         {
             showAllPeopleButton.isChecked = true
             showAllPeopleButton.isEnabled = false
@@ -169,9 +174,8 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
         showAllPeopleButton.isChecked = false
         viewJournalTable.hideRows(rows)
-        //rows.stream().sorted(Collections.reverseOrder()).forEach {
-        //    viewJournalTable.hideRow(it)
-        //}
+
+         */
     }
 
     override fun hideColumns(columns: List<Int>?)
@@ -193,9 +197,6 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
         showAllDaysButton.isChecked = false
         viewJournalTable.hideColumns(columns)
-        //columns.stream().sorted(Collections.reverseOrder()).forEach {
-        //    viewJournalTable.hideColumn(it)
-        //}
     }
 
     override fun loadingState()
@@ -209,21 +210,23 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     override fun setPeriod(period: YearMonth)
     {
-        selectedPeriod = period
-        val str = "${monthNames[selectedPeriod.monthValue - 1]} ${selectedPeriod.year}"
-        textViewPeriod.text = str
+        runOnUiThread {
+            selectedPeriod = period
+            val str = "${monthNames[selectedPeriod.monthValue - 1]} ${selectedPeriod.year}"
+            textViewPeriod.text = str
 
-        val now = ZonedDateTime.now()
-        val showCurrentPeriod = now.month == selectedPeriod.month && now.year == selectedPeriod.year
+            val now = ZonedDateTime.now()
+            val showCurrentPeriod = now.month == selectedPeriod.month && now.year == selectedPeriod.year
 
-        if (showCurrentPeriod)
-        {
-            buttonNextMonth.visibility = View.INVISIBLE
-            viewJournalTable.scrollToColumnPosition(now.dayOfMonth - 2) // -1 because column starts from 0, -1 because need for today column be on center of screen
-        }
-        else
-        {
-            buttonNextMonth.visibility = View.VISIBLE
+            if (showCurrentPeriod)
+            {
+                buttonNextMonth.visibility = View.INVISIBLE
+                viewJournalTable.scrollToColumnPosition(now.dayOfMonth - 2) // -1 because column starts from 0, -1 because need for today column be on center of screen
+            }
+            else
+            {
+                buttonNextMonth.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -445,7 +448,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                 inflateMenu(R.menu.journal_menu)
                 lockUnlockButton = menu.findItem(R.id.journal_lock_item)
                 showAllDaysButton = menu.findItem(R.id.journal_visibility_all_days_item)
-                showAllPeopleButton = menu.findItem(R.id.journal_visibility_all_people_item)
+                //showAllPeopleButton = menu.findItem(R.id.journal_visibility_all_people_item)
                 exportDocButton = menu.findItem(R.id.journal_upload_docx_item)
 
                 setOnMenuItemClickListener {
@@ -453,7 +456,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                     {
                         R.id.journal_lock_item                  -> toolbarMenuHandler.onLockUnlockButtonClicked()
                         R.id.journal_visibility_all_days_item   -> toolbarMenuHandler.onSwitchDaysVisibilityClicked(!it.isChecked)
-                        R.id.journal_visibility_all_people_item -> toolbarMenuHandler.onSwitchPeopleVisibilityClicked(!it.isChecked)
+                        //R.id.journal_visibility_all_people_item -> toolbarMenuHandler.onSwitchPeopleVisibilityClicked(!it.isChecked)
                         R.id.journal_upload_docx_item           -> toolbarMenuHandler.onExportDocClicked()
                     }
 

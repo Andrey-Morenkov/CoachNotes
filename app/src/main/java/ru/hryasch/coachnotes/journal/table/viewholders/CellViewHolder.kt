@@ -3,8 +3,11 @@ package ru.hryasch.coachnotes.journal.table.viewholders
 import android.view.View
 import android.widget.TextView
 import android.content.Context
+import android.content.res.ColorStateList
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
+import androidx.core.view.setPadding
+import androidx.core.widget.ImageViewCompat
 
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder
 import com.pawegio.kandroid.visible
@@ -103,11 +106,15 @@ class CellViewHolder (cellItem: View, private val context: Context) : AbstractVi
         {
             is NoExistData ->
             {
-                dataSpecial.setImageResource(R.drawable.ic_no_exist)
+                ImageViewCompat.setImageTintList(dataSpecial, null)
+                dataSpecial.setPadding(0)
+                dataSpecial.setImageResource(R.drawable.ic_baseline_texture_24)
             }
 
             is UnknownData ->
             {
+                ImageViewCompat.setImageTintList(dataSpecial, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorJournalAbsenceGeneral)))
+                dataSpecial.setPadding(context.resources.getDimensionPixelSize(R.dimen.journal_cell_default_padding))
                 dataSpecial.setImageResource(R.drawable.ic_attention)
             }
         }

@@ -21,13 +21,13 @@
                 android:title="Показывать все дни"
                 android:checkable="true"
                 app:showAsAction="never"/>
-
+            <!--
             <item
                 android:id="@+id/journal_visibility_all_people_item"
                 android:title="Показывать всех учеников"
                 android:checkable="true"
                 app:showAsAction="never"/>
-
+                -->
         </menu>
     </item>
 

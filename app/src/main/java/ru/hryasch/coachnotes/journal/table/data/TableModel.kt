@@ -1,7 +1,6 @@
 package ru.hryasch.coachnotes.journal.table.data
 
 import com.pawegio.kandroid.d
-import com.pawegio.kandroid.e
 import kotlinx.coroutines.*
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
@@ -79,12 +78,11 @@ class TableModel(rawTableData: RawTableData)
         val rowHeaders: MutableList<RowHeaderModel> = ArrayList(rawPeopleData.size)
         val rowHideHeaders: MutableList<Int> = ArrayList()
         val makeMembersCheck = groupPeopleIds != null && groupPeopleIds.isNotEmpty()
-        val existPeople = groupPeopleIds?.stream()
 
         for ((i, rawPerson) in rawPeopleData.withIndex())
         {
             rowHeaders.add(RowHeaderModel(i,i + 1, rawPerson))
-            if (makeMembersCheck && existPeople!!.noneMatch { existPerson -> existPerson == rawPerson.id })
+            if (makeMembersCheck && groupPeopleIds?.stream()!!.noneMatch { existPerson -> existPerson == rawPerson.id })
             {
                 rowHideHeaders.add(i)
             }
@@ -95,7 +93,7 @@ class TableModel(rawTableData: RawTableData)
 
     private fun generateCells(rawCellsData: List<List<CellData?>>): List<List<CellModel>>
     {
-        val cells: MutableList<List<CellModel>> = ArrayList(rawCellsData.size)
+        val cells: Array<List<CellModel>> = Array(rawCellsData.size) { ArrayList<CellModel>(0) }
         IntStream
             .range(0, rawCellsData.size) // for each person
             .parallel()
@@ -106,9 +104,9 @@ class TableModel(rawTableData: RawTableData)
                 {
                     rowCells.add(CellModel("$x:$y", cellData))
                 }
-                cells.add(y, rowCells)
+                cells[y] = rowCells
             }
 
-        return cells
+        return cells.toList()
     }
 }
