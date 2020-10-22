@@ -106,7 +106,7 @@ class CellViewHolder (cellItem: View, private val context: Context) : AbstractVi
         {
             is NoExistData ->
             {
-                ImageViewCompat.setImageTintList(dataSpecial, null)
+                ImageViewCompat.setImageTintList(dataSpecial, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorDisabledText)))
                 dataSpecial.setPadding(0)
                 dataSpecial.setImageResource(R.drawable.ic_baseline_texture_24)
             }

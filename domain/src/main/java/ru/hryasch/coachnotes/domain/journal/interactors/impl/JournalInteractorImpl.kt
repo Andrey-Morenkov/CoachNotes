@@ -286,10 +286,11 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         {
             val noExistDaysExtended: MutableList<Int> = LinkedList(noExistDaysPositions)
             noExistDaysExtended.add(todayPosition)
+            cells[todayPosition] = NoExistData()
 
             for (noExistDay in noExistDaysExtended)
             {
-                fillNoExistDataWaveAlgorithm(noExistDay, cells, todayPosition)
+                fillNoExistDataWaveAlgorithm(noExistDay, cells)
             }
             return
         }
