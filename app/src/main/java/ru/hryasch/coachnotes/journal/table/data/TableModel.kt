@@ -12,9 +12,9 @@ import java.time.LocalDate
 import java.util.stream.Collectors
 import java.util.stream.IntStream
 
-class TableModel(rawTableData: RawTableData)
+class TableModel(rawTableData: RawTableData?)
 {
-    val groupId: GroupId = rawTableData.group?.id ?: "DELETED"
+    val groupId: GroupId = rawTableData?.group?.id ?: "DELETED"
 
     val columnHeaderContent: List<ColumnHeaderModel>
     val columnsToHide:       List<Int>
@@ -30,19 +30,22 @@ class TableModel(rawTableData: RawTableData)
         var rowHideHeaders:    List<Int>               = ArrayList(0)
         var cContent:          List<List<CellModel>>   = ArrayList(0)
 
-        runBlocking {
-            GlobalScope.launch(Dispatchers.Default)
-            {
-                val col  = async { generateColumnHeaders(rawTableData.daysData, rawTableData.group?.scheduleDays) }
-                val row  = async { generateRowHeaders(rawTableData.peopleData,  rawTableData.group?.membersList) }
-                val cell = async { generateCells(rawTableData.cellsData) }
+        if (rawTableData != null)
+        {
+            runBlocking {
+                GlobalScope.launch(Dispatchers.Default)
+                {
+                    val col  = async { generateColumnHeaders(rawTableData.daysData, rawTableData.group?.scheduleDays) }
+                    val row  = async { generateRowHeaders(rawTableData.peopleData,  rawTableData.group?.membersList) }
+                    val cell = async { generateCells(rawTableData.cellsData) }
 
-                columnHeaders = col.await().first
-                columnHideHeaders = col.await().second
-                rowHeaders = row.await().first
-                rowHideHeaders = row.await().second
-                cContent = cell.await()
-            }.join()
+                    columnHeaders = col.await().first
+                    columnHideHeaders = col.await().second
+                    rowHeaders = row.await().first
+                    rowHideHeaders = row.await().second
+                    cContent = cell.await()
+                }.join()
+            }
         }
 
         columnHeaderContent = columnHeaders
@@ -79,13 +82,27 @@ class TableModel(rawTableData: RawTableData)
         val rowHideHeaders: MutableList<Int> = ArrayList()
         val makeMembersCheck = groupPeopleIds != null && groupPeopleIds.isNotEmpty()
 
+        var personIndex = 1
         for ((i, rawPerson) in rawPeopleData.withIndex())
         {
-            rowHeaders.add(RowHeaderModel(i,i + 1, rawPerson))
+            var isHided = false
             if (makeMembersCheck && groupPeopleIds?.stream()!!.noneMatch { existPerson -> existPerson == rawPerson.id })
             {
                 rowHideHeaders.add(i)
+                isHided = true
             }
+
+            var currIndex = personIndex
+            if (isHided)
+            {
+                currIndex = -1
+            }
+            else
+            {
+                personIndex++
+            }
+
+            rowHeaders.add(RowHeaderModel(i, currIndex, rawPerson))
         }
 
         return Pair(rowHeaders, rowHideHeaders)

@@ -391,6 +391,12 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
     }
 
+    private fun resetTableViewState()
+    {
+        viewJournalTable.clearHiddenColumnList()
+        viewJournalTable.clearHiddenRowList()
+    }
+
     inner class ToolbarMenuHandler(container: ViewGroup)
     {
         private val okJournalShareClickListener: JournalShareOkListener = JournalShareOkListener(container)
@@ -436,8 +442,6 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     inner class InflaterAndInitializer : KoinComponent
     {
-        private lateinit var changePeriodDialog: AlertDialog
-
         fun initToolbar(layout: View)
         {
             val toolbar = layout.findViewById<Toolbar>(R.id.journalToolbar)
@@ -472,19 +476,19 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             textViewPeriod = layout.findViewById(R.id.journalTextViewPeriod)
 
             selectedPeriod = YearMonth.now()
-            initChangePeriodDialog()
-
             textViewPeriod.setOnClickListener {
-                changePeriodDialog.show()
+                showChangePeriodDialog()
             }
 
             buttonNextMonth.setOnClickListener {
                 selectedPeriod = selectedPeriod.plusMonths(1)
+                resetTableViewState()
                 presenter.changePeriod(selectedPeriod)
             }
 
             buttonPrevMonth.setOnClickListener {
                 selectedPeriod = selectedPeriod.minusMonths(1)
+                resetTableViewState()
                 presenter.changePeriod(selectedPeriod)
             }
         }
@@ -513,12 +517,28 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                                       })
         }
 
-        private fun initChangePeriodDialog()
+        private fun showChangePeriodDialog()
         {
-            val dialogView = LayoutInflater.from(context)
-                .inflate(R.layout.dialog_journal_month_year_picker, null)
+            val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_journal_month_year_picker, null)
 
+            val now = YearMonth.now()
+            val months: Array<String> = if (selectedPeriod.year == now.year)
+                                        {
+                                            // Remove all months after now
+                                            val mnths: Array<String> = Array(now.monthValue) {""}
+                                            for (i in 0 until now.monthValue)
+                                            {
+                                                mnths[i] = monthNames[i]
+                                            }
+
+                                            mnths
+                                        }
+                                        else
+                                        {
+                                            monthNames
+                                        }
             val years: Array<Int> = get(named("journalYears"))
+
 
             val yearPicker: NumberPicker = dialogView.findViewById(R.id.journalYearPicker)
             val monthPicker: NumberPicker = dialogView.findViewById(R.id.journalMonthPicker)
@@ -534,16 +554,18 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             with(monthPicker)
             {
                 minValue = 1
-                maxValue = monthNames.size
+                maxValue = months.size
                 wrapSelectorWheel = false
-                displayedValues = monthNames
+                displayedValues = months
                 value = selectedPeriod.monthValue
             }
+
 
             val dialogBuilder = MaterialAlertDialogBuilder(requireContext())
                 .setView(dialogView)
                 .setTitle("Выбор периода")
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    resetTableViewState()
                     presenter.changePeriod(YearMonth.of(yearPicker.value, monthPicker.value))
                     dialog.dismiss()
                 }
@@ -551,16 +573,17 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                     dialog.dismiss()
                 }
 
-            val now = YearMonth.now()
             if (selectedPeriod.monthValue != now.monthValue || selectedPeriod.year != now.year)
             {
+                e("add curr month button")
                 dialogBuilder.setNeutralButton("Текущий месяц") { dialog, _ ->
+                    resetTableViewState();
                     presenter.changePeriod(now)
                     dialog.dismiss()
                 }
             }
 
-            changePeriodDialog = dialogBuilder.create()
+            dialogBuilder.create().show()
         }
     }
 

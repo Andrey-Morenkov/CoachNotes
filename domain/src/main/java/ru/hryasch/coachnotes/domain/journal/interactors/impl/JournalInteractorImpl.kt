@@ -155,9 +155,28 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         }
 
         val headers: MutableList<Person> = ArrayList(allPeople.values.size)
-        allPeople.values.toList().sorted().forEach {
-            headers.add(it)
-        }
+        allPeople
+            .values
+            .toList()
+            .sortedWith(
+                Comparator { person1, person2 ->
+                    if ((person1.birthdayYear != -1 && person2.birthdayYear != -1) ||
+                        (person1.birthdayYear == -1 && person2.birthdayYear == -1))
+                    {
+                        person1.compareTo(person2)
+                    }
+                    else if (person1.birthdayYear == -1 && person2.birthdayYear != -1)
+                    {
+                        1
+                    }
+                    else
+                    {
+                        -1
+                    }
+                }
+            ).forEach {
+                headers.add(it)
+            }
 
         return headers
     }

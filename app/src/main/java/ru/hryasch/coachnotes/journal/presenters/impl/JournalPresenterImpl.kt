@@ -150,6 +150,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
 
             if (rawTableData == null)
             {
+                journalTableProxy.changeDataModel(null)
                 withContext(Dispatchers.Main)
                 {
                     viewState.showingState(null)
@@ -252,10 +253,14 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         private var chunksToSave: MutableMap<Int, JournalChunk> = HashMap()
 
         @Synchronized
-        fun changeDataModel(newRawData: RawTableData)
+        fun changeDataModel(newRawData: RawTableData?)
         {
             i("changeDataModel")
             tableModel = TableModel(newRawData)
+            if (tableModel.cellsContent.isEmpty())
+            {
+                return
+            }
 
             for (col in 0 until tableModel.cellsContent[0].size)
             {
@@ -279,6 +284,7 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             i("onChangePeriod")
             changingChunkSupervisor.cancelChildren(CancellationException("fflush"))
             changingChunkSupervisor = Job()
+
             clearTableMetadata()
         }
 
