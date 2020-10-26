@@ -108,7 +108,8 @@ dependencies
     implementation "com.github.Andrey-Morenkov:tableview:0.8.9.fix-SNAPSHOT"
 
     // Custom bottom navigation
-    implementation "com.github.ibrahimsn98:SmoothBottomBar:$smooth_bottom_bar_version"
+    implementation 'com.fxn769:bubbletabbar:1.0.5'
+    //implementation "com.github.ibrahimsn98:SmoothBottomBar:$smooth_bottom_bar_version"
 
     // Permissions
     implementation "com.nabinbhandari.android:permissions:$permissions_version"

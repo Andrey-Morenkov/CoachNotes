@@ -12,7 +12,7 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 
 class GroupMembersAdapter(private val peopleList: MutableList<Person>,
                           private val groupNames: Map<GroupId, String>,
-                          private val listener: RemovePersonListener): RecyclerView.Adapter<GroupMemberViewHolder>()
+                          private val listener: PersonActionListener): RecyclerView.Adapter<GroupMemberViewHolder>()
 {
     init
     {
@@ -31,21 +31,31 @@ class GroupMembersAdapter(private val peopleList: MutableList<Person>,
         holder.bind(peopleList[position], groupNames[peopleList[position].groupId])
     }
 
-    interface RemovePersonListener
+    interface PersonActionListener
     {
         fun onPersonRemoveFromGroup(person: Person)
+        fun onPersonClicked(person: Person)
     }
 }
 
-class GroupMemberViewHolder(itemView: View, private val listener: GroupMembersAdapter.RemovePersonListener): RecyclerView.ViewHolder(itemView)
+class GroupMemberViewHolder(itemView: View, private val listener: GroupMembersAdapter.PersonActionListener): RecyclerView.ViewHolder(itemView), View.OnClickListener
 {
     private val fullName: TextView = itemView.findViewById(R.id.personTextViewFullName)
     private val groupName: TextView = itemView.findViewById(R.id.personTextViewGroupName)
     private val paidLabel: ImageView = itemView.findViewById(R.id.label_paid)
     private val removePerson: ImageView = itemView.findViewById(R.id.personImageViewRemoveFromGroup)
 
+    private lateinit var currentPerson: Person
+
+    init
+    {
+        itemView.setOnClickListener(this)
+    }
+
     fun bind(person: Person, group: String?)
     {
+        currentPerson = person
+
         fullName.text = itemView.context.getString(R.string.person_full_name_pattern, person.surname, person.name)
         groupName.text =
             if (person.groupId == null)
@@ -69,5 +79,10 @@ class GroupMemberViewHolder(itemView: View, private val listener: GroupMembersAd
         {
             paidLabel.visibility = View.INVISIBLE
         }
+    }
+
+    override fun onClick(v: View?)
+    {
+        listener.onPersonClicked(currentPerson)
     }
 }

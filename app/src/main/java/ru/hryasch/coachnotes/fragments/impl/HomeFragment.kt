@@ -9,8 +9,6 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import com.alamkanak.weekview.WeekView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pawegio.kandroid.e
@@ -35,22 +33,21 @@ import java.util.Locale
 
 
 @ExperimentalCoroutinesApi
-class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
+class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: HomePresenterImpl
 
-    private lateinit var navController: NavController
+    // UI
+    private lateinit var todayScheduleDate: TextView
+    private lateinit var scheduleLoading: ProgressBar
+    private lateinit var scheduleView: WeekView<HomeScheduleCell>
 
-    // Schedule section
-        // UI
-            private lateinit var todayScheduleDate: TextView
-            private lateinit var scheduleLoading: ProgressBar
-            private lateinit var scheduleView: WeekView<HomeScheduleCell>
-        // Dialogs
-            private lateinit var groupHasNoMembersDialog: AlertDialog
-        // Classes
-            private lateinit var scheduleGeneratingJob: Job
+    // Dialogs
+    private lateinit var groupHasNoMembersDialog: AlertDialog
+
+    // Data
+    private lateinit var scheduleGeneratingJob: Job
 
 
 
@@ -58,8 +55,6 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
-        navController = container!!.findNavController()
-
         val layout = inflater.inflate(R.layout.fragment_home, container, false)
         todayScheduleDate = layout.findViewById(R.id.homeScheduleTextViewTodayDate)
         scheduleLoading = layout.findViewById(R.id.homeScheduleLoading)
@@ -128,7 +123,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
     {
         if (groups.isEmpty())
         {
-            return LinkedList()
+            return ArrayList()
         }
 
         e("prepareScheduleCells of groups: $groups")
@@ -278,8 +273,13 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
             }
             else
             {
-                val action = HomeFragmentDirections.actionHomeFragmentImplToJournalGroupFragment(data.group)
-                navController.navigate(action)
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .add(R.id.mainFragmentSpace, JournalGroupFragment().apply {
+                        arguments = Bundle().apply {
+                            putSerializable(JournalGroupFragment.GROUP_ARGUMENT, data.group)
+                        }
+                    }, null)
+                    .commit()
             }
         }
     }

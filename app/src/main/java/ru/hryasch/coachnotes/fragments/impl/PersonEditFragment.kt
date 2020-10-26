@@ -49,11 +49,9 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     @InjectPresenter
     lateinit var presenter: PersonEditPresenterImpl
 
-    private lateinit var navController: NavController
-
+    // Common UI
     private lateinit var contentView: NestedScrollView
     private lateinit var loadingBar: ProgressBar
-
     private val additionalViews: MutableList<View> = LinkedList()
 
     // Toolbar
@@ -69,7 +67,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private lateinit var patronymic: TextInputEditText
 
     // Birthday section
-        // Views
+        // UI
         private lateinit var birthdayTitle: View // Additional view
         private lateinit var birthdayDay: MaterialSpinner // Additional view
         private lateinit var birthdayMonth: MaterialSpinner // Additional view
@@ -85,7 +83,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         private var selectedYear: Int = -1
 
     // Group section
-        // Views
+        // UI
         private lateinit var groupChooser: MaterialSpinner
         private lateinit var clearGroup: ImageView
 
@@ -97,7 +95,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private lateinit var showMoreButton: TextView
 
     // Relatives section
-        // Views
+        // UI
         private lateinit var relativesSection: View // Additional view
         private lateinit var addNewRelativeButton: MaterialButton
         private lateinit var relativesInfoContainer: LinearLayout
@@ -107,7 +105,13 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         private lateinit var deleteRelativeInfoHolder: OnDeleteRelativeInfoHolder
 
 
+    // Data
     private lateinit var currentPerson: Person
+
+    companion object
+    {
+        const val PERSON_ARGUMENT = "person"
+    }
 
 
 
@@ -116,8 +120,6 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                               savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_edit_person, container, false)
-
-        (activity as MainActivity).hideBottomNavigation()
 
         inflateToolbarElements(layout)
         inflateBaseSection(layout)
@@ -130,9 +132,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         contentView = layout.findViewById(R.id.personEditContent)
         loadingBar = layout.findViewById(R.id.personEditProgressBarLoading)
 
-        navController = container!!.findNavController()
-
-        presenter.applyInitialArgumentPersonAsync(PersonEditFragmentArgs.fromBundle(requireArguments()).personData)
+        presenter.applyInitialArgumentPersonAsync(arguments?.get(PERSON_ARGUMENT) as Person?)
 
         setSaveOrCreateButtonDisabled()
         hideAdditionalViews()
@@ -232,13 +232,12 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     override fun deletePersonFinished()
     {
-        navController.popBackStack()
-        navController.navigateUp()
+        requireActivity().onBackPressed()
     }
 
     override fun updateOrCreatePersonFinished()
     {
-        navController.navigateUp()
+        requireActivity().onBackPressed()
     }
 
     override fun loadingState()
@@ -267,7 +266,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
         toolbar.setNavigationOnClickListener {
-            navController.navigateUp()
+            requireActivity().onBackPressed()
         }
     }
 

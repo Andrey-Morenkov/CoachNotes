@@ -8,8 +8,6 @@ import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,7 +17,6 @@ import moxy.presenter.InjectPresenter
 import org.koin.android.ext.android.get
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PeopleView
@@ -32,16 +29,22 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
     @InjectPresenter
     lateinit var presenter: PeoplePresenterImpl
 
-    private lateinit var peopleAdapter: PeopleAdapter
-    private lateinit var navController: NavController
-
+    // Toolbar
+    private lateinit var toolbar: Toolbar
     private lateinit var addNewPerson: ImageButton
+
+    // UI
     private lateinit var peopleView: RecyclerView
     private lateinit var peopleLoading: ProgressBar
     private lateinit var noPeopleLabel: TextView
-    private lateinit var toolbar: Toolbar
 
+    // Adapters
+    private lateinit var peopleAdapter: PeopleAdapter
+
+    // Data
     private lateinit var currentGroupNames: Map<GroupId, String>
+
+
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -55,25 +58,18 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
         noPeopleLabel = layout.findViewById(R.id.peopleTextViewNoData)
         noPeopleLabel.visibility = View.INVISIBLE
 
-        navController = container!!.findNavController()
-
         toolbar = layout.findViewById(R.id.peopleToolbar)
         toolbar.setNavigationOnClickListener {
-            navController.navigateUp()
+            requireActivity().onBackPressed()
         }
 
         addNewPerson.setOnClickListener {
-            val action = PeopleListFragmentDirections.actionPersonListFragmentToPersonEditFragment()
-            navController.navigate(action)
+            requireActivity().supportFragmentManager.beginTransaction()
+                .add(R.id.mainFragmentSpace, PersonEditFragment(), null)
+                .commit()
         }
 
         return layout
-    }
-
-    override fun onStart()
-    {
-        super.onStart()
-        (activity as MainActivity).showBottomNavigation()
     }
 
     override fun setPeopleList(peopleList: List<Person>?, groupNames: Map<GroupId, String>?)
@@ -92,8 +88,13 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
             val listener =  object: PeopleAdapter.PersonClickListener {
                 override fun onPersonClick(person: Person)
                 {
-                    val action = PeopleListFragmentDirections.actionPeopleListFragmentToPersonInfoFragment(person)
-                    navController.navigate(action)
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .add(R.id.mainFragmentSpace, PersonInfoFragment().apply {
+                            arguments = Bundle().apply {
+                                putSerializable(PersonInfoFragment.PERSON_ARGUMENT, person)
+                            }
+                        }, null)
+                        .commit()
                 }
             }
 

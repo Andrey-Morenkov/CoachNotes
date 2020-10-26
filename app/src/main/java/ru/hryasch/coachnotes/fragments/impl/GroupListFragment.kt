@@ -7,11 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,7 +17,6 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.fragments.GroupsView
 import ru.hryasch.coachnotes.groups.GroupsAdapter
@@ -33,15 +28,19 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
     @InjectPresenter
     lateinit var presenter: GroupsPresenterImpl
 
-    private lateinit var groupsAdapter: GroupsAdapter
+    // Toolbar
+    private lateinit var toolbar: Toolbar
+    private lateinit var addNewGroup: ImageButton
 
+    // UI
     private lateinit var groupsView: RecyclerView
     private lateinit var groupsLoading: ProgressBar
-    private lateinit var addNewGroup: ImageButton
     private lateinit var noGroupsLabel: TextView
-    private lateinit var toolbar: Toolbar
 
-    lateinit var navController: NavController
+    // Adapters
+    private lateinit var groupsAdapter: GroupsAdapter
+
+
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -55,25 +54,18 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
         noGroupsLabel = layout.findViewById(R.id.groupsTextViewNoData)
         noGroupsLabel.visibility = View.INVISIBLE
 
-        navController = container!!.findNavController()
-
         toolbar = layout.findViewById(R.id.groupsToolbar)
         toolbar.setNavigationOnClickListener {
-            navController.navigateUp()
+            requireActivity().onBackPressed()
         }
 
         addNewGroup.setOnClickListener {
-            val action = GroupListFragmentDirections.actionGroupListFragmentToGroupEditFragment()
-            navController.navigate(action)
+            requireActivity().supportFragmentManager.beginTransaction()
+                .add(R.id.mainFragmentSpace, GroupEditFragment(), null)
+                .commit()
         }
 
         return layout
-    }
-
-    override fun onStart()
-    {
-        super.onStart()
-        (activity as MainActivity).showBottomNavigation()
     }
 
     override fun setGroupsList(groupsList: List<Group>?)
@@ -92,8 +84,13 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
             val listener =  object: GroupsAdapter.GroupClickListener {
                 override fun onGroupClick(group: Group)
                 {
-                    val action = GroupListFragmentDirections.actionGroupListFragmentToGroupInfoFragment(group)
-                    navController.navigate(action)
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .add(R.id.mainFragmentSpace, GroupInfoFragment().apply {
+                            arguments = Bundle().apply {
+                                putSerializable("group", group)
+                            }
+                        }, null)
+                        .commit()
                 }
             }
 

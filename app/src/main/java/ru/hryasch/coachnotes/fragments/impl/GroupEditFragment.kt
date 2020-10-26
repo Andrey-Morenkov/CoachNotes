@@ -48,8 +48,6 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: GroupEditPresenterImpl
-    private lateinit var navController: NavController
-    private lateinit var currentGroup: Group
 
     // Toolbar
         // UI
@@ -76,23 +74,32 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         private lateinit var age2: MaterialSpinner
         private lateinit var ageType: MaterialSpinner
 
-        // Utility
+        // Adapters
+        private lateinit var absoluteAgesAdapter: ArrayAdapter<String>
+        private lateinit var relativeAgesAdapter: ArrayAdapter<String>
+
+        // Data
         private val absoluteYears: List<String> by inject(named("absoluteAgesList"))
         private val relativeYears: List<String> by inject(named("relativeAgesList"))
         private val paymentTypes:  List<String> by inject(named("paymentTypes"))
         private val ageTypes:      List<String> by inject(named("ageTypes"))
-        private lateinit var absoluteAgesAdapter: ArrayAdapter<String>
-        private lateinit var relativeAgesAdapter: ArrayAdapter<String>
 
     // Schedule section
         // UI
         private lateinit var scheduleDaysView: RecyclerView
 
-        // Utility
+        // Data
         private val scheduleDaysList: MutableList<ScheduleDay> = LinkedList()
         private lateinit var scheduleDaysAdapter: ScheduleDayAdapter
 
+    // Data
+    private lateinit var currentGroup: Group
     private lateinit var setGroupDataJob: Job
+
+    companion object
+    {
+        const val GROUP_ARGUMENT = "group"
+    }
 
 
 
@@ -101,8 +108,6 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
                               savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_edit_group, container, false)
-
-        (activity as MainActivity).hideBottomNavigation()
 
         saveOrCreateGroup = layout.findViewById(R.id.groupEditButtonCreateOrSave)
         setSaveOrCreateButtonDisabled()
@@ -122,14 +127,12 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
         loadingState()
 
-        navController = container!!.findNavController()
-
         toolbar = layout.findViewById(R.id.groupEditToolbar)
         toolbar.setNavigationOnClickListener {
-            navController.navigateUp()
+            requireActivity().onBackPressed()
         }
 
-        presenter.applyInitialArgumentGroupAsync(GroupEditFragmentArgs.fromBundle(requireArguments()).groupData)
+        presenter.applyInitialArgumentGroupAsync(arguments?.get(GROUP_ARGUMENT) as Group?)
 
         return layout
     }
@@ -178,13 +181,12 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
     override fun deleteGroupFinished()
     {
-        navController.popBackStack()
-        navController.navigateUp()
+        requireActivity().onBackPressed()
     }
 
     override fun updateOrCreateGroupFinished()
     {
-        navController.navigateUp()
+        requireActivity().onBackPressed()
     }
 
 

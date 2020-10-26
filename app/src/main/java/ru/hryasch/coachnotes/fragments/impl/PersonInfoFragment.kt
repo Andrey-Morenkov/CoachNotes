@@ -9,15 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.NestedScrollView
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.pawegio.kandroid.visible
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PersonView
@@ -32,30 +29,41 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
     @InjectPresenter
     lateinit var presenter: PersonPresenterImpl
 
-    private lateinit var navController: NavController
+    // Common UI
+    private lateinit var contentView: NestedScrollView
+    private lateinit var loadingBar: ProgressBar
 
+    // Toolbar
     private lateinit var editPerson: ImageButton
 
+    // Header section
     private lateinit var surnameName: TextView
     private lateinit var patronymic: TextView
     private lateinit var isPaid: AppCompatImageView
     private lateinit var age: TextView
     private lateinit var groupName: TextView
+
+    // Tags section
     private lateinit var tagsLayout: LinearLayout
+
+    // Params section
     private lateinit var viewPager: ViewPager2
 
+    // Data
     private lateinit var currentPerson: Person
 
-    private lateinit var contentView: NestedScrollView
-    private lateinit var loadingBar: ProgressBar
+    companion object
+    {
+        const val PERSON_ARGUMENT = "person"
+    }
+
+
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_person_info, container, false)
-
-        (activity as MainActivity).hideBottomNavigation()
 
         editPerson = layout.findViewById(R.id.personInfoImageButtonEditPerson)
 
@@ -74,17 +82,15 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 
         tagsLayout.visible = false
 
-        navController = container!!.findNavController()
-
         val toolbar: Toolbar = layout.findViewById(R.id.personInfoToolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
         toolbar.setNavigationOnClickListener {
-            navController.navigateUp()
+            requireActivity().onBackPressed()
         }
 
-        presenter.applyInitialArgumentPersonAsync(PersonInfoFragmentArgs.fromBundle(requireArguments()).personData)
+        presenter.applyInitialArgumentPersonAsync(arguments?.get(PERSON_ARGUMENT) as Person?)
 
         return layout
     }
@@ -131,8 +137,13 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
         groupName.text = groupNames[person.groupId] ?: "Нет группы"
 
         editPerson.setOnClickListener {
-            val action = PersonInfoFragmentDirections.actionPersonInfoFragmentToPersonEditFragment(currentPerson)
-            navController.navigate(action)
+            requireActivity().supportFragmentManager.beginTransaction()
+                .add(R.id.mainFragmentSpace, PersonEditFragment().apply {
+                    arguments = Bundle().apply {
+                        putSerializable(PersonEditFragment.PERSON_ARGUMENT, currentPerson)
+                    }
+                }, null)
+                .commit()
         }
     }
 

@@ -57,8 +57,6 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: JournalPresenterImpl
-    private lateinit var navController: NavController
-    private lateinit var currentGroup: Group
 
     // Toolbar items
     private lateinit var lockUnlockButton: MenuItem
@@ -86,14 +84,22 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     // Others
         // Views
-        private val snackProgressBarManager by lazy { SnackProgressBarManager(requireActivity().findViewById(R.id.nav_host_fragment), lifecycleOwner = this) }
+        private val snackProgressBarManager by lazy { SnackProgressBarManager(requireActivity().findViewById(R.id.mainFragmentSpace), lifecycleOwner = this) }
 
         // Data
         private val initializerHelper: InflaterAndInitializer
         private lateinit var toolbarMenuHandler: ToolbarMenuHandler
 
+    // Data
     private val monthNames: Array<String> = get(named("months_RU"))
     private val dayOfWeekLongNames: Array<String> = get(named("daysOfWeekLong_RU"))
+    private lateinit var currentGroup: Group
+
+    companion object
+    {
+        const val GROUP_ARGUMENT = "group"
+    }
+
 
 
     init
@@ -104,17 +110,13 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_journal, container, false)
-        currentGroup = JournalGroupFragmentArgs.fromBundle(requireArguments()).groupData
-        navController = container!!.findNavController()
-        toolbarMenuHandler = ToolbarMenuHandler(container)
-
-        (activity as MainActivity).hideBottomNavigation()
+        currentGroup = requireArguments().get(GROUP_ARGUMENT)!! as Group
+        toolbarMenuHandler = ToolbarMenuHandler(container!!)
 
         initializerHelper.initToolbar(layout)
         initializerHelper.initPeriodSection(layout)
         initializerHelper.initJournalSection(layout)
         initializerHelper.initStuff()
-
 
         loadingState()
 
@@ -448,7 +450,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             with(toolbar)
             {
                 title = currentGroup.name
-                setNavigationOnClickListener { navController.navigateUp() }
+                setNavigationOnClickListener { requireActivity().onBackPressed() }
                 inflateMenu(R.menu.journal_menu)
                 lockUnlockButton = menu.findItem(R.id.journal_lock_item)
                 showAllDaysButton = menu.findItem(R.id.journal_visibility_all_days_item)
