@@ -1,6 +1,7 @@
 package ru.hryasch.coachnotes.main.impl
 
 import androidx.fragment.app.Fragment
+import com.pawegio.kandroid.i
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -38,8 +39,13 @@ class MainPresenterImpl: MvpPresenter<MainView>(), MainPresenter
     {
         val fragments: MutableList<Fragment> = ArrayList(3)
         fragments.add(HomeFragment())
+        i("generated HomeFragment")
+
         fragments.add(GroupListFragment())
+        i("generated GroupListFragment")
+
         fragments.add(PeopleListFragment())
+        i("generated PeopleListFragment")
 
         fragmentsList = fragments
     }

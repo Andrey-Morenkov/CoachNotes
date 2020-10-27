@@ -279,6 +279,7 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
                             putSerializable(JournalGroupFragment.GROUP_ARGUMENT, data.group)
                         }
                     }, null)
+                    .addToBackStack(null)
                     .commit()
             }
         }

@@ -66,6 +66,7 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
         addNewPerson.setOnClickListener {
             requireActivity().supportFragmentManager.beginTransaction()
                 .add(R.id.mainFragmentSpace, PersonEditFragment(), null)
+                .addToBackStack(null)
                 .commit()
         }
 
@@ -94,6 +95,7 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
                                 putSerializable(PersonInfoFragment.PERSON_ARGUMENT, person)
                             }
                         }, null)
+                        .addToBackStack(null)
                         .commit()
                 }
             }

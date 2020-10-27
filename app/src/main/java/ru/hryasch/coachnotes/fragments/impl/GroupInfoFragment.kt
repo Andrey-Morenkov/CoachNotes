@@ -276,6 +276,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             addMemberVariantsDialog.cancel()
             requireActivity().supportFragmentManager.beginTransaction()
                 .add(R.id.mainFragmentSpace, PersonEditFragment(), null)
+                .addToBackStack(null)
                 .commit()
         }
 
@@ -294,6 +295,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
                         putSerializable(GroupEditFragment.GROUP_ARGUMENT, currentGroup)
                     }
                 }, null)
+                .addToBackStack(null)
                 .commit()
         }
 
@@ -317,6 +319,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
                             putSerializable(JournalGroupFragment.GROUP_ARGUMENT, currentGroup)
                         }
                     }, null)
+                    .addToBackStack(null)
                     .commit()
             }
         }
@@ -395,6 +398,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
                             putSerializable(PersonInfoFragment.PERSON_ARGUMENT, person)
                         }
                     }, null)
+                    .addToBackStack(null)
                     .commit()
             }
         }

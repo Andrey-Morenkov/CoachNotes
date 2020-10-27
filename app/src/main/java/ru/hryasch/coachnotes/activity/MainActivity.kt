@@ -4,6 +4,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.pawegio.kandroid.i
 import com.pawegio.kandroid.toast
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.core.KoinComponent
@@ -31,11 +32,13 @@ class MainActivity: AppCompatActivity(), KoinComponent
                 .add(R.id.mainFragmentSpace, MainFragment())
                 .addToBackStack(null)
                 .commit()
+            i("back stack size = ${supportFragmentManager.backStackEntryCount}")
         }
     }
 
     override fun onBackPressed()
     {
+        i("back stack size = ${supportFragmentManager.backStackEntryCount}")
         if (supportFragmentManager.backStackEntryCount > 1)
         {
             supportFragmentManager.popBackStack()

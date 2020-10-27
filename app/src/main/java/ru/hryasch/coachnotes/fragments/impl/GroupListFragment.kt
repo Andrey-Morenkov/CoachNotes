@@ -62,6 +62,7 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
         addNewGroup.setOnClickListener {
             requireActivity().supportFragmentManager.beginTransaction()
                 .add(R.id.mainFragmentSpace, GroupEditFragment(), null)
+                .addToBackStack(null)
                 .commit()
         }
 
@@ -90,6 +91,7 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
                                 putSerializable("group", group)
                             }
                         }, null)
+                        .addToBackStack(null)
                         .commit()
                 }
             }

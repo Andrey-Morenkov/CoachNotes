@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.fxn.BubbleTabBar
 import com.fxn.OnBubbleClickListener
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
@@ -27,11 +28,12 @@ class MainFragment: MvpAppCompatFragment(), MainView, KoinComponent
     //Data
         private lateinit var fragmentAdapter: CustomMainAdapter
 
+    @ExperimentalCoroutinesApi
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
-        val layout = inflater.inflate(R.layout.fragment_home, container, false)
+        val layout = inflater.inflate(R.layout.fragment_main, container, false)
 
         fragmentViewPager = layout.findViewById(R.id.homeSpace)
         navigation = layout.findViewById(R.id.homeNavigation)
@@ -50,7 +52,12 @@ class MainFragment: MvpAppCompatFragment(), MainView, KoinComponent
         navigation.addBubbleListener(object: OnBubbleClickListener {
             override fun onBubbleClick(id: Int)
             {
-                presenter.onFragmentSwitched(id)
+                when(id)
+                {
+                    R.id.homeFragmentImpl   -> presenter.onFragmentSwitched(0)
+                    R.id.groupListFragment  -> presenter.onFragmentSwitched(1)
+                    R.id.peopleListFragment -> presenter.onFragmentSwitched(2)
+                }
             }
         })
         navigation.setupBubbleTabBar(fragmentViewPager)

@@ -143,6 +143,7 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
                         putSerializable(PersonEditFragment.PERSON_ARGUMENT, currentPerson)
                     }
                 }, null)
+                .addToBackStack(null)
                 .commit()
         }
     }
