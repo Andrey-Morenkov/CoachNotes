@@ -4,17 +4,16 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.pawegio.kandroid.i
-import com.pawegio.kandroid.toast
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.core.KoinComponent
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
-import ru.hryasch.coachnotes.fragments.impl.MainFragment
 
 class MainActivity: AppCompatActivity(), KoinComponent
 {
-    private var exitMillis: Long = 0
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -23,30 +22,10 @@ class MainActivity: AppCompatActivity(), KoinComponent
 
         setContentView(R.layout.activity_main)
 
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment)
+
         supportActionBar!!.hide()
         supportActionBar!!.setBackgroundDrawable(ColorDrawable(ContextCompat.getColor(this, R.color.background)))
-
-        if (savedInstanceState == null)
-        {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.mainFragmentSpace, MainFragment())
-                .addToBackStack(null)
-                .commit()
-            i("back stack size = ${supportFragmentManager.backStackEntryCount}")
-        }
-    }
-
-    override fun onBackPressed()
-    {
-        i("back stack size = ${supportFragmentManager.backStackEntryCount}")
-        if (supportFragmentManager.backStackEntryCount > 1)
-        {
-            supportFragmentManager.popBackStack()
-        }
-        else
-        {
-            generalOnBackPressed()
-        }
     }
 
     @ExperimentalCoroutinesApi
@@ -54,19 +33,5 @@ class MainActivity: AppCompatActivity(), KoinComponent
     {
         App.onActivityDestroy()
         super.onDestroy()
-    }
-
-
-    private fun generalOnBackPressed()
-    {
-        if ((System.currentTimeMillis() - exitMillis) > 2000)
-        {
-            toast("Нажмите еще раз для выхода из приложения")
-            exitMillis = System.currentTimeMillis()
-        }
-        else
-        {
-            finish()
-        }
     }
 }

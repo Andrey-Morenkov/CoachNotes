@@ -93,13 +93,9 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         private lateinit var scheduleDaysAdapter: ScheduleDayAdapter
 
     // Data
+    private lateinit var navController: NavController
     private lateinit var currentGroup: Group
     private lateinit var setGroupDataJob: Job
-
-    companion object
-    {
-        const val GROUP_ARGUMENT = "group"
-    }
 
 
 
@@ -127,9 +123,11 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
         loadingState()
 
+        navController = container!!.findNavController()
+
         toolbar = layout.findViewById(R.id.groupEditToolbar)
         toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            navController.navigateUp()
         }
 
         presenter.applyInitialArgumentGroupAsync(arguments?.get(GROUP_ARGUMENT) as Group?)
