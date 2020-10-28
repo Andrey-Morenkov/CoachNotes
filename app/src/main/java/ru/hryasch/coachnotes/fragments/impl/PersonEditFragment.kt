@@ -47,7 +47,8 @@ import kotlin.collections.HashMap
 class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 {
     @InjectPresenter
-    lateinit var presenter: PersonEditPresenterImpl
+    private lateinit var presenter: PersonEditPresenterImpl
+    private lateinit var navController: NavController
 
     // Common UI
     private lateinit var contentView: NestedScrollView
@@ -108,11 +109,6 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     // Data
     private lateinit var currentPerson: Person
 
-    companion object
-    {
-        const val PERSON_ARGUMENT = "person"
-    }
-
 
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -132,7 +128,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         contentView = layout.findViewById(R.id.personEditContent)
         loadingBar = layout.findViewById(R.id.personEditProgressBarLoading)
 
-        presenter.applyInitialArgumentPersonAsync(arguments?.get(PERSON_ARGUMENT) as Person?)
+        navController = container!!.findNavController()
+        presenter.applyInitialArgumentPersonAsync(PersonEditFragmentArgs.fromBundle(requireArguments()).personData)
 
         setSaveOrCreateButtonDisabled()
         hideAdditionalViews()
@@ -232,12 +229,14 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     override fun deletePersonFinished()
     {
-        requireActivity().onBackPressed()
+        // Jump to people list, not to person info
+        navController.popBackStack()
+        navController.navigateUp()
     }
 
     override fun updateOrCreatePersonFinished()
     {
-        requireActivity().onBackPressed()
+        navController.navigateUp()
     }
 
     override fun loadingState()
@@ -266,7 +265,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
         toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            navController.navigateUp()
         }
     }
 

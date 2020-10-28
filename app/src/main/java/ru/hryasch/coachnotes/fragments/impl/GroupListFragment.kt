@@ -17,6 +17,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.fragments.GroupsView
 import ru.hryasch.coachnotes.groups.GroupsAdapter
@@ -60,10 +61,7 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
         }
 
         addNewGroup.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .add(R.id.mainFragmentSpace, GroupEditFragment(), null)
-                .addToBackStack(null)
-                .commit()
+            (requireActivity() as MainActivity).navigateToGroupEditFragment(null)
         }
 
         return layout
@@ -85,14 +83,7 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
             val listener =  object: GroupsAdapter.GroupClickListener {
                 override fun onGroupClick(group: Group)
                 {
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .add(R.id.mainFragmentSpace, GroupInfoFragment().apply {
-                            arguments = Bundle().apply {
-                                putSerializable("group", group)
-                            }
-                        }, null)
-                        .addToBackStack(null)
-                        .commit()
+                    (requireActivity() as MainActivity).navigateToGroupInfoFragment(group)
                 }
             }
 

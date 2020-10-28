@@ -47,7 +47,7 @@ import java.util.*
 class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 {
     @InjectPresenter
-    lateinit var presenter: GroupEditPresenterImpl
+    private lateinit var presenter: GroupEditPresenterImpl
 
     // Toolbar
         // UI
@@ -130,7 +130,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             navController.navigateUp()
         }
 
-        presenter.applyInitialArgumentGroupAsync(arguments?.get(GROUP_ARGUMENT) as Group?)
+        presenter.applyInitialArgumentGroupAsync(GroupEditFragmentArgs.fromBundle(requireArguments()).groupData)
 
         return layout
     }
@@ -179,12 +179,14 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
     override fun deleteGroupFinished()
     {
-        requireActivity().onBackPressed()
+        // Jump to group list, not to group info
+        navController.popBackStack()
+        navController.navigateUp()
     }
 
     override fun updateOrCreateGroupFinished()
     {
-        requireActivity().onBackPressed()
+        navController.navigateUp()
     }
 
 

@@ -10,6 +10,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.core.KoinComponent
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
+import ru.hryasch.coachnotes.domain.group.data.Group
+import ru.hryasch.coachnotes.domain.person.data.Person
 
 class MainActivity: AppCompatActivity(), KoinComponent
 {
@@ -33,5 +35,30 @@ class MainActivity: AppCompatActivity(), KoinComponent
     {
         App.onActivityDestroy()
         super.onDestroy()
+    }
+
+    fun navigateToGroupInfoFragment(group: Group)
+    {
+        //val action =
+    }
+
+    fun navigateToGroupEditFragment(group: Group?)
+    {
+
+    }
+
+    fun navigateToJournalFragment(group: Group?)
+    {
+
+    }
+
+    fun navigateToPersonInfoFragment(person: Person)
+    {
+
+    }
+
+    fun navigateToPersonEditFragment(person: Person?)
+    {
+
     }
 }

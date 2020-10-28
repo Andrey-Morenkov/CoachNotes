@@ -84,7 +84,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     // Others
         // Views
-        private val snackProgressBarManager by lazy { SnackProgressBarManager(requireActivity().findViewById(R.id.mainFragmentSpace), lifecycleOwner = this) }
+        private val snackProgressBarManager by lazy { SnackProgressBarManager(requireActivity().findViewById(R.id.nav_controller_view_tag), lifecycleOwner = this) }
 
         // Data
         private val initializerHelper: InflaterAndInitializer
@@ -94,11 +94,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     private val monthNames: Array<String> = get(named("months_RU"))
     private val dayOfWeekLongNames: Array<String> = get(named("daysOfWeekLong_RU"))
     private lateinit var currentGroup: Group
-
-    companion object
-    {
-        const val GROUP_ARGUMENT = "group"
-    }
+    private lateinit var navController: NavController
 
 
 
@@ -110,8 +106,9 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_journal, container, false)
-        currentGroup = requireArguments().get(GROUP_ARGUMENT)!! as Group
-        toolbarMenuHandler = ToolbarMenuHandler(container!!)
+        currentGroup = JournalGroupFragmentArgs.fromBundle(requireArguments()).groupData
+        navController = container!!.findNavController()
+        toolbarMenuHandler = ToolbarMenuHandler(container)
 
         initializerHelper.initToolbar(layout)
         initializerHelper.initPeriodSection(layout)
@@ -450,7 +447,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             with(toolbar)
             {
                 title = currentGroup.name
-                setNavigationOnClickListener { requireActivity().onBackPressed() }
+                setNavigationOnClickListener { navController.navigateUp() }
                 inflateMenu(R.menu.journal_menu)
                 lockUnlockButton = menu.findItem(R.id.journal_lock_item)
                 showAllDaysButton = menu.findItem(R.id.journal_visibility_all_days_item)

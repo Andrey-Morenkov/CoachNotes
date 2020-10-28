@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.NestedScrollView
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.pawegio.kandroid.visible
 import moxy.MvpAppCompatFragment
@@ -27,7 +29,8 @@ import java.time.temporal.ChronoUnit
 class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 {
     @InjectPresenter
-    lateinit var presenter: PersonPresenterImpl
+    private lateinit var presenter: PersonPresenterImpl
+    private lateinit var navController: NavController
 
     // Common UI
     private lateinit var contentView: NestedScrollView
@@ -51,11 +54,6 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 
     // Data
     private lateinit var currentPerson: Person
-
-    companion object
-    {
-        const val PERSON_ARGUMENT = "person"
-    }
 
 
 
@@ -82,15 +80,17 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 
         tagsLayout.visible = false
 
+        navController = container!!.findNavController()
+
         val toolbar: Toolbar = layout.findViewById(R.id.personInfoToolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
         toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            navController.navigateUp()
         }
 
-        presenter.applyInitialArgumentPersonAsync(arguments?.get(PERSON_ARGUMENT) as Person?)
+        presenter.applyInitialArgumentPersonAsync(PersonInfoFragmentArgs.fromBundle(requireArguments()).personData)
 
         return layout
     }
@@ -137,14 +137,8 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
         groupName.text = groupNames[person.groupId] ?: "Нет группы"
 
         editPerson.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .add(R.id.mainFragmentSpace, PersonEditFragment().apply {
-                    arguments = Bundle().apply {
-                        putSerializable(PersonEditFragment.PERSON_ARGUMENT, currentPerson)
-                    }
-                }, null)
-                .addToBackStack(null)
-                .commit()
+            val action = PersonInfoFragmentDirections.actionPersonInfoFragmentToPersonEditFragment(currentPerson)
+            navController.navigate(action)
         }
     }
 

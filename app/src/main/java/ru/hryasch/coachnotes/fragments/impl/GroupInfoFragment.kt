@@ -10,6 +10,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
@@ -38,6 +40,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: GroupPresenterImpl
+    private lateinit var navController: NavController
 
     // Common UI
     private lateinit var loadingBar: ProgressBar
@@ -74,11 +77,6 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     private lateinit var currentMembers: MutableList<Person>
     private var isFirstSetData = true
 
-    companion object
-    {
-        const val GROUP_ARGUMENT = "group"
-    }
-
 
 
     @ExperimentalCoroutinesApi
@@ -96,7 +94,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         contentView = layout.findViewById(R.id.groupInfoContentView)
         loadingBar = layout.findViewById(R.id.groupInfoProgressBarLoading)
 
-        presenter.applyInitialArgumentGroupAsync(arguments?.get(GROUP_ARGUMENT) as Group?)
+        navController = container!!.findNavController()
+        presenter.applyInitialArgumentGroupAsync(GroupInfoFragmentArgs.fromBundle(requireArguments()).groupData)
 
         return layout
     }
@@ -242,7 +241,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
         val toolbar: Toolbar = layout.findViewById(R.id.groupInfoToolbar)
         toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            navController.navigateUp()
         }
     }
 
@@ -274,10 +273,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
         dialogView.findViewById<LinearLayout>(R.id.addPersonNewPerson).setOnClickListener {
             addMemberVariantsDialog.cancel()
-            requireActivity().supportFragmentManager.beginTransaction()
-                .add(R.id.mainFragmentSpace, PersonEditFragment(), null)
-                .addToBackStack(null)
-                .commit()
+            val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToPersonEditFragment()
+            navController.navigate(action)
         }
 
         dialogView.findViewById<LinearLayout>(R.id.addPersonFindPerson).setOnClickListener {
@@ -289,14 +286,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     private fun setToolbarActions()
     {
         editGroup.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .add(R.id.mainFragmentSpace, GroupEditFragment().apply {
-                    arguments = Bundle().apply {
-                        putSerializable(GroupEditFragment.GROUP_ARGUMENT, currentGroup)
-                    }
-                }, null)
-                .addToBackStack(null)
-                .commit()
+            val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToGroupEditFragment(currentGroup)
+            navController.navigate(action)
         }
 
         groupJournalButton.setOnClickListener {
@@ -313,14 +304,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             }
             else
             {
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .add(R.id.mainFragmentSpace, JournalGroupFragment().apply {
-                        arguments = Bundle().apply {
-                            putSerializable(JournalGroupFragment.GROUP_ARGUMENT, currentGroup)
-                        }
-                    }, null)
-                    .addToBackStack(null)
-                    .commit()
+                val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToJournalGroupFragment(currentGroup)
+                navController.navigate(action)
             }
         }
     }
@@ -392,14 +377,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
             override fun onPersonClicked(person: Person)
             {
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .add(R.id.mainFragmentSpace, PersonInfoFragment().apply {
-                        arguments = Bundle().apply {
-                            putSerializable(PersonInfoFragment.PERSON_ARGUMENT, person)
-                        }
-                    }, null)
-                    .addToBackStack(null)
-                    .commit()
+                val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToPersonInfoFragment(person)
+                navController.navigate(action)
             }
         }
 

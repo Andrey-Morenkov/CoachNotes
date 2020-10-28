@@ -17,6 +17,7 @@ import moxy.presenter.InjectPresenter
 import org.koin.android.ext.android.get
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PeopleView
@@ -64,10 +65,7 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
         }
 
         addNewPerson.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .add(R.id.mainFragmentSpace, PersonEditFragment(), null)
-                .addToBackStack(null)
-                .commit()
+            (requireActivity() as MainActivity).navigateToPersonEditFragment(null)
         }
 
         return layout
@@ -89,14 +87,7 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
             val listener =  object: PeopleAdapter.PersonClickListener {
                 override fun onPersonClick(person: Person)
                 {
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .add(R.id.mainFragmentSpace, PersonInfoFragment().apply {
-                            arguments = Bundle().apply {
-                                putSerializable(PersonInfoFragment.PERSON_ARGUMENT, person)
-                            }
-                        }, null)
-                        .addToBackStack(null)
-                        .commit()
+                    (requireActivity() as MainActivity).navigateToPersonInfoFragment(person)
                 }
             }
 

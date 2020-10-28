@@ -20,6 +20,7 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.fragments.HomeView
@@ -273,14 +274,7 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
             }
             else
             {
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .add(R.id.mainFragmentSpace, JournalGroupFragment().apply {
-                        arguments = Bundle().apply {
-                            putSerializable(JournalGroupFragment.GROUP_ARGUMENT, data.group)
-                        }
-                    }, null)
-                    .addToBackStack(null)
-                    .commit()
+                (requireActivity() as MainActivity).navigateToJournalFragment(data.group)
             }
         }
     }
