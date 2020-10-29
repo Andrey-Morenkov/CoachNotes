@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -11,38 +12,54 @@
         android:text="@string/group"
         android:textSize="@dimen/default_subtitle_text_size" />
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
+        <TextView
+            android:id="@+id/personEditTextViewNoGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:text="@string/person_edit_screen_no_group"
+            app:layout_constraintBottom_toBottomOf="@+id/personEditSpinnerGroup"
+            app:layout_constraintStart_toStartOf="@+id/personEditSpinnerGroup"
+            app:layout_constraintTop_toTopOf="@+id/personEditSpinnerGroup" />
+
         <com.tiper.MaterialSpinner
             android:id='@+id/personEditSpinnerGroup'
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/default_indent"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="@dimen/default_indent"
             android:layout_marginBottom="@dimen/default_indent"
             android:layout_weight="1"
-            android:hint="@string/person_edit_screen_no_group"
             app:boxBackgroundMode="outline"
+            app:hintEnabled="false"
             app:hintTextColor="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/personEditImageViewClearGroup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:spinnerMode="dropdown">
 
         </com.tiper.MaterialSpinner>
 
         <ImageView
             android:id="@+id/personEditImageViewClearGroup"
-            android:layout_width="70dp"
-            android:layout_height="match_parent"
-            android:layout_marginTop="19dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="20dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_weight="1"
-            android:tint="@color/colorError"
-            app:srcCompat="@drawable/ic_no_exist" />
-    </LinearLayout>
+            android:padding="4dp"
+            app:layout_constraintBottom_toBottomOf="@+id/personEditSpinnerGroup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/personEditSpinnerGroup"
+            app:srcCompat="@drawable/ic_no_exist"
+            app:tint="@color/colorError" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

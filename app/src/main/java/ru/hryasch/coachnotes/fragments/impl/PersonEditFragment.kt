@@ -85,6 +85,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     // Group section
         // UI
+        private lateinit var noGroupText: TextView
         private lateinit var groupChooser: MaterialSpinner
         private lateinit var clearGroup: ImageView
 
@@ -129,10 +130,12 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         loadingBar = layout.findViewById(R.id.personEditProgressBarLoading)
 
         navController = container!!.findNavController()
-        presenter.applyInitialArgumentPersonAsync(PersonEditFragmentArgs.fromBundle(requireArguments()).personData)
 
         setSaveOrCreateButtonDisabled()
         hideAdditionalViews()
+
+        presenter.applyInitialArgumentPersonAsync(PersonEditFragmentArgs.fromBundle(requireArguments()).personData,
+                                                  PersonEditFragmentArgs.fromBundle(requireArguments()).lockGroup)
 
         return layout
     }
@@ -151,6 +154,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         val groupNames = getGroupNamesSpinnerData(groups)
         groupChooser.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, groupNames)
+
         groupChooser.onItemSelectedListener = object : MaterialSpinner.OnItemSelectedListener
         {
             override fun onItemSelected(parent: MaterialSpinner,
@@ -158,22 +162,27 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                                         position: Int,
                                         id: Long)
             {
+                noGroupText.visible = false
                 currentPerson.groupId = groupIdByPosition[position]?.first
                 clearGroup.visible = true
             }
 
             override fun onNothingSelected(parent: MaterialSpinner)
             {
+                noGroupText.visible = true
                 clearGroup.visible = false
             }
         }
         groupChooser.selection = groupPositionById[person.groupId] ?: MaterialSpinner.INVALID_POSITION
-        if (groupNames.isEmpty())
-        {
-            groupChooser.isEnabled = false
-            groupChooser.boxBackgroundColor = ContextCompat.getColor(App.getCtx(), R.color.colorDisabledText)
-        }
 
+        if (groupNames.isEmpty() || currentPerson.isEmptyAndHasLockedGroup())
+        {
+            clearGroup.visible = false
+            groupChooser.isEnabled = false
+            groupChooser.boxBackgroundColor = ContextCompat.getColor(App.getCtx(), R.color.colorDisabledSpinner)
+            groupChooser.editText?.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorDisabledText))
+            noGroupText.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorDisabledText))
+        }
 
         saveOrCreatePerson.setOnClickListener {
             currentPerson.surname = surname.text.toString()
@@ -413,6 +422,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     private fun inflateGroupSection(layout: View)
     {
+        noGroupText = layout.findViewById(R.id.personEditTextViewNoGroup)
         groupChooser = layout.findViewById(R.id.personEditSpinnerGroup)
         clearGroup = layout.findViewById(R.id.personEditImageViewClearGroup)
         clearGroup.visible = false
@@ -650,4 +660,9 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         saveOrCreatePerson.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorAccentDisabled))
         saveOrCreatePerson.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorDisabledText))
     }
+}
+
+private fun Person.isEmptyAndHasLockedGroup(): Boolean
+{
+    return surname.isBlank() && groupId != null
 }
