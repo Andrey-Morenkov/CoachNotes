@@ -65,7 +65,7 @@ class PeoplePresenterImpl: MvpPresenter<PeopleView>(), PeoplePresenter, KoinComp
 
                 withContext(Dispatchers.Main)
                 {
-                    viewState.setPeopleList(newData)
+                    viewState.setPeopleList(newData.sorted())
                 }
             }
         }

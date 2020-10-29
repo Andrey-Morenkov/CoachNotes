@@ -132,6 +132,7 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
                 val newData = specificGroupChannel.receive()
                 d("GroupPresenterImpl <Group[${currentGroup!!.id}]>: RECEIVED $newData")
 
+                newData.membersList.sort()
                 withContext(Dispatchers.Main)
                 {
                     w("call applyGroupDataAsync CHANNEL")

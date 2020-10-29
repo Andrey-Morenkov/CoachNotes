@@ -147,7 +147,7 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
             }
         }
 
-        return groupsList?.fromDAO()
+        return groupsList?.fromDAO()?.sorted()
     }
 
     override suspend fun getAllDeletedGroups(): List<Group>?
@@ -168,7 +168,7 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
             }
         }
 
-        return groupsList?.fromDAO()
+        return groupsList?.fromDAO()?.sorted()
     }
 
     override suspend fun getGroupsByScheduleDay(dayPosition0: Int): List<Group>?

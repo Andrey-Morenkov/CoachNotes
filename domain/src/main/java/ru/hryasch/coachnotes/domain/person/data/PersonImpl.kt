@@ -34,6 +34,21 @@ class PersonImpl (override val id: PersonId,
 
     override fun compareTo(other: Person): Int
     {
+        if (surname != other.surname)
+        {
+            return surname.compareTo(other.surname)
+        }
+
+        if (name != other.name)
+        {
+            return name.compareTo(other.name)
+        }
+
+        if (birthdayYear != other.birthdayYear)
+        {
+            return birthdayYear.compareTo(other.birthdayYear)
+        }
+
         return id.compareTo(other.id)
     }
 

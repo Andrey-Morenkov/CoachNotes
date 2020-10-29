@@ -121,7 +121,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
             }
         }
 
-        return peopleDao?.fromDAO()
+        return peopleDao?.fromDAO()?.sorted()
     }
 
     override suspend fun getAllPeople(): List<Person>?
@@ -165,7 +165,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
             }
         }
 
-        return peopleList?.fromDAO()
+        return peopleList?.fromDAO()?.sorted()
     }
 
     override suspend fun getAllDeletedPeople(): List<Person>?
@@ -186,7 +186,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
             }
         }
 
-        return peopleList?.fromDAO()
+        return peopleList?.fromDAO()?.sorted()
     }
 
     @ExperimentalCoroutinesApi

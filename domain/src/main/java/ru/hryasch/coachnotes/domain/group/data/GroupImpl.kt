@@ -28,6 +28,16 @@ class GroupImpl (override val id: GroupId,
 
     override fun compareTo(other: Group): Int
     {
+        if (name != other.name)
+        {
+            return name.compareTo(other.name)
+        }
+
+        if (isPaid != other.isPaid)
+        {
+            return isPaid.compareTo(other.isPaid)
+        }
+
         return id.compareTo(other.id)
     }
 
