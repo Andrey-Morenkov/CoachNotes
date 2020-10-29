@@ -29,7 +29,7 @@ import java.time.temporal.ChronoUnit
 class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 {
     @InjectPresenter
-    private lateinit var presenter: PersonPresenterImpl
+    lateinit var presenter: PersonPresenterImpl
     private lateinit var navController: NavController
 
     // Common UI

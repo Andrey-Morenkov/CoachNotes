@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.fxn.BubbleTabBar
 import com.fxn.OnBubbleClickListener
+import com.pawegio.kandroid.e
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -23,6 +24,7 @@ class MainFragment: MvpAppCompatFragment(), MainView, KoinComponent
     lateinit var presenter: MainPresenterImpl
 
     // Views
+        private lateinit var layout: View
         private lateinit var navigation: BubbleTabBar
         private lateinit var fragmentViewPager: NoScrollViewPager
     //Data
@@ -33,7 +35,12 @@ class MainFragment: MvpAppCompatFragment(), MainView, KoinComponent
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
-        val layout = inflater.inflate(R.layout.fragment_main, container, false)
+        if (::layout.isInitialized)
+        {
+            return layout
+        }
+
+        layout = inflater.inflate(R.layout.fragment_main, container, false)
 
         fragmentViewPager = layout.findViewById(R.id.homeSpace)
         navigation = layout.findViewById(R.id.homeNavigation)

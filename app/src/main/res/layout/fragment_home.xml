@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="16dp"
     android:orientation="vertical"
     tools:context=".activity.MainActivity">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/home_screen_account_info_height">
+        android:layout_height="@dimen/home_screen_account_info_height"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp">
 
         <com.mikhaellopez.circularimageview.CircularImageView
             android:id="@+id/imgHomeScreenCoachAvatar"
@@ -38,7 +39,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="10dp"
-            android:fontFamily="@font/montserrat"
             android:text="@string/home_screen_sample_name"
             android:textColor="@color/colorText"
             android:textSize="@dimen/home_screen_account_name_text_size"
@@ -52,7 +52,6 @@
             android:id="@+id/txtHomeScreenCoachGrade"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat"
             android:text="@string/home_screen_sample_position"
             android:textColor="@color/colorPrimaryLight"
             android:textSize="@dimen/home_screen_submenu_explanation_text_size"
@@ -64,6 +63,9 @@
     <include
         layout="@layout/element_home_today_schedule"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp" />
 
 </LinearLayout>

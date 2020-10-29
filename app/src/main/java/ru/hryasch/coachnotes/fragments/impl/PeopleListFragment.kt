@@ -29,6 +29,7 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
     @ExperimentalCoroutinesApi
     @InjectPresenter
     lateinit var presenter: PeoplePresenterImpl
+    private lateinit var layout: View
 
     // Toolbar
     private lateinit var toolbar: Toolbar
@@ -51,7 +52,7 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
-        val layout = inflater.inflate(R.layout.fragment_persons, container, false)
+        layout = inflater.inflate(R.layout.fragment_persons, container, false)
 
         peopleView = layout.findViewById(R.id.peopleRecyclerViewPeopleList)
         peopleLoading = layout.findViewById(R.id.peopleProgressBarLoading)

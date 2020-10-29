@@ -47,7 +47,7 @@ import java.util.*
 class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 {
     @InjectPresenter
-    private lateinit var presenter: GroupEditPresenterImpl
+    lateinit var presenter: GroupEditPresenterImpl
 
     // Toolbar
         // UI

@@ -47,7 +47,7 @@ import kotlin.collections.HashMap
 class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 {
     @InjectPresenter
-    private lateinit var presenter: PersonEditPresenterImpl
+    lateinit var presenter: PersonEditPresenterImpl
     private lateinit var navController: NavController
 
     // Common UI

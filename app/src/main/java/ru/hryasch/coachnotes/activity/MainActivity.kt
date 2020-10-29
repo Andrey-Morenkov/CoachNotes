@@ -12,6 +12,7 @@ import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
+import ru.hryasch.coachnotes.fragments.impl.MainFragmentDirections
 
 class MainActivity: AppCompatActivity(), KoinComponent
 {
@@ -39,26 +40,31 @@ class MainActivity: AppCompatActivity(), KoinComponent
 
     fun navigateToGroupInfoFragment(group: Group)
     {
-        //val action =
+        val action = MainFragmentDirections.actionMainFragmentToGroupInfoFragment(group)
+        navController.navigate(action)
     }
 
     fun navigateToGroupEditFragment(group: Group?)
     {
-
+        val action = MainFragmentDirections.actionMainFragmentToGroupEditFragment(group)
+        navController.navigate(action)
     }
 
-    fun navigateToJournalFragment(group: Group?)
+    fun navigateToJournalFragment(group: Group)
     {
-
+        val action = MainFragmentDirections.actionMainFragmentToJournalGroupFragment(group)
+        navController.navigate(action)
     }
 
     fun navigateToPersonInfoFragment(person: Person)
     {
-
+        val action = MainFragmentDirections.actionMainFragmentToPersonInfoFragment(person)
+        navController.navigate(action)
     }
 
     fun navigateToPersonEditFragment(person: Person?)
     {
-
+        val action = MainFragmentDirections.actionMainFragmentToPersonEditFragment(person)
+        navController.navigate(action)
     }
 }

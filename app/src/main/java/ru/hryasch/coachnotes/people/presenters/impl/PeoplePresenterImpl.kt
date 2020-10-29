@@ -1,6 +1,7 @@
 package ru.hryasch.coachnotes.people.presenters.impl
 
 import com.pawegio.kandroid.d
+import com.pawegio.kandroid.e
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import moxy.InjectViewState
@@ -26,6 +27,7 @@ class PeoplePresenterImpl: MvpPresenter<PeopleView>(), PeoplePresenter, KoinComp
 
     init
     {
+        e("init people presenter")
         loadingState()
 
         val peopleList = GlobalScope.async { peopleInteractor.getPeopleList() }
@@ -36,13 +38,6 @@ class PeoplePresenterImpl: MvpPresenter<PeopleView>(), PeoplePresenter, KoinComp
             viewState.setPeopleList(peopleList.await(), groupNames.await())
             subscribeOnPeopleChanges()
         }
-    }
-
-
-
-    override fun onPersonClicked(personId: PersonId)
-    {
-        TODO("Not yet implemented")
     }
 
     private fun loadingState()

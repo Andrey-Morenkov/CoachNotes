@@ -1,6 +1,7 @@
 package ru.hryasch.coachnotes.main.impl
 
 import androidx.fragment.app.Fragment
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.InjectViewState
@@ -23,9 +24,9 @@ class MainPresenterImpl: MvpPresenter<MainView>(), MainPresenter
         if (fragmentsList == null)
         {
             generateFragments()
+            viewState.loadFragments(fragmentsList!!)
+            viewState.pickFragment(currentFragment)
         }
-        viewState.loadFragments(fragmentsList!!)
-        viewState.pickFragment(0)
     }
 
     override fun onFragmentSwitched(newFragmentPos: Int)
