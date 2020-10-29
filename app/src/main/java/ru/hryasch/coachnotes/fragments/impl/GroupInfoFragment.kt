@@ -273,7 +273,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
         dialogView.findViewById<LinearLayout>(R.id.addPersonNewPerson).setOnClickListener {
             addMemberVariantsDialog.cancel()
-            val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToPersonEditFragment()
+            val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToPersonEditFragment(lockGroup = currentGroup.id)
             navController.navigate(action)
         }
 

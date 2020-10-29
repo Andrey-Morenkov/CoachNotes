@@ -9,6 +9,7 @@ import moxy.InjectViewState
 import moxy.MvpPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.data.PersonImpl
@@ -29,21 +30,25 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
         viewState.loadingState()
     }
 
-    override fun applyInitialArgumentPersonAsync(person: Person?)
+    override fun applyInitialArgumentPersonAsync(person: Person?, lockGroup: GroupId?)
     {
         if (currentPerson != null)
         {
             return
         }
 
-        applyPersonDataAsync(person)
+        applyPersonDataAsync(person, lockGroup)
     }
 
-    override fun applyPersonDataAsync(person: Person?)
+    override fun applyPersonDataAsync(person: Person?, lockGroup: GroupId?)
     {
         GlobalScope.launch(Dispatchers.Default)
         {
             currentPerson = person ?: PersonImpl.generateNew()
+            if (person == null && lockGroup != null)
+            {
+                currentPerson!!.groupId = lockGroup
+            }
             val groups = groupInteractor.getGroupsList()
 
             withContext(Dispatchers.Main)

@@ -103,7 +103,12 @@
             android:name="personData"
             app:argType="ru.hryasch.coachnotes.domain.person.data.Person"
             app:nullable="true"
-            android:defaultValue="@null" />
+            android:defaultValue="@null"/>
+        <argument
+            android:name="lockGroup"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null"/>
     </fragment>
     <fragment
         android:id="@+id/personInfoFragment"

@@ -84,7 +84,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     // Others
         // Views
-        private val snackProgressBarManager by lazy { SnackProgressBarManager(requireActivity().findViewById(R.id.nav_controller_view_tag), lifecycleOwner = this) }
+        private val snackProgressBarManager by lazy { SnackProgressBarManager(requireActivity().findViewById(R.id.nav_host_fragment), lifecycleOwner = this) }
 
         // Data
         private val initializerHelper: InflaterAndInitializer
