@@ -56,6 +56,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private val additionalViews: MutableList<View> = LinkedList()
 
     // Toolbar
+    private lateinit var toolbar: Toolbar
     private lateinit var saveOrCreatePerson: MaterialButton
 
     // Base section
@@ -269,7 +270,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     {
         saveOrCreatePerson = layout.findViewById(R.id.personEditButtonCreateOrSave)
 
-        val toolbar: Toolbar = layout.findViewById(R.id.personEditToolbar)
+        toolbar = layout.findViewById(R.id.personEditToolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
@@ -518,7 +519,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     private fun setExistPersonData()
     {
-        (activity as AppCompatActivity).supportActionBar!!.setTitle(R.string.person_edit_screen_toolbar_title)
+        toolbar.setTitle(R.string.person_edit_screen_toolbar_title)
+        
         saveOrCreatePerson.text = getString(R.string.save)
 
         surname.text = SpannableStringBuilder(currentPerson.surname)
