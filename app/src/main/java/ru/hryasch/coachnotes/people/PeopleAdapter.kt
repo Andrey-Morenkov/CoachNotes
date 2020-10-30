@@ -39,7 +39,6 @@ class PeopleAdapter(peopleList: List<Person>,
 
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int)
     {
-        i("bing people: groupId: ${peopleList[position].groupId}")
         holder.bind(peopleList[position], groupNames[peopleList[position].groupId])
     }
 
