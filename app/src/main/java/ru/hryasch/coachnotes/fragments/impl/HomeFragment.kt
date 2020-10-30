@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.alamkanak.weekview.WeekView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pawegio.kandroid.e
+import com.pawegio.kandroid.runOnUiThread
 import com.pawegio.kandroid.visible
 import kotlinx.coroutines.*
 import moxy.MvpAppCompatFragment
@@ -47,9 +48,6 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
     // Dialogs
     private lateinit var groupHasNoMembersDialog: AlertDialog
 
-    // Data
-    private lateinit var scheduleGeneratingJob: Job
-
 
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -68,15 +66,15 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
         return layout
     }
 
-    override fun setGroups(groups: List<Group>?)
+    override fun setScheduleCells(scheduleCells: List<HomeScheduleCell>?)
     {
-        if (groups == null)
+        if (scheduleCells == null)
         {
             loadingState()
         }
         else
         {
-            showingState(groups)
+            showingState(scheduleCells)
         }
     }
 
@@ -98,163 +96,11 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
             .create()
     }
 
-    private fun showingState(groups: List<Group>)
+    private fun showingState(scheduleCells: List<HomeScheduleCell>)
     {
-        loadingState()
-
-        if (::scheduleGeneratingJob.isInitialized && scheduleGeneratingJob.isActive)
-        {
-            scheduleGeneratingJob.cancel()
-        }
-
-        scheduleGeneratingJob =
-            GlobalScope.launch(Dispatchers.Unconfined)
-            {
-                val scheduleCells = prepareScheduleCells(groups)
-                withContext(Dispatchers.Main)
-                {
-                    scheduleView.submit(scheduleCells)
-                    scheduleLoading.visible = false
-                    scheduleView.visible = true
-                }
-            }
-    }
-
-    private suspend fun prepareScheduleCells(groups: List<Group>): List<HomeScheduleCell>
-    {
-        if (groups.isEmpty())
-        {
-            return ArrayList()
-        }
-
-        e("prepareScheduleCells of groups: $groups")
-
-        val groupDataByDays: MutableMap<Int, MutableList<ScheduleDayInfo>> = HashMap() // <DayOfWeek0, List<scheduleInfos>>
-        for (i in 0 until 7)
-        {
-            groupDataByDays[i] = LinkedList()
-        }
-
-        for (group in groups)
-        {
-            for (scheduleDay in group.scheduleDays)
-            {
-                val startTimeCal = Calendar.getInstance()
-                with(startTimeCal)
-                {
-                    set(Calendar.HOUR_OF_DAY, scheduleDay.startTime!!.hour)
-                    set(Calendar.MINUTE, scheduleDay.startTime!!.minute)
-                }
-
-                val endTimeCal = Calendar.getInstance()
-                with(endTimeCal)
-                {
-                    set(Calendar.HOUR_OF_DAY, scheduleDay.endTime!!.hour)
-                    set(Calendar.MINUTE, scheduleDay.endTime!!.minute)
-                }
-
-                groupDataByDays[scheduleDay.dayPosition0]!!.add(ScheduleDayInfo(group, startTimeCal, endTimeCal))
-            }
-        }
-
-        groupDataByDays.forEach {
-            e("day = ${it.key}, data = ${it.value}")
-        }
-
-        val result: MutableList<HomeScheduleCell> = LinkedList()
-        var id: Long = 1
-        val currentMonth = Calendar.getInstance()
-        for (day in 1 .. currentMonth.getActualMaximum(Calendar.DAY_OF_MONTH))
-        {
-            currentMonth.set(Calendar.DAY_OF_MONTH, day)
-            when(currentMonth.get(Calendar.DAY_OF_WEEK))
-            {
-                Calendar.MONDAY ->
-                {
-                    groupDataByDays[0]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.TUESDAY ->
-                {
-                    groupDataByDays[1]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.WEDNESDAY ->
-                {
-                    groupDataByDays[2]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.THURSDAY ->
-                {
-                    groupDataByDays[3]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.FRIDAY ->
-                {
-                    groupDataByDays[4]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.SATURDAY ->
-                {
-                    groupDataByDays[5]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.SUNDAY ->
-                {
-                    groupDataByDays[6]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-            }
-        }
-
-        return result
-    }
-
-    @ColorInt
-    private fun getScheduleDayColor(isPaidGroup: Boolean): Int
-    {
-        return if (isPaidGroup)
-               {
-                   ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCellPaidGroup)
-               }
-               else
-               {
-                   ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCellFreeGroup)
-               }
+        scheduleView.submit(scheduleCells)
+        scheduleLoading.visible = false
+        scheduleView.visible = true
     }
 
     private fun tuneScheduleView()
@@ -291,14 +137,14 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
             scheduleView.goToCurrentTime()
         }
     }
+}
 
-    private data class ScheduleDayInfo(val group: Group,
-                                       val startTime: Calendar,
-                                       val endTime: Calendar)
+data class ScheduleDayInfo(val group: Group,
+                           val startTime: Calendar,
+                           val endTime: Calendar)
+{
+    override fun toString(): String
     {
-        override fun toString(): String
-        {
-            return "Group ${group.name} (${group.id}), start = ${startTime.get(Calendar.HOUR_OF_DAY)}:${startTime.get(Calendar.MINUTE)}, end = ${endTime.get(Calendar.HOUR_OF_DAY)}:${endTime.get(Calendar.MINUTE)}"
-        }
+        return "Group ${group.name} (${group.id}), start = ${startTime.get(Calendar.HOUR_OF_DAY)}:${startTime.get(Calendar.MINUTE)}, end = ${endTime.get(Calendar.HOUR_OF_DAY)}:${endTime.get(Calendar.MINUTE)}"
     }
 }
