@@ -216,6 +216,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
 
                     isAddingPeople[i] = ( existPerson == null )
 
+                    e("try to copyToRealmOrUpdate person: $person")
                     it.copyToRealmOrUpdate(person.toDao()!!)
                 }
             } // transaction
@@ -431,7 +432,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
                 val res = elements.fromDAO()
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    e("channel <AllPeople>: SEND")
+                    e("channel <AllPeople>: SEND $elements")
                     broadcastChannel.send(res)
                 }
             }

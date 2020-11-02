@@ -1,6 +1,7 @@
 package ru.hryasch.coachnotes.fragments.impl
 
 import android.os.Bundle
+import android.util.Log.e
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.pawegio.kandroid.e
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -45,7 +47,13 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
 
     // Data
     private lateinit var currentGroupNames: Map<GroupId, String>
-
+    private lateinit var currentPeople: MutableList<Person>
+    private val listener =  object: PeopleAdapter.PersonClickListener {
+        override fun onPersonClick(person: Person)
+        {
+            (requireActivity() as MainActivity).navigateToPersonInfoFragment(person)
+        }
+    }
 
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -55,6 +63,12 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
         layout = inflater.inflate(R.layout.fragment_persons, container, false)
 
         peopleView = layout.findViewById(R.id.peopleRecyclerViewPeopleList)
+        if (::peopleAdapter.isInitialized)
+        {
+            peopleView.adapter = peopleAdapter
+            peopleView.layoutManager = LinearLayoutManager(context)
+            peopleView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        }
         peopleLoading = layout.findViewById(R.id.peopleProgressBarLoading)
         addNewPerson = layout.findViewById(R.id.peopleButtonAddPerson)
         noPeopleLabel = layout.findViewById(R.id.peopleTextViewNoData)
@@ -74,51 +88,55 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
 
     override fun setPeopleList(peopleList: List<Person>?, groupNames: Map<GroupId, String>?)
     {
-        if (peopleList == null)
+        if (peopleList == null && groupNames == null)
         {
             peopleView.visibility = View.INVISIBLE
             peopleLoading.visibility = View.VISIBLE
             noPeopleLabel.visibility = View.INVISIBLE
+            return
+        }
+
+        peopleView.visibility = View.VISIBLE
+        peopleLoading.visibility = View.INVISIBLE
+
+        if (::peopleAdapter.isInitialized)
+        {
+            // Apply new runtime data
+            if (groupNames != null)
+            {
+                // apply new group names
+                currentGroupNames = groupNames
+                peopleAdapter.updateGroups(currentGroupNames)
+            }
+
+            if (peopleList != null)
+            {
+                // apply new people
+                toolbar.title = getString(R.string.persons_screen_toolbar_with_count_title, peopleList.size)
+                currentPeople.clear()
+                currentPeople.addAll(peopleList.sorted())
+                peopleAdapter.notifyDataSetChanged()
+            }
         }
         else
         {
-            peopleView.visibility = View.VISIBLE
-            peopleLoading.visibility = View.INVISIBLE
+            // First initialization
+            currentGroupNames = groupNames ?: HashMap()
+            currentPeople = peopleList?.sorted()?.toMutableList() ?: ArrayList()
 
-            val listener =  object: PeopleAdapter.PersonClickListener {
-                override fun onPersonClick(person: Person)
-                {
-                    (requireActivity() as MainActivity).navigateToPersonInfoFragment(person)
-                }
-            }
-
-            if (::currentGroupNames.isInitialized)
-            {
-                if (groupNames != null)
-                {
-                    currentGroupNames = groupNames
-                }
-            }
-            else
-            {
-                currentGroupNames = groupNames ?: HashMap()
-            }
-            peopleAdapter = get { parametersOf(peopleList, currentGroupNames, listener) }
-
+            peopleAdapter = get { parametersOf(currentPeople, currentGroupNames, listener) }
             peopleView.adapter = peopleAdapter
             peopleView.layoutManager = LinearLayoutManager(context)
             peopleView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        }
 
-            if (peopleAdapter.itemCount == 0)
-            {
-                noPeopleLabel.visibility = View.VISIBLE
-            }
-            else
-            {
-                noPeopleLabel.visibility = View.INVISIBLE
-            }
-
-            toolbar.title = getString(R.string.persons_screen_toolbar_with_count_title, peopleAdapter.itemCount)
+        if (peopleAdapter.itemCount == 0)
+        {
+            noPeopleLabel.visibility = View.VISIBLE
+        }
+        else
+        {
+            noPeopleLabel.visibility = View.INVISIBLE
         }
     }
 
