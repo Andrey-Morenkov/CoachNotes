@@ -2,6 +2,7 @@ package ru.hryasch.coachnotes.journal.presenters.impl
 
 import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.runOnUiThread
 import kotlinx.coroutines.*
 import moxy.InjectViewState
 import moxy.MvpPresenter
@@ -143,6 +144,12 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
             findingTableJob.cancel()
         }
 
+        if (currentGroup.membersList.isEmpty() && selectedPeriod == YearMonth.now())
+        {
+            onNoPeopleAndCurrentPeriod()
+            return
+        }
+
         findingTableJob = GlobalScope.launch(Dispatchers.Default)
         {
             i("findingTableJob launched")
@@ -213,6 +220,21 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         isJournalLocked = true
         isShowAllDays = false
         isShowAllPeople = false
+    }
+
+    private fun onNoPeopleAndCurrentPeriod()
+    {
+        journalTableProxy.changeDataModel(null)
+        resetFlags()
+
+        runOnUiThread {
+            viewState.showingState(null, true)
+            with(viewState)
+            {
+                setPeriod(selectedPeriod)
+                lockJournal(isJournalLocked)
+            }
+        }
     }
 
     private fun updatePeopleSeqNumbers(rowsToHide: List<Int>?)

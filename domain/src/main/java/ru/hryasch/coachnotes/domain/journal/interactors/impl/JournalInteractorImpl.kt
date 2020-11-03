@@ -24,7 +24,6 @@ import ru.hryasch.coachnotes.domain.tools.DataExporter
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.LinkedList
-import java.util.concurrent.ConcurrentHashMap
 import java.util.stream.IntStream
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -127,6 +126,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
     {
         val allPeople: MutableMap<PersonId, Person> = HashMap()
 
+        val birthdayMark: Int
         if (period.isHistorical())
         {
             // using only chunks info
@@ -137,10 +137,12 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                 return null
             }
             i("historical, have chunks")
+            birthdayMark = -2
         }
         else
         {
             e("non historical")
+            birthdayMark = -1
             // using mix of chunks people (if chunks exist) and current people
             groupPeople?.forEach {
                 allPeople[it.id] = it
@@ -150,7 +152,7 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
         chunks?.forEach {
             it.content.forEach { entry ->
                 // Group data has more priority because it has freshest data
-                allPeople.putIfAbsent(entry.key.personId, PersonImpl(entry.key.personId, entry.key.surname, entry.key.name, -1))
+                allPeople.putIfAbsent(entry.key.personId, PersonImpl(entry.key.personId, entry.key.surname, entry.key.name, birthdayMark))
             }
         }
 
@@ -160,12 +162,12 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
             .toList()
             .sortedWith(
                 Comparator { person1, person2 ->
-                    if ((person1.birthdayYear != -1 && person2.birthdayYear != -1) ||
-                        (person1.birthdayYear == -1 && person2.birthdayYear == -1))
+                    if ((person1.birthdayYear > 0 && person2.birthdayYear > 0) ||
+                        (person1.birthdayYear < 0 && person2.birthdayYear < 0))
                     {
                         person1.compareTo(person2)
                     }
-                    else if (person1.birthdayYear == -1 && person2.birthdayYear != -1)
+                    else if (person1.birthdayYear < 0 && person2.birthdayYear > 0)
                     {
                         1
                     }
@@ -202,9 +204,9 @@ class JournalInteractorImpl: JournalInteractor, KoinComponent
                                   period   : YearMonth): List<List<CellData?>>
     {
         // <Date <PersonId, CellData?>>
-        val chunksMap: ConcurrentHashMap<LocalDate, ConcurrentHashMap<PersonId, CellData?>> = ConcurrentHashMap()
+        val chunksMap: HashMap<LocalDate, HashMap<PersonId, CellData?>> = HashMap()
         chunks.forEach {chunk ->
-            chunksMap[chunk.date] = ConcurrentHashMap()
+            chunksMap[chunk.date] = HashMap()
             chunk.content.forEach {
                 chunksMap[chunk.date]!![it.key.personId] = it.value
             }

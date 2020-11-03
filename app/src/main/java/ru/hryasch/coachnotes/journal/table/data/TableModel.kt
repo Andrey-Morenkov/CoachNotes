@@ -80,13 +80,12 @@ class TableModel(rawTableData: RawTableData?)
     {
         val rowHeaders: MutableList<RowHeaderModel> = ArrayList(rawPeopleData.size)
         val rowHideHeaders: MutableList<Int> = ArrayList()
-        val makeMembersCheck = groupPeopleIds != null && groupPeopleIds.isNotEmpty()
 
         var personIndex = 1
         for ((i, rawPerson) in rawPeopleData.withIndex())
         {
             var isHided = false
-            if (makeMembersCheck && groupPeopleIds?.stream()!!.noneMatch { existPerson -> existPerson == rawPerson.id })
+            if (rawPerson.birthdayYear == -1)
             {
                 rowHideHeaders.add(i)
                 isHided = true

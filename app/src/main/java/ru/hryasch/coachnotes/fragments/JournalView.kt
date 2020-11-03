@@ -17,7 +17,7 @@ interface JournalView: MvpView
     fun loadingState()
 
     @StateStrategyType(SingleStateStrategy::class)
-    fun showingState(tableContent: TableModel?)
+    fun showingState(tableContent: TableModel?, noPeople: Boolean = false)
 
     // Permanent state (level 1)
     @StateStrategyType(AddToEndSingleStrategy::class)

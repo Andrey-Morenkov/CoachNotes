@@ -75,6 +75,16 @@
                 android:indeterminate="true"
                 android:indeterminateBehavior="repeat" />
 
+            <TextView
+                android:id="@+id/journalNoPeople"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/roboto_medium"
+                android:text="Нет учеников в группе"
+                android:textAlignment="center"
+                android:textSize="24sp" />
+
             <com.evrencoskun.tableview.TableView
                 android:id="@+id/journalTable"
                 android:layout_width="match_parent"

@@ -114,14 +114,7 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
         scheduleView.minDate = min
         scheduleView.maxDate = max
         scheduleView.setOnEventClickListener { data, _ ->
-            if (data.group.membersList.isEmpty())
-            {
-                groupHasNoMembersDialog.show()
-            }
-            else
-            {
-                (requireActivity() as MainActivity).navigateToJournalFragment(data.group)
-            }
+            (requireActivity() as MainActivity).navigateToJournalFragment(data.group)
         }
     }
 

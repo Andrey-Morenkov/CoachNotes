@@ -78,6 +78,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         private lateinit var viewJournalTable: TableView
         private lateinit var loadingView: View
         private lateinit var emptyView: View
+        private lateinit var noPeopleView: View
 
         // Data
         private lateinit var tableAdapter: TableAdapter
@@ -106,8 +107,13 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_journal, container, false)
-        currentGroup = JournalGroupFragmentArgs.fromBundle(requireArguments()).groupData
         navController = container!!.findNavController()
+
+        if (!::currentGroup.isInitialized)
+        {
+            currentGroup = JournalGroupFragmentArgs.fromBundle(requireArguments()).groupData
+        }
+
         toolbarMenuHandler = ToolbarMenuHandler(container)
 
         initializerHelper.initToolbar(layout)
@@ -203,6 +209,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         i("-- Waiting State --")
         loadingView.visible = true
         emptyView.visible = false
+        noPeopleView.visible = false
         viewJournalTable.visible = false
         exportDocButton.isVisible = false
     }
@@ -304,7 +311,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         dialog.show()
     }
 
-    override fun showingState(tableContent: TableModel?)
+    override fun showingState(tableContent: TableModel?, noPeople: Boolean)
     {
         i("-- Showing State --")
 
@@ -322,7 +329,17 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
         }
         else
         {
-            emptyView.visible = true
+            if (noPeople)
+            {
+                emptyView.visible = false
+                noPeopleView.visible = true
+            }
+            else
+            {
+                emptyView.visible = true
+                noPeopleView.visible = false
+            }
+
             viewJournalTable.visible = false
             exportDocButton.isVisible = false
         }
@@ -394,6 +411,15 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
     {
         viewJournalTable.clearHiddenColumnList()
         viewJournalTable.clearHiddenRowList()
+    }
+
+    private fun noPeopleState()
+    {
+        loadingView.visible = false
+        emptyView.visible = false
+        noPeopleView.visible = true
+        viewJournalTable.visible = false
+        exportDocButton.isVisible = false
     }
 
     inner class ToolbarMenuHandler(container: ViewGroup)
@@ -497,6 +523,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             viewJournalTable = layout.findViewById(R.id.journalTable)
             loadingView = layout.findViewById(R.id.journalLoading)
             emptyView = layout.findViewById(R.id.journalNoData)
+            noPeopleView = layout.findViewById(R.id.journalNoPeople)
         }
 
         fun initStuff()

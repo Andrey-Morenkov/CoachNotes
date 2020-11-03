@@ -35,7 +35,7 @@ class RowHeaderViewHolder(rowHeaderItem: View) : AbstractViewHolder(rowHeaderIte
         }
         else
         {
-            // Historic person
+            // Removed person
             num.visibility = View.INVISIBLE
             foreground.visible = true
             surname.setTextColor(ContextCompat.getColor(surname.context, R.color.colorDisabledText))

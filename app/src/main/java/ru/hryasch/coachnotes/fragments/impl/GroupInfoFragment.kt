@@ -126,7 +126,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     @ExperimentalCoroutinesApi
     override fun showAddPeopleToGroupNotification(people: List<Person>?)
     {
-        if (people == null)
+        if (people == null || people.isEmpty())
         {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Добавить учеников в группу")
@@ -291,22 +291,8 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         }
 
         groupJournalButton.setOnClickListener {
-            if (currentGroup.membersList.isEmpty())
-            {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Невозможно отобразить журнал")
-                    .setMessage("В группе нет учеников")
-                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .create()
-                    .show()
-            }
-            else
-            {
-                val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToJournalGroupFragment(currentGroup)
-                navController.navigate(action)
-            }
+            val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToJournalGroupFragment(currentGroup)
+            navController.navigate(action)
         }
     }
 

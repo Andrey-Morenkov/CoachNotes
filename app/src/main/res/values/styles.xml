@@ -53,6 +53,7 @@
     <style name="CustomAlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <item name="buttonBarNegativeButtonStyle">@style/CustomNegativeButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/CustomPositiveButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/CustomNeutralButtonStyle</item>
     </style>
     
     <style name="CustomPositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
@@ -61,6 +62,10 @@
 
     <style name="CustomNegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">@color/colorPrimaryLight</item>
+    </style>
+
+    <style name="CustomNeutralButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/colorDisabledText</item>
     </style>
 
 // Elements (buttons, etc)
