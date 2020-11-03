@@ -42,7 +42,7 @@ buildscript
         koin_version = '2.1.5'
 
         // Fake data
-        faker_version = "1.0.2"
+        //faker_version = "1.0.2"
 
         // Permissions
         easypermission_version = '3.8'

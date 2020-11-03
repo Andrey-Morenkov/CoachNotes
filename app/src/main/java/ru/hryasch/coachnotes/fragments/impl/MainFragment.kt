@@ -1,14 +1,11 @@
 package ru.hryasch.coachnotes.fragments.impl
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
-import com.fxn.BubbleTabBar
-import com.fxn.OnBubbleClickListener
-import com.pawegio.kandroid.e
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import me.ibrahimsn.lib.OnItemSelectedListener
+import me.ibrahimsn.lib.SmoothBottomBar
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
@@ -25,15 +22,15 @@ class MainFragment: MvpAppCompatFragment(), MainView, KoinComponent
 
     // Views
         private lateinit var layout: View
-        private lateinit var navigation: BubbleTabBar
+        private lateinit var navigation: SmoothBottomBar
         private lateinit var fragmentViewPager: NoScrollViewPager
     //Data
         private lateinit var fragmentAdapter: CustomMainAdapter
 
+
+
     @ExperimentalCoroutinesApi
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View?
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         if (::layout.isInitialized)
         {
@@ -56,23 +53,18 @@ class MainFragment: MvpAppCompatFragment(), MainView, KoinComponent
         fragmentViewPager.adapter = fragmentAdapter
         fragmentViewPager.offscreenPageLimit = fragments.size
 
-        navigation.addBubbleListener(object: OnBubbleClickListener {
-            override fun onBubbleClick(id: Int)
+        navigation.onItemSelectedListener = object: OnItemSelectedListener {
+            override fun onItemSelect(pos: Int): Boolean
             {
-                when(id)
-                {
-                    R.id.homeFragmentImpl   -> presenter.onFragmentSwitched(0)
-                    R.id.groupListFragment  -> presenter.onFragmentSwitched(1)
-                    R.id.peopleListFragment -> presenter.onFragmentSwitched(2)
-                }
+                presenter.onFragmentSwitched(pos)
+                return true
             }
-        })
-        navigation.setupBubbleTabBar(fragmentViewPager)
+        }
     }
 
     override fun pickFragment(fragmentPos: Int)
     {
         fragmentViewPager.currentItem = fragmentPos
-        navigation.setSelected(fragmentPos, false)
+        navigation.itemActiveIndex = fragmentPos
     }
 }

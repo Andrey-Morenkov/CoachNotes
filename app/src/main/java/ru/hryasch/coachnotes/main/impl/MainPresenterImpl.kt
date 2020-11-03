@@ -1,7 +1,6 @@
 package ru.hryasch.coachnotes.main.impl
 
 import androidx.fragment.app.Fragment
-import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.InjectViewState
