@@ -1,6 +1,7 @@
 package ru.hryasch.coachnotes.journal.table.data
 
 import com.pawegio.kandroid.d
+import com.pawegio.kandroid.i
 import kotlinx.coroutines.*
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
@@ -35,8 +36,8 @@ class TableModel(rawTableData: RawTableData?)
             runBlocking {
                 GlobalScope.launch(Dispatchers.Default)
                 {
-                    val col  = async { generateColumnHeaders(rawTableData.daysData, rawTableData.group?.scheduleDays) }
-                    val row  = async { generateRowHeaders(rawTableData.peopleData,  rawTableData.group?.membersList) }
+                    val col  = async { generateColumnHeaders(rawTableData.daysData, rawTableData.group?.scheduleDays, getRealHasColumnInfo(rawTableData.cellsData)) }
+                    val row  = async { generateRowHeaders(rawTableData.peopleData) }
                     val cell = async { generateCells(rawTableData.cellsData) }
 
                     columnHeaders = col.await().first
@@ -55,7 +56,7 @@ class TableModel(rawTableData: RawTableData?)
         cellsContent = cContent
     }
 
-    private fun generateColumnHeaders(rawDaysData: List<LocalDate>, groupSchedule: List<ScheduleDay>?): Pair<List<ColumnHeaderModel>, List<Int>>
+    private fun generateColumnHeaders(rawDaysData: List<LocalDate>, groupSchedule: List<ScheduleDay>?, realColumnHasData: List<Boolean>): Pair<List<ColumnHeaderModel>, List<Int>>
     {
         val columnHeaders: MutableList<ColumnHeaderModel> = ArrayList(rawDaysData.size)
         val columnHideHeaders: MutableList<Int> = ArrayList()
@@ -66,7 +67,9 @@ class TableModel(rawTableData: RawTableData?)
         for ((i, rawDay) in rawDaysData.withIndex())
         {
             columnHeaders.add(ColumnHeaderModel(i, rawDay))
-            if (makeScheduleDayCheck && existScheduleDaysPositions!!.stream().noneMatch { existDay0 -> existDay0 == (rawDay.dayOfWeek.value - 1) })
+            if (makeScheduleDayCheck &&
+                existScheduleDaysPositions!!.stream().noneMatch { existDay0 -> existDay0 == (rawDay.dayOfWeek.value - 1) } &&
+                !realColumnHasData[i])
             {
                 columnHideHeaders.add(i)
             }
@@ -76,7 +79,7 @@ class TableModel(rawTableData: RawTableData?)
         return Pair(columnHeaders, columnHideHeaders)
     }
 
-    private fun generateRowHeaders(rawPeopleData: List<Person>, groupPeopleIds: List<PersonId>?): Pair<List<RowHeaderModel>, List<Int>>
+    private fun generateRowHeaders(rawPeopleData: List<Person>): Pair<List<RowHeaderModel>, List<Int>>
     {
         val rowHeaders: MutableList<RowHeaderModel> = ArrayList(rawPeopleData.size)
         val rowHideHeaders: MutableList<Int> = ArrayList()
@@ -124,5 +127,27 @@ class TableModel(rawTableData: RawTableData?)
             }
 
         return cells.toList()
+    }
+
+    // Use to detect non-schedule filled days (we should not hide them)
+    private fun getRealHasColumnInfo(rawCellsData: List<List<CellData?>>): List<Boolean>
+    {
+        val columnHasData: Array<Boolean> = Array(rawCellsData[0].size) {false}
+        IntStream
+            .range(0, rawCellsData[0].size)
+            .parallel()
+            .forEach { col ->
+                for (row in rawCellsData.indices)
+                {
+                    if (rawCellsData[row][col] != null)
+                    {
+                        i("column [$col] has data")
+                        columnHasData[col] = true
+                        break
+                    }
+                }
+            }
+
+        return columnHasData.toList()
     }
 }
