@@ -123,6 +123,13 @@
         <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
+    <style name="FilledAccentDisabledButton" parent="Widget.MaterialComponents.Button">
+        <item name="icon">@null</item>
+        <item name="android:textColor">@color/colorDisabledText</item>
+        <item name="backgroundTint">@color/colorAccentDisabled</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+    </style>
+
     <style name="FilledButton.Icon">
         <item name="icon">@drawable/ic_sample</item>
         <item name="iconTint">@color/colorText</item>

@@ -68,8 +68,8 @@ class TableModel(rawTableData: RawTableData?)
         {
             columnHeaders.add(ColumnHeaderModel(i, rawDay))
             if (makeScheduleDayCheck &&
-                existScheduleDaysPositions!!.stream().noneMatch { existDay0 -> existDay0 == (rawDay.dayOfWeek.value - 1) } &&
-                !realColumnHasData[i])
+                !realColumnHasData[i] &&
+                existScheduleDaysPositions!!.stream().noneMatch { existDay0 -> existDay0 == (rawDay.dayOfWeek.value - 1) })
             {
                 columnHideHeaders.add(i)
             }
