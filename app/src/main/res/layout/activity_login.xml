@@ -8,63 +8,14 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout3"
-        android:layout_width="wrap_content"
+        android:layout_width="400dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toTopOf="@+id/loginButtonLogin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <EditText
-            android:id="@+id/loginEditTextName"
-            android:layout_width="350dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="32dp"
-            android:background="@drawable/fake_outlined"
-            android:ems="10"
-            android:hint="Ваше ФИО"
-            android:imeOptions="actionNext"
-            android:inputType="textPersonName|textCapWords"
-            android:paddingStart="11dp"
-            android:paddingEnd="15dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView13" />
-
-        <com.tiper.MaterialSpinner
-            android:id='@+id/loginSpinnerRole'
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="Ваша должность"
-            app:boxBackgroundMode="outline"
-            app:hintTextColor="@color/colorAccent"
-            app:layout_constraintEnd_toEndOf="@+id/loginEditTextName"
-            app:layout_constraintStart_toStartOf="@+id/loginEditTextName"
-            app:layout_constraintTop_toBottomOf="@+id/loginEditTextName"
-            app:spinnerMode="dropdown" />
-
-        <EditText
-            android:id="@+id/loginEditTextCustomRole"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="32dp"
-            android:background="@drawable/fake_outlined"
-            android:ems="10"
-            android:hint="Введите должность"
-            android:inputType="textPersonName"
-            android:paddingStart="11dp"
-            android:paddingEnd="15dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/loginSpinnerRole"
-            tools:visibility="invisible" />
 
         <ImageView
             android:id="@+id/imageView13"
@@ -74,6 +25,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/splash" />
+
+        <include
+            layout="@layout/element_edit_coach_base_params"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView13" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

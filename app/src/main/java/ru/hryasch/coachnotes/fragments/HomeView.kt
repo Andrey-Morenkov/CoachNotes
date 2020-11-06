@@ -6,6 +6,7 @@ import moxy.viewstate.strategy.SingleStateStrategy
 import moxy.viewstate.strategy.StateStrategyType
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.home.data.HomeScheduleCell
+import ru.hryasch.coachnotes.repository.global.GlobalSettings
 
 interface HomeView: MvpView
 {
@@ -16,5 +17,5 @@ interface HomeView: MvpView
     fun setScheduleCells(scheduleCells: List<HomeScheduleCell>?)
 }
 
-data class CoachData(val name: String,
+data class CoachData(val fullName: GlobalSettings.Coach.CoachFullName,
                      val role: String)

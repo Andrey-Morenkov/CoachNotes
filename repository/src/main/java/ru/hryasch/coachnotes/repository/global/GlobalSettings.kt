@@ -28,15 +28,20 @@ object GlobalSettings: KoinComponent
                                  fullNameComponents.elementAtOrNull(2))
         }
 
-        fun getFullNameString(): String = getFullName()?.toString() ?: ""
-
         fun getRole(): String? = sharedPreferences.getString(ROLE, null)
 
         fun editName(name: String?)
         {
             with(sharedPreferencesEditor)
             {
-                putString(FULL_NAME, name?.trim()?.replace(" +", " "))
+                if (name == null)
+                {
+                    remove(FULL_NAME)
+                }
+                else
+                {
+                    putString(FULL_NAME, name.trim().replace(" +", " "))
+                }
                 apply()
             }
         }
@@ -45,9 +50,22 @@ object GlobalSettings: KoinComponent
         {
             with(sharedPreferencesEditor)
             {
-                putString(ROLE, role)
+                if (role == null)
+                {
+                    remove(ROLE)
+                }
+                else
+                {
+                    putString(ROLE, role)
+                }
                 apply()
             }
+        }
+
+        fun clearLoginData()
+        {
+            editName(null)
+            editRole(null)
         }
 
         data class CoachFullName(val surname: String,

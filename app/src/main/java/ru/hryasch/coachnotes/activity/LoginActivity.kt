@@ -4,18 +4,23 @@ import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.pawegio.kandroid.textWatcher
-import com.tiper.MaterialSpinner
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.element_edit_coach_base_params.*
+import org.koin.core.KoinComponent
+import org.koin.core.get
+import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.application.App
+import ru.hryasch.coachnotes.common.EditCoachBaseParamsElement
+import ru.hryasch.coachnotes.common.FieldsCorrectListener
 import ru.hryasch.coachnotes.repository.global.GlobalSettings
 
-class LoginActivity: AppCompatActivity()
+class LoginActivity: AppCompatActivity(), KoinComponent
 {
+    private val coachRoles: List<String> = get(named("coachRoles"))
+    private lateinit var editParamsElement: EditCoachBaseParamsElement
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
@@ -26,53 +31,26 @@ class LoginActivity: AppCompatActivity()
 
         initialUiState()
 
-        with(loginSpinnerRole)
-        {
-            adapter = getCoachRoleAdapter()
-            onItemSelectedListener = object: MaterialSpinner.OnItemSelectedListener
-            {
-                override fun onItemSelected(parent: MaterialSpinner,
-                                            view: View?,
-                                            position: Int,
-                                            id: Long)
-                {
-                    if (position == customRolePosition)
-                    {
-                        loginEditTextCustomRole.visibility = View.VISIBLE
-
-                    }
-                    else
-                    {
-                        loginEditTextCustomRole.visibility = View.INVISIBLE
-                        loginEditTextCustomRole.text = null
-                    }
-
-                    checkFields()
-                }
-
-                override fun onNothingSelected(parent: MaterialSpinner)
-                {
-                }
-            }
-        }
-
-        loginEditTextName.textWatcher {
-            onTextChanged { _, _, _, _ -> checkFields() }
-        }
-
-        loginEditTextCustomRole.textWatcher {
-            onTextChanged { _, _, _, _ -> checkFields() }
-        }
+        editParamsElement = EditCoachBaseParamsElement(this,
+                                                       coachBaseParamEditTextFullName,
+                                                       coachBaseParamSpinnerRole,
+                                                       coachBaseParamEditTextCustomRole,
+                                                       object: FieldsCorrectListener {
+                                                            override fun onFieldsCorrect(isCorrect: Boolean)
+                                                            {
+                                                                enableLoginButton(isCorrect)
+                                                            }
+                                                        })
 
         loginButtonLogin.setOnClickListener {
-            GlobalSettings.Coach.editName(loginEditTextName.text?.toString())
-            if (loginSpinnerRole.selection == customRolePosition)
+            GlobalSettings.Coach.editName(coachBaseParamEditTextFullName.text?.toString())
+            if (coachBaseParamSpinnerRole.selection == coachRoles.indexOf(getString(R.string.coach_role_custom)))
             {
-                GlobalSettings.Coach.editRole(loginEditTextCustomRole.text?.toString())
+                GlobalSettings.Coach.editRole(coachBaseParamEditTextCustomRole.text?.toString())
             }
             else
             {
-                GlobalSettings.Coach.editRole(loginSpinnerRole.selectedItem as String?)
+                GlobalSettings.Coach.editRole(coachBaseParamSpinnerRole.selectedItem as String?)
             }
 
             startActivity(Intent(this, MainActivity::class.java))
@@ -82,21 +60,8 @@ class LoginActivity: AppCompatActivity()
 
     private fun initialUiState()
     {
-        loginEditTextCustomRole.visibility = View.INVISIBLE
+        coachBaseParamEditTextCustomRole.visibility = View.INVISIBLE
         enableLoginButton(false)
-    }
-
-    private fun checkFields()
-    {
-        if (loginEditTextName.text.isNullOrBlank() ||
-            loginSpinnerRole.selection == MaterialSpinner.INVALID_POSITION ||
-            (loginSpinnerRole.selection == customRolePosition && loginEditTextCustomRole.text.isNullOrBlank()))
-        {
-            enableLoginButton(false)
-            return
-        }
-
-        enableLoginButton(true)
     }
 
     private fun enableLoginButton(enable: Boolean)
@@ -119,18 +84,5 @@ class LoginActivity: AppCompatActivity()
                 setBackgroundColor(ContextCompat.getColor(this@LoginActivity, R.color.colorAccentDisabled))
             }
         }
-    }
-
-    private fun getCoachRoleAdapter() = ArrayAdapter(this, android.R.layout.simple_list_item_1, roles)
-
-    companion object
-    {
-        val roles: List<String> = listOf(
-            App.getCtx().getString(R.string.coach_role_junior_coach),
-            App.getCtx().getString(R.string.coach_role_common_coach),
-            App.getCtx().getString(R.string.coach_role_senior_coach),
-            App.getCtx().getString(R.string.coach_role_custom))
-
-        val customRolePosition = roles.indexOf(App.getCtx().getString(R.string.coach_role_custom))
     }
 }

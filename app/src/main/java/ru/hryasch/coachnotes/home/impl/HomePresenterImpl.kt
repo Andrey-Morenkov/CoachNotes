@@ -29,7 +29,7 @@ import java.util.LinkedList
 @InjectViewState
 class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
 {
-    private val coachData: CoachData = readCoachData()
+    private var coachData: CoachData = readCoachData()
 
     private val homeInteractor: HomeInteractor by inject()
     private val groupsRecvChannel: ReceiveChannel<List<Group>>  = get(named("recvGroupsList"))
@@ -62,6 +62,16 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
         super.onDestroy()
     }
 
+    override fun changeCoachInfo(newCoachFullName: String,
+                                 newCoachRole: String)
+    {
+        GlobalSettings.Coach.editName(newCoachFullName)
+        GlobalSettings.Coach.editRole(newCoachRole)
+
+        coachData = readCoachData()
+        viewState.setCoachData(coachData)
+    }
+
 
 
     private fun loadingState()
@@ -69,9 +79,7 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
         viewState.setScheduleCells(null)
     }
 
-    private fun readCoachData() = CoachData(GlobalSettings.Coach.getFullNameString(),
-                                            GlobalSettings.Coach.getRole()!!)
-
+    private fun readCoachData(): CoachData = CoachData(GlobalSettings.Coach.getFullName()!!, GlobalSettings.Coach.getRole()!!)
 
     @ExperimentalCoroutinesApi
     private fun subscribeOnGroupsChanges()
