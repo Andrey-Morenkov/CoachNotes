@@ -15,6 +15,9 @@ import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.tools.DataExporter
 import ru.hryasch.coachnotes.repository.R
+import ru.hryasch.coachnotes.repository.common.toAbsolute
+import ru.hryasch.coachnotes.repository.common.toRelative
+import ru.hryasch.coachnotes.repository.global.GlobalSettings
 import ru.hryasch.coachnotes.repository.tools.DocExporter.fileExtension
 import ru.hryasch.coachnotes.repository.tools.DocExporter.saveDirectory
 import java.io.File
@@ -39,9 +42,23 @@ object DocExporter: DataExporter, KoinComponent
         System.setProperty("org.apache.poi.javax.xml.stream.XMLEventFactory", "com.fasterxml.aalto.stax.EventFactoryImpl")
     }
 
-    override suspend fun export(chunks: List<JournalChunk>, group: Group, period: YearMonth, coachName: String?)
+    override suspend fun export(chunks: List<JournalChunk>, group: Group, period: YearMonth)
     {
-        JournalDocument.generate(chunks, group, period, coachName).save()
+        JournalDocument.generate(chunks, group, period, generateCoachSignature()).save()
+    }
+
+    private fun generateCoachSignature(): String
+    {
+        val fullName = GlobalSettings.Coach.getFullName() ?: return ""
+        val (surname, name, patronymic) = fullName
+
+        var signature = "$surname ${name[0]}."
+        if (!patronymic.isNullOrBlank())
+        {
+            signature += "${patronymic[0]}."
+        }
+
+        return signature
     }
 }
 
@@ -59,9 +76,9 @@ private class JournalDocument(val period: YearMonth,
         suspend fun generate(chunks: List<JournalChunk>,
                              group: Group,
                              period: YearMonth,
-                             coachName: String?): JournalDocument
+                             coachName: String): JournalDocument
         {
-            return JournalDocument(period, group, coachName ?: "Кондратьев А.А")
+            return JournalDocument(period, group, coachName)
                             .apply { document = generateDocument(chunks) }
         }
     }
@@ -83,7 +100,7 @@ private class JournalDocument(val period: YearMonth,
 
     private suspend fun generateDocument(chunks: List<JournalChunk>): XWPFDocument
     {
-        return XWPFDocument().also { XWPFHelper.createHeader(it, period, 6, coachName) }
+        return XWPFDocument().also { XWPFHelper.createHeader(it, period, group, coachName) }
                              .also { XWPFHelper.createTable(it, chunks) }
                              .also { XWPFHelper.createFooter(it, coachName) }
     }
@@ -115,7 +132,7 @@ private class JournalDocument(val period: YearMonth,
         }
 
 
-        // "Кондратьев Январь 2020 6 лет.docx"
+        // "Кондратьев Январь 2020 6 лет.doc"
         val outputFile = File(saveDirectory, "$coachName $periodInfo $groupInfo.$fileExtension")
         if (outputFile.exists())
         {
@@ -136,7 +153,7 @@ private object XWPFHelper: KoinComponent
     private val context: Context by inject(named("global"))
     private val monthNames: Array<String> by inject(named("months_RU"))
 
-    fun createHeader(document: XWPFDocument, period: YearMonth, groupAge: Int, coachName: String)
+    fun createHeader(document: XWPFDocument, period: YearMonth, group: Group, coachName: String)
     {
         val headerParagraph = document.createParagraph().also { it.applyHeaderStyle() }
 
@@ -157,11 +174,19 @@ private object XWPFHelper: KoinComponent
                 addCarriageReturn()
             }
 
+        val lowAge  = group.availableAbsoluteAgeLow?.toRelative()
+        val highAge = group.availableAbsoluteAgeHigh?.toRelative()
+        var ageString = "$lowAge"
+        if (highAge != null)
+        {
+            ageString += " $highAge"
+        }
+
         headerParagraph
             .createRun()
             .also { it.applyTableStyle() }
             .apply {
-                setText("$coachName   |  $groupAge лет   |   ${monthNames[period.month.value - 1]} ${period.year}")
+                setText("$coachName   |  $ageString лет   |   ${monthNames[period.month.value - 1]} ${period.year}")
                 addCarriageReturn()
             }
     }

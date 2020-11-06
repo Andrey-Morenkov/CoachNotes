@@ -2,6 +2,23 @@
     // Application
     <string name="app_name">Coach Notes</string>
 
+    // Constant data
+        // Relatives
+        <string name="mother">Мама</string>
+        <string name="father">Отец</string>
+        <string name="grandMa">Бабушка</string>
+        <string name="grandFa">Дедушка</string>
+        <string name="aunt">Тётя</string>
+        <string name="uncle">Дядя</string>
+        <string name="sister">Сестра</string>
+        <string name="brother">Брат</string>
+
+        // Coach types
+        <string name="coach_role_junior_coach">Младший тренер</string>
+        <string name="coach_role_common_coach">Тренер</string>
+        <string name="coach_role_senior_coach">Старший тренер</string>
+        <string name="coach_role_custom">Другое…</string>
+
     // Permissions
     <string name="permission_external_storage_rationale">Чтобы иметь возможность генерировать файлы, нужно разрешение</string>
     <string name="permission_external_storage_rationale_dialog_title">RationaleTitle</string>
@@ -39,15 +56,7 @@
     <string name="full_name">ФИО</string>
     <string name="tags">Особенности</string>
     
-    // Relatives
-    <string name="mother">Мама</string>
-    <string name="father">Отец</string>
-    <string name="grandMa">Бабушка</string>
-    <string name="grandFa">Дедушка</string>
-    <string name="aunt">Тётя</string>
-    <string name="uncle">Дядя</string>
-    <string name="sister">Сестра</string>
-    <string name="brother">Брат</string>
+
 
     // Bottom nav menu
     <string name="main_bottom_nav">Главная</string>

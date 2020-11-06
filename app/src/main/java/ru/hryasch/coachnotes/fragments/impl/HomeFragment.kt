@@ -14,6 +14,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.runOnUiThread
 import com.pawegio.kandroid.visible
+import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.*
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -24,6 +25,7 @@ import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.group.data.Group
+import ru.hryasch.coachnotes.fragments.CoachData
 import ru.hryasch.coachnotes.fragments.HomeView
 import ru.hryasch.coachnotes.home.data.HomeScheduleCell
 import ru.hryasch.coachnotes.home.impl.HomePresenterImpl
@@ -64,6 +66,14 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
         createGroupHasNoMembersWarningDialog()
 
         return layout
+    }
+
+    override fun setCoachData(coachData: CoachData)
+    {
+        val (name, role) = coachData
+
+        homeScreenTextViewCoachName.text = name
+        homeScreenTextViewCoachRole.text = role
     }
 
     override fun setScheduleCells(scheduleCells: List<HomeScheduleCell>?)

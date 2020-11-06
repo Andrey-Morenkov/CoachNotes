@@ -14,27 +14,31 @@ import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
+import ru.hryasch.coachnotes.repository.global.GlobalSettings
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.home.HomeInteractor
+import ru.hryasch.coachnotes.fragments.CoachData
 import ru.hryasch.coachnotes.fragments.HomeView
-import ru.hryasch.coachnotes.fragments.impl.HomeFragment
 import ru.hryasch.coachnotes.fragments.impl.ScheduleDayInfo
 import ru.hryasch.coachnotes.home.HomePresenter
 import ru.hryasch.coachnotes.home.data.HomeScheduleCell
 import java.util.Calendar
-import java.util.Collections
 import java.util.LinkedList
 
 @ExperimentalCoroutinesApi
 @InjectViewState
 class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
 {
+    private val coachData: CoachData = readCoachData()
+
     private val homeInteractor: HomeInteractor by inject()
     private val groupsRecvChannel: ReceiveChannel<List<Group>>  = get(named("recvGroupsList"))
     private val subscriptions: Job = Job()
 
     init
     {
+        viewState.setCoachData(coachData)
+
         loadingState()
 
         GlobalScope.launch(Dispatchers.Default)
@@ -64,6 +68,10 @@ class HomePresenterImpl: MvpPresenter<HomeView>(), HomePresenter, KoinComponent
     {
         viewState.setScheduleCells(null)
     }
+
+    private fun readCoachData() = CoachData(GlobalSettings.Coach.getFullNameString(),
+                                            GlobalSettings.Coach.getRole()!!)
+
 
     @ExperimentalCoroutinesApi
     private fun subscribeOnGroupsChanges()

@@ -125,6 +125,7 @@
 
     <style name="FilledAccentDisabledButton" parent="Widget.MaterialComponents.Button">
         <item name="icon">@null</item>
+        <item name="android:enabled">false</item>
         <item name="android:textColor">@color/colorDisabledText</item>
         <item name="backgroundTint">@color/colorAccentDisabled</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>

@@ -15,7 +15,7 @@
         android:layout_marginEnd="16dp">
 
         <com.mikhaellopez.circularimageview.CircularImageView
-            android:id="@+id/imgHomeScreenCoachAvatar"
+            android:id="@+id/homeScreenImageViewAvatar"
             android:layout_width="@dimen/home_screen_account_avatar_size"
             android:layout_height="@dimen/home_screen_account_avatar_size"
             app:civ_border="true"
@@ -34,7 +34,7 @@
             tools:srcCompat="@drawable/sample_avatar" />
 
         <TextView
-            android:id="@+id/txtHomeScreenCoachName"
+            android:id="@+id/homeScreenTextViewCoachName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
@@ -44,19 +44,19 @@
             android:textSize="@dimen/home_screen_account_name_text_size"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imgHomeScreenCoachAvatar"
+            app:layout_constraintStart_toEndOf="@+id/homeScreenImageViewAvatar"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.272" />
 
         <TextView
-            android:id="@+id/txtHomeScreenCoachGrade"
+            android:id="@+id/homeScreenTextViewCoachRole"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/home_screen_sample_position"
             android:textColor="@color/colorPrimaryLight"
             android:textSize="@dimen/home_screen_submenu_explanation_text_size"
-            app:layout_constraintStart_toStartOf="@+id/txtHomeScreenCoachName"
-            app:layout_constraintTop_toBottomOf="@+id/txtHomeScreenCoachName" />
+            app:layout_constraintStart_toStartOf="@+id/homeScreenTextViewCoachName"
+            app:layout_constraintTop_toBottomOf="@+id/homeScreenTextViewCoachName" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
