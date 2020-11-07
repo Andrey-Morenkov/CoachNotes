@@ -21,6 +21,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.textWatcher
 import com.pawegio.kandroid.visible
 import com.tiper.MaterialSpinner
 import moxy.MvpAppCompatFragment
@@ -91,6 +92,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         private lateinit var clearGroup: ImageView
 
         // Data
+        private val allGroups: MutableMap<GroupId, Group> = HashMap()
         private val groupIdByPosition: MutableMap<Int, Pair<GroupId?, Boolean>> = HashMap()
         private val groupPositionById: MutableMap<GroupId?, Int> = HashMap()
 
@@ -249,6 +251,45 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         navController.navigateUp()
     }
 
+    override fun similarPersonFound(existedPerson: Person)
+    {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_found_similar_person, null)
+        val labelPaid: View = dialogView.findViewById(R.id.label_paid)
+        val fullName: TextView = dialogView.findViewById(R.id.personTextViewFullName)
+        val group: TextView = dialogView.findViewById(R.id.personTextViewGroupName)
+
+        if (existedPerson.isPaid)
+        {
+            labelPaid.visibility = View.VISIBLE
+        }
+        else
+        {
+            labelPaid.visibility = View.INVISIBLE
+        }
+
+        fullName.text = requireContext().getString(R.string.person_full_name_pattern, existedPerson.surname, existedPerson.name)
+        group.text = if (existedPerson.groupId == null)
+                     {
+                         "Нет группы"
+                     }
+                     else
+                     {
+                         allGroups[existedPerson.groupId!!]?.name ?: "ОШИБКА"
+                     }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setPositiveButton("Отмена") { dialog, _ ->
+                dialog.cancel()
+            }
+            .setNegativeButton("Всё равно сохранить") { dialog, _ ->
+                presenter.updateOrCreatePersonForced()
+                dialog.cancel()
+            }
+            .create()
+            .show()
+    }
+
     override fun loadingState()
     {
         contentView.visible = false
@@ -292,57 +333,17 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         patronymicContainer = layout.findViewById(R.id.editPersonTextContainerPatronymic)
         additionalViews.add(patronymicContainer)
 
-        surname.addTextChangedListener(object: TextWatcher
-                                       {
-                                           override fun afterTextChanged(s: Editable?)
-                                           {
-                                               checkRequiredFields()
-                                           }
+        surname.textWatcher {
+            afterTextChanged {
+                checkRequiredFields()
+            }
+        }
 
-                                           override fun beforeTextChanged(
-                                               s: CharSequence?,
-                                               start: Int,
-                                               count: Int,
-                                               after: Int
-                                           )
-                                           {
-                                           }
-
-                                           override fun onTextChanged(
-                                               s: CharSequence?,
-                                               start: Int,
-                                               before: Int,
-                                               count: Int
-                                           )
-                                           {
-                                           }
-                                       })
-
-        name.addTextChangedListener(object: TextWatcher
-                                    {
-                                        override fun afterTextChanged(s: Editable?)
-                                        {
-                                            checkRequiredFields()
-                                        }
-
-                                        override fun beforeTextChanged(
-                                            s: CharSequence?,
-                                            start: Int,
-                                            count: Int,
-                                            after: Int
-                                        )
-                                        {
-                                        }
-
-                                        override fun onTextChanged(
-                                            s: CharSequence?,
-                                            start: Int,
-                                            before: Int,
-                                            count: Int
-                                        )
-                                        {
-                                        }
-                                    })
+        name.textWatcher {
+            afterTextChanged {
+                checkRequiredFields()
+            }
+        }
     }
 
     private fun inflateBirthdaySection(layout: View)
@@ -586,6 +587,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         val groupListSorted = groups.sorted()
         for ((i, group) in groupListSorted.withIndex())
         {
+            allGroups[group.id] = group
             groupIdByPosition[i] = Pair(group.id, group.isPaid)
             groupPositionById[group.id] = i
 

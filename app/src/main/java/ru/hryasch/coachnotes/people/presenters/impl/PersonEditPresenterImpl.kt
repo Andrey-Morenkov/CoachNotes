@@ -14,6 +14,7 @@ import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.data.PersonImpl
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
+import ru.hryasch.coachnotes.domain.person.interactors.SimilarPersonFoundException
 import ru.hryasch.coachnotes.fragments.PersonEditView
 import ru.hryasch.coachnotes.people.presenters.PersonEditPresenter
 
@@ -62,10 +63,33 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
     {
         i("updateOrCreatePerson: $currentPerson")
 
-        GlobalScope.launch(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Default)
         {
-            peopleInteractor.addOrUpdatePeople(listOf(currentPerson!!))
+            try
+            {
+                peopleInteractor.addOrUpdatePerson(currentPerson!!)
+                withContext(Dispatchers.Main)
+                {
+                    viewState.updateOrCreatePersonFinished()
+                }
+            }
+            catch (e: SimilarPersonFoundException)
+            {
+                withContext(Dispatchers.Main)
+                {
+                    viewState.similarPersonFound(e.existPerson)
+                }
+            }
+        }
+    }
 
+    override fun updateOrCreatePersonForced()
+    {
+        i("updateOrCreatePersonForced: $currentPerson")
+
+        GlobalScope.launch(Dispatchers.Default)
+        {
+            peopleInteractor.addOrUpdatePersonForced(currentPerson!!)
             withContext(Dispatchers.Main)
             {
                 viewState.updateOrCreatePersonFinished()
@@ -77,7 +101,7 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
     {
         viewState.loadingState()
 
-        GlobalScope.launch(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Default)
         {
             peopleInteractor.deletePerson(person)
 

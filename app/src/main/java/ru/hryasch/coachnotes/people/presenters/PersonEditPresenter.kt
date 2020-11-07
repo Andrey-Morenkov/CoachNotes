@@ -11,5 +11,7 @@ interface PersonEditPresenter
 
     fun updateOrCreatePerson()
 
+    fun updateOrCreatePersonForced()
+
     fun deletePerson(person: Person)
 }

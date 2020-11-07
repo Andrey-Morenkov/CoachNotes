@@ -6,6 +6,7 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 
 interface PersonRepository: AbstractRepository
 {
+    suspend fun getSimilarPersonIfExists(personSurname: String): Person?
     suspend fun getPerson(personId: PersonId): Person?
     suspend fun getDeletedPerson(personId: PersonId): Person?
     suspend fun getPeople(peopleIds: List<PersonId>): List<Person>?

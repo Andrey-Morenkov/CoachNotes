@@ -11,6 +11,7 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
+import ru.hryasch.coachnotes.domain.person.interactors.SimilarPersonFoundException
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import java.util.*
@@ -52,6 +53,18 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
 
     @ExperimentalCoroutinesApi
     override suspend fun addOrUpdatePerson(person: Person)
+    {
+        val similarPerson = peopleRepository.getSimilarPersonIfExists(person.surname)
+        if (similarPerson != null)
+        {
+            throw SimilarPersonFoundException(similarPerson)
+        }
+
+        addOrUpdatePersonForced(person)
+    }
+
+    @ExperimentalCoroutinesApi
+    override suspend fun addOrUpdatePersonForced(person: Person)
     {
         addOrUpdatePeople(listOf(person))
     }

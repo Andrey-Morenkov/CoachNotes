@@ -24,6 +24,7 @@ import ru.hryasch.coachnotes.repository.dao.DeletedGroupDAO
 import ru.hryasch.coachnotes.repository.dao.DeletedPersonDAO
 import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import java.util.LinkedList
+import java.util.Locale
 import java.util.concurrent.Executors
 
 
@@ -41,6 +42,33 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
             db = Realm.getInstance(get(named("groups")))
             initTriggers()
         }
+    }
+
+    override suspend fun getSimilarGroupIfExists(groupName: String): Group?
+    {
+        // standardize
+        val targetGroupName = groupName.toLowerCase(Locale.getDefault())
+
+        var group: Group? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<GroupDAO>()
+                               .findAll()
+
+                result?.forEach { grp ->
+                    val existName = grp.name!!.toLowerCase(Locale.getDefault())
+                    if (existName == targetGroupName)
+                    {
+                        group = it.copyFromRealm(grp).fromDAO()
+                        return@executeTransaction
+                    }
+                }
+            }
+        }
+
+        return group
     }
 
     override suspend fun getGroup(groupId: GroupId): Group?

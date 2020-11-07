@@ -10,6 +10,8 @@ interface GroupEditPresenter
 
     fun updateOrCreateGroup()
 
+    fun updateOrCreateGroupForced()
+
     fun deleteGroupAndRemoveAllPeopleFromThisGroup(group: Group)
 
     fun deleteGroupAndMoveAllPeopleToAnotherGroup(group: Group, targetGroup: Group)

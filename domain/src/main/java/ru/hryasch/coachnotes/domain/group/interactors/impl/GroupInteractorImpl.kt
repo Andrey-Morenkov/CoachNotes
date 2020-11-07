@@ -8,6 +8,7 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
+import ru.hryasch.coachnotes.domain.group.interactors.SimilarGroupFoundException
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.repository.JournalRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
@@ -46,6 +47,17 @@ class GroupInteractorImpl: GroupInteractor, KoinComponent
     }
 
     override suspend fun addOrUpdateGroup(group: Group)
+    {
+        val existGroup = groupRepository.getSimilarGroupIfExists(group.name)
+        if (existGroup != null)
+        {
+            throw SimilarGroupFoundException(existGroup)
+        }
+
+        addOrUpdateGroupForced(group)
+    }
+
+    override suspend fun addOrUpdateGroupForced(group: Group)
     {
         groupRepository.addOrUpdateGroup(group)
     }

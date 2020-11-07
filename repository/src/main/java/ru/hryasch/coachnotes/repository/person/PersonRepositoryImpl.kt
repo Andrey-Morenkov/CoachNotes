@@ -7,6 +7,7 @@ import io.realm.Realm
 import io.realm.kotlin.where
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import org.apache.poi.util.StringUtil
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.parameter.parametersOf
@@ -23,6 +24,7 @@ import ru.hryasch.coachnotes.repository.dao.DeletedPersonDAO
 import ru.hryasch.coachnotes.repository.dao.PersonDAO
 import java.util.Collections
 import java.util.LinkedList
+import java.util.Locale
 import java.util.concurrent.Executors
 
 @ExperimentalCoroutinesApi
@@ -39,6 +41,30 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
             db = Realm.getInstance(get(named("persons")))
             initTriggers()
         }
+    }
+
+    @ExperimentalStdlibApi
+    override suspend fun getSimilarPersonIfExists(personSurname: String): Person?
+    {
+        // standardize
+        val surname = personSurname.capitalize(Locale.getDefault())
+
+        var person: Person? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<PersonDAO>()
+                               .equalTo("surname", surname)
+                               .findFirst()
+
+                result?.let { res ->
+                    person = it.copyFromRealm(res).fromDao()
+                }
+            }
+        }
+
+        return person
     }
 
     override suspend fun getPerson(personId: PersonId): Person?
@@ -189,9 +215,20 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
         return peopleList?.fromDAO()?.sorted()
     }
 
+    @ExperimentalStdlibApi
     @ExperimentalCoroutinesApi
     override suspend fun addOrUpdatePeople(people: List<Person>)
     {
+        // standardize fields
+        people.stream().parallel().forEach {
+            it.surname = it.surname.capitalize(Locale.getDefault())
+            it.name = it.name.capitalize(Locale.getDefault())
+            if (it.patronymic != null)
+            {
+                it.patronymic = it!!.patronymic!!.capitalize(Locale.getDefault())
+            }
+        }
+
         withContext(dbContext)
         {
             val isAddingPeople = Array<Boolean>(people.size) {false}
@@ -284,6 +321,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
         }
     }
 
+    @ExperimentalStdlibApi
     override suspend fun revivePerson(personId: PersonId): Person?
     {
         var revivedPerson: Person? = null
@@ -315,7 +353,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
         {
             db.close()
         }
-        i("reopen DB")
+
         withContext(Dispatchers.Main)
         {
             PeopleChannelsStorage.allPeople.mainDbEntity?.close()

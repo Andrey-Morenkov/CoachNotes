@@ -6,6 +6,7 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 
 interface GroupRepository: AbstractRepository
 {
+    suspend fun getSimilarGroupIfExists(groupName: String): Group?
     suspend fun getGroup(groupId: GroupId): Group?
     suspend fun getDeletedGroup(groupId: GroupId): Group?
     suspend fun getGroups(groups: List<GroupId>): List<Group>?

@@ -1,6 +1,7 @@
 package ru.hryasch.coachnotes.fragments.impl
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
@@ -12,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -34,7 +36,7 @@ import org.koin.core.get
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.activity.MainActivity
+import ru.hryasch.coachnotes.activity.LoginActivity
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
 import ru.hryasch.coachnotes.fragments.GroupEditView
@@ -42,6 +44,8 @@ import ru.hryasch.coachnotes.groups.data.ScheduleDayAdapter
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupEditPresenterImpl
 import ru.hryasch.coachnotes.repository.common.toAbsolute
 import ru.hryasch.coachnotes.repository.common.toRelative
+import ru.hryasch.coachnotes.repository.global.GlobalSettings
+import java.time.ZonedDateTime
 import java.util.*
 
 class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
@@ -189,6 +193,61 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         navController.navigateUp()
     }
 
+    override fun similarGroupFound(existedGroup: Group)
+    {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_found_similar_group, null)
+        val labelPaid: View = dialogView.findViewById(R.id.label_paid)
+        val groupName: TextView = dialogView.findViewById(R.id.groupTextViewName)
+        val peopleCount: TextView = dialogView.findViewById(R.id.groupTextViewPeopleCount)
+        val absAge: TextView = dialogView.findViewById(R.id.groupTextViewAbsoluteAge)
+        val relAge: TextView = dialogView.findViewById(R.id.groupTextViewRelativeAge)
+
+        if (existedGroup.isPaid)
+        {
+            labelPaid.visibility = View.VISIBLE
+        }
+        else
+        {
+            labelPaid.visibility = View.INVISIBLE
+        }
+        groupName.text = existedGroup.name
+        peopleCount.text = existedGroup.membersList.size.toString()
+
+        val ageLow = existedGroup.availableAbsoluteAgeLow
+        val ageHigh = existedGroup.availableAbsoluteAgeHigh
+
+        if (ageLow == null && ageHigh == null)
+        {
+            absAge.text = getString(R.string.group_absolute_age_single_pattern, "?")
+            relAge.text = getString(R.string.group_relative_age_single_pattern, "?")
+        }
+        else
+        {
+            val now = ZonedDateTime.now()
+            if (ageHigh == null)
+            {
+                absAge.text = requireContext().getString(R.string.group_absolute_age_single_pattern, ageLow!!.toString())
+                relAge.text = requireContext().getString(R.string.group_relative_age_single_pattern, (now.year - ageLow).toString())
+            }
+            else
+            {
+                absAge.text = requireContext().getString(R.string.group_absolute_age_range_pattern, ageLow!!.toString(), ageHigh.toString())
+                relAge.text = requireContext().getString(R.string.group_relative_age_range_pattern, (now.year - ageHigh).toString(), (now.year - ageLow).toString())
+            }
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setPositiveButton("Отмена") { dialog, _ ->
+                dialog.cancel()
+            }
+            .setNegativeButton("Всё равно сохранить") { dialog, _ ->
+                presenter.updateOrCreateGroupForced()
+                dialog.cancel()
+            }
+            .create()
+            .show()
+    }
 
 
     private suspend fun setAgesAdapters()

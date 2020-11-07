@@ -14,6 +14,7 @@ import org.koin.core.inject
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.group.data.GroupImpl
 import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
+import ru.hryasch.coachnotes.domain.group.interactors.SimilarGroupFoundException
 import ru.hryasch.coachnotes.fragments.GroupEditView
 import ru.hryasch.coachnotes.groups.presenters.GroupEditPresenter
 
@@ -59,10 +60,33 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
     {
         i("updateOrCreateGroup: $currentGroup")
 
-        GlobalScope.launch(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Default)
         {
-            groupInteractor.addOrUpdateGroup(currentGroup!!)
+            try
+            {
+                groupInteractor.addOrUpdateGroup(currentGroup!!)
+                withContext(Dispatchers.Main)
+                {
+                    viewState.updateOrCreateGroupFinished()
+                }
+            }
+            catch (e: SimilarGroupFoundException)
+            {
+                withContext(Dispatchers.Main)
+                {
+                    viewState.similarGroupFound(e.existGroup)
+                }
+            }
+        }
+    }
 
+    override fun updateOrCreateGroupForced()
+    {
+        i("updateOrCreateGroupForced: $currentGroup")
+
+        GlobalScope.launch(Dispatchers.Default)
+        {
+            groupInteractor.addOrUpdateGroupForced(currentGroup!!)
             withContext(Dispatchers.Main)
             {
                 viewState.updateOrCreateGroupFinished()
@@ -74,7 +98,7 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
     {
         viewState.loadingState()
 
-        GlobalScope.launch(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Default)
         {
             groupInteractor.deleteGroupAndRemoveAllPeopleFromThisGroup(group)
 
