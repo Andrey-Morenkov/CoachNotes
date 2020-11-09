@@ -28,7 +28,7 @@
             app:layout_constraintStart_toStartOf="@+id/personEditSpinnerGroup"
             app:layout_constraintTop_toTopOf="@+id/personEditSpinnerGroup" />
 
-        <com.tiper.MaterialSpinner
+        <ru.hryasch.coachnotes.common.view.HideKeyboardSpinner
             android:id='@+id/personEditSpinnerGroup'
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
@@ -47,7 +47,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:spinnerMode="dropdown">
 
-        </com.tiper.MaterialSpinner>
+        </ru.hryasch.coachnotes.common.view.HideKeyboardSpinner>
 
         <ImageView
             android:id="@+id/personEditImageViewClearGroup"

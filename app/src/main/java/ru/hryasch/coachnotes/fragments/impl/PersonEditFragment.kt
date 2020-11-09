@@ -8,6 +8,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -52,7 +53,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     private lateinit var navController: NavController
 
     // Common UI
-    private lateinit var contentView: NestedScrollView
+    private lateinit var contentView: View
     private lateinit var loadingBar: ProgressBar
     private val additionalViews: MutableList<View> = LinkedList()
 

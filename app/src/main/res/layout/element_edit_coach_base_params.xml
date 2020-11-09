@@ -18,7 +18,7 @@
         android:paddingStart="11dp"
         android:paddingEnd="15dp" />
 
-    <com.tiper.MaterialSpinner
+    <ru.hryasch.coachnotes.common.view.HideKeyboardSpinner
         android:id='@+id/coachBaseParamSpinnerRole'
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
