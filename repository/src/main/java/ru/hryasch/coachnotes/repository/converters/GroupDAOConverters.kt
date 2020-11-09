@@ -8,6 +8,7 @@ import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import ru.hryasch.coachnotes.repository.dao.ScheduleDayDAO
 import java.time.LocalTime
 import java.util.Calendar
+import java.util.Date
 import java.util.LinkedList
 
 @JvmName("DAOGroupListConverter")
@@ -109,17 +110,12 @@ fun Group.toDeletedDao(): DeletedGroupDAO?
 
 fun ScheduleDayDAO.fromDAO(): ScheduleDay
 {
-    val startTimeCal = Calendar.getInstance().apply {
-        timeInMillis = ScheduleDay.format.parse(startTime!!)!!.time
-    }
-
-    val endTimeCal = Calendar.getInstance().apply {
-        timeInMillis = ScheduleDay.format.parse(finishTime!!)!!.time
-    }
+    val startHHmmTime = startTime!!.split(":")
+    val endHHmmTime = finishTime!!.split(":")
 
     return ScheduleDay(this.name!!, this.position0!!).apply {
-        startTime = LocalTime.of(startTimeCal.get(Calendar.HOUR_OF_DAY), startTimeCal.get(Calendar.MINUTE))
-        endTime = LocalTime.of(endTimeCal.get(Calendar.HOUR_OF_DAY), endTimeCal.get(Calendar.MINUTE))
+        startTime = LocalTime.of(startHHmmTime[0].toInt(), startHHmmTime[1].toInt())
+        endTime = LocalTime.of(endHHmmTime[0].toInt(), endHHmmTime[1].toInt())
     }
 }
 
