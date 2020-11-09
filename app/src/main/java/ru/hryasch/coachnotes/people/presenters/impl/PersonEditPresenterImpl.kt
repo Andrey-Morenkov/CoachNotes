@@ -25,6 +25,7 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
     private val groupInteractor: GroupInteractor by inject()
 
     private var currentPerson: Person? = null
+    private lateinit var originalPersonSurname: String
 
     init
     {
@@ -46,6 +47,8 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
         GlobalScope.launch(Dispatchers.Default)
         {
             currentPerson = person ?: PersonImpl.generateNew()
+            originalPersonSurname = currentPerson!!.surname
+
             if (person == null && lockGroup != null)
             {
                 currentPerson!!.groupId = lockGroup
@@ -63,21 +66,29 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
     {
         i("updateOrCreatePerson: $currentPerson")
 
-        GlobalScope.launch(Dispatchers.Default)
+        if (originalPersonSurname == currentPerson!!.surname)
         {
-            try
+            // Surname wasn't changed, no need to check
+            updateOrCreatePersonForced()
+        }
+        else
+        {
+            GlobalScope.launch(Dispatchers.Default)
             {
-                peopleInteractor.addOrUpdatePerson(currentPerson!!)
-                withContext(Dispatchers.Main)
+                try
                 {
-                    viewState.updateOrCreatePersonFinished()
+                    peopleInteractor.addOrUpdatePerson(currentPerson!!)
+                    withContext(Dispatchers.Main)
+                    {
+                        viewState.updateOrCreatePersonFinished()
+                    }
                 }
-            }
-            catch (e: SimilarPersonFoundException)
-            {
-                withContext(Dispatchers.Main)
+                catch (e: SimilarPersonFoundException)
                 {
-                    viewState.similarPersonFound(e.existPerson)
+                    withContext(Dispatchers.Main)
+                    {
+                        viewState.similarPersonFound(e.existPerson)
+                    }
                 }
             }
         }

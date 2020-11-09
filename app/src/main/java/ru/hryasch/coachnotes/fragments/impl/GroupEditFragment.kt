@@ -557,7 +557,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
     private fun createOrUpdateGroupAction()
     {
-        currentGroup.name = name.text.toString()
+        currentGroup.name = name.text.toString().trim()
         currentGroup.isPaid = paymentType.selection.toBoolean()
 
         ageType.selection = 0

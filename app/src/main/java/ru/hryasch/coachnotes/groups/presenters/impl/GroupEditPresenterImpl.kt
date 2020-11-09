@@ -24,6 +24,7 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
     private val groupInteractor: GroupInteractor by inject()
 
     private var currentGroup: Group? = null
+    private lateinit var originalGroupName: String
 
     init
     {
@@ -47,6 +48,7 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
     {
         GlobalScope.launch(Dispatchers.Default) {
             currentGroup = group ?: GroupImpl.generateNew()
+            originalGroupName = currentGroup!!.name
 
             withContext(Dispatchers.Main)
             {
@@ -62,19 +64,27 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
 
         GlobalScope.launch(Dispatchers.Default)
         {
-            try
+            if (originalGroupName == currentGroup!!.name)
             {
-                groupInteractor.addOrUpdateGroup(currentGroup!!)
-                withContext(Dispatchers.Main)
-                {
-                    viewState.updateOrCreateGroupFinished()
-                }
+                // Group name wasn't changed, no need to check
+                updateOrCreateGroupForced()
             }
-            catch (e: SimilarGroupFoundException)
+            else
             {
-                withContext(Dispatchers.Main)
+                try
                 {
-                    viewState.similarGroupFound(e.existGroup)
+                    groupInteractor.addOrUpdateGroup(currentGroup!!)
+                    withContext(Dispatchers.Main)
+                    {
+                        viewState.updateOrCreateGroupFinished()
+                    }
+                }
+                catch (e: SimilarGroupFoundException)
+                {
+                    withContext(Dispatchers.Main)
+                    {
+                        viewState.similarGroupFound(e.existGroup)
+                    }
                 }
             }
         }

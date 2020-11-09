@@ -189,12 +189,12 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         }
 
         saveOrCreatePerson.setOnClickListener {
-            currentPerson.surname = surname.text.toString()
-            currentPerson.name = name.text.toString()
+            currentPerson.surname = surname.text.toString().trim()
+            currentPerson.name = name.text.toString().trim()
 
             if (patronymicContainer.isVisible)
             {
-                currentPerson.patronymic = patronymic.text?.toString()
+                currentPerson.patronymic = patronymic.text?.toString()?.trim()
             }
             else
             {
