@@ -3,6 +3,7 @@ package ru.hryasch.coachnotes.fragments.impl
 import android.os.Bundle
 import android.util.Log.e
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
@@ -35,7 +36,7 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
 
     // Toolbar
     private lateinit var toolbar: Toolbar
-    private lateinit var addNewPerson: ImageButton
+    private lateinit var addNewPerson: MenuItem
 
     // UI
     private lateinit var peopleView: RecyclerView

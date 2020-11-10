@@ -2,6 +2,7 @@ package ru.hryasch.coachnotes.fragments.impl
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
@@ -31,7 +32,7 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
 
     // Toolbar
     private lateinit var toolbar: Toolbar
-    private lateinit var addNewGroup: ImageButton
+    private lateinit var addNewGroup: MenuItem
 
     // UI
     private lateinit var groupsView: RecyclerView
@@ -55,10 +56,7 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
         noGroupsLabel = layout.findViewById(R.id.groupsTextViewNoData)
         noGroupsLabel.visibility = View.INVISIBLE
 
-        toolbar = layout.findViewById(R.id.groupsToolbar)
-        toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
-        }
+        initToolbar(layout)
 
         addNewGroup.setOnClickListener {
             (requireActivity() as MainActivity).navigateToGroupEditFragment(null)
@@ -108,5 +106,15 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
     {
         groupsAdapter.notifyDataSetChanged()
         toolbar.title = getString(R.string.groups_screen_toolbar_with_count_title, groupsAdapter.itemCount)
+    }
+
+    private fun initToolbar(view: View)
+    {
+        toolbar = view.findViewById(R.id.groupsToolbar)
+        toolbar.setNavigationOnClickListener {
+            requireActivity().onBackPressed()
+        }
+        toolbar.inflateMenu(R.menu.groups_menu)
+
     }
 }

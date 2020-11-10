@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/groups_find_item"
+        android:icon="@drawable/ic_baseline_search_24"
+        android:title="Поиск групп"
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"/>
+
+    <item
+        android:id="@+id/groups_create_group_item"
+        android:icon="@drawable/ic_group_add"
+        android:title="Создать группу"
+        app:showAsAction="ifRoom"/>
+</menu>
