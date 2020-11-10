@@ -10,22 +10,20 @@ import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.group.data.Group
 import java.time.ZonedDateTime
 
-class GroupsAdapter(groupsList: List<Group>,
+class GroupsAdapter(private val sortedGroupsList: List<Group>,
                     private val listener: GroupClickListener): RecyclerView.Adapter<GroupViewHolder>()
 {
-    private val groupsList: List<Group> = groupsList.sorted()
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupViewHolder
     {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.preview_group, parent, false)
         return GroupViewHolder(view, listener)
     }
 
-    override fun getItemCount(): Int = groupsList.size
+    override fun getItemCount(): Int = sortedGroupsList.size
 
     override fun onBindViewHolder(holder: GroupViewHolder, position: Int)
     {
-        holder.bind(groupsList[position])
+        holder.bind(sortedGroupsList[position])
     }
 
     interface GroupClickListener
@@ -94,5 +92,3 @@ class GroupViewHolder(itemView: View, private val listener: GroupsAdapter.GroupC
         listener.onGroupClick(currentGroup)
     }
 }
-
-fun IntRange.isSingle(): Boolean = start == endInclusive

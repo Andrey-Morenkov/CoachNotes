@@ -489,7 +489,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                         R.id.journal_upload_docx_item           -> toolbarMenuHandler.onExportDocClicked()
                     }
 
-                    return@setOnMenuItemClickListener false
+                    return@setOnMenuItemClickListener true
                 }
             }
         }

@@ -1,19 +1,20 @@
 package ru.hryasch.coachnotes.fragments.impl
 
 import android.os.Bundle
-import android.util.Log.e
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.pawegio.kandroid.e
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -26,6 +27,8 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PeopleView
 import ru.hryasch.coachnotes.people.PeopleAdapter
 import ru.hryasch.coachnotes.people.presenters.impl.PeoplePresenterImpl
+import java.util.LinkedList
+import java.util.stream.Collectors
 
 class PeopleListFragment : MvpAppCompatFragment(), PeopleView
 {
@@ -48,7 +51,9 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
 
     // Data
     private lateinit var currentGroupNames: Map<GroupId, String>
-    private lateinit var currentPeople: MutableList<Person>
+    private lateinit var currentFullPeople: List<Person>
+    private val currentPeople: MutableList<Person> = ArrayList()
+
     private val listener =  object: PeopleAdapter.PersonClickListener {
         override fun onPersonClick(person: Person)
         {
@@ -71,18 +76,10 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
             peopleView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
         peopleLoading = layout.findViewById(R.id.peopleProgressBarLoading)
-        addNewPerson = layout.findViewById(R.id.peopleButtonAddPerson)
         noPeopleLabel = layout.findViewById(R.id.peopleTextViewNoData)
         noPeopleLabel.visibility = View.INVISIBLE
 
-        toolbar = layout.findViewById(R.id.peopleToolbar)
-        toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
-        }
-
-        addNewPerson.setOnClickListener {
-            (requireActivity() as MainActivity).navigateToPersonEditFragment(null)
-        }
+        initToolbar(layout)
 
         return layout
     }
@@ -91,14 +88,9 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
     {
         if (peopleList == null && groupNames == null)
         {
-            peopleView.visibility = View.INVISIBLE
-            peopleLoading.visibility = View.VISIBLE
-            noPeopleLabel.visibility = View.INVISIBLE
+            loadingState()
             return
         }
-
-        peopleView.visibility = View.VISIBLE
-        peopleLoading.visibility = View.INVISIBLE
 
         if (::peopleAdapter.isInitialized)
         {
@@ -113,17 +105,18 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
             if (peopleList != null)
             {
                 // apply new people
-                toolbar.title = getString(R.string.persons_screen_toolbar_with_count_title, peopleList.size)
+                currentFullPeople = peopleList
                 currentPeople.clear()
-                currentPeople.addAll(peopleList.sorted())
-                peopleAdapter.notifyDataSetChanged()
+                currentPeople.addAll(currentFullPeople)
             }
         }
         else
         {
             // First initialization
             currentGroupNames = groupNames ?: HashMap()
-            currentPeople = peopleList?.sorted()?.toMutableList() ?: ArrayList()
+            currentFullPeople = peopleList?.sorted()?.toMutableList() ?: ArrayList()
+            currentPeople.clear()
+            currentPeople.addAll(currentFullPeople)
 
             peopleAdapter = get { parametersOf(currentPeople, currentGroupNames, listener) }
             peopleView.adapter = peopleAdapter
@@ -131,19 +124,112 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
             peopleView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
 
-        if (peopleAdapter.itemCount == 0)
-        {
-            noPeopleLabel.visibility = View.VISIBLE
-        }
-        else
-        {
-            noPeopleLabel.visibility = View.INVISIBLE
-        }
+        peopleDataChanged()
     }
 
     override fun refreshData()
     {
+        peopleDataChanged()
+    }
+
+    private fun loadingState()
+    {
+        peopleView.visibility = View.INVISIBLE
+        peopleLoading.visibility = View.VISIBLE
+        noPeopleLabel.visibility = View.INVISIBLE
+    }
+
+    private fun emptyState()
+    {
+        peopleView.visibility = View.INVISIBLE
+        peopleLoading.visibility = View.INVISIBLE
+        noPeopleLabel.visibility = View.VISIBLE
+    }
+
+    private fun contentState()
+    {
+        peopleView.visibility = View.VISIBLE
+        peopleLoading.visibility = View.INVISIBLE
+        noPeopleLabel.visibility = View.INVISIBLE
+    }
+
+    private fun initToolbar(view: View)
+    {
+        toolbar = view.findViewById(R.id.peopleToolbar)
+        toolbar.setNavigationOnClickListener {
+            requireActivity().onBackPressed()
+        }
+        toolbar.inflateMenu(R.menu.people_menu)
+        addNewPerson = toolbar.menu.findItem(R.id.people_create_person_item)
+        toolbar.setOnMenuItemClickListener {
+            when (it.itemId)
+            {
+                R.id.people_create_person_item -> {
+                    (requireActivity() as MainActivity).navigateToPersonEditFragment(null)
+                    return@setOnMenuItemClickListener true
+                }
+            }
+
+            return@setOnMenuItemClickListener false
+        }
+        val searchItem = toolbar.menu.findItem(R.id.people_find_item)
+        val searchView = searchItem.actionView as SearchView
+        searchView.queryHint = "Поиск учеников"
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener
+                                          {
+                                              override fun onQueryTextSubmit(query: String?): Boolean
+                                              {
+                                                  return false
+                                              }
+
+                                              override fun onQueryTextChange(newText: String?): Boolean
+                                              {
+                                                  if (newText != null)
+                                                  {
+                                                      val filteredPeople = currentFullPeople
+                                                          .parallelStream()
+                                                          .filter { person ->
+                                                              person.surname.contains(newText, true) ||
+                                                              person.name.contains(newText, true) ||
+                                                              person.patronymic?.contains(newText, true) ?: false}
+                                                          .collect(Collectors.toList())
+                                                      currentPeople.clear()
+                                                      currentPeople.addAll(filteredPeople)
+                                                  }
+                                                  else
+                                                  {
+                                                      currentPeople.clear()
+                                                      currentPeople.addAll(currentFullPeople)
+                                                  }
+
+                                                  peopleDataChanged()
+                                                  return true
+                                              }
+                                          })
+        val editTextView: EditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text)
+        editTextView.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorText))
+        editTextView.setHintTextColor(ContextCompat.getColor(requireContext(), R.color.colorDisabledText))
+
+        val searchClearIcon: AppCompatImageView = searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
+        searchClearIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorText))
+    }
+
+    private fun peopleDataChanged()
+    {
         peopleAdapter.notifyDataSetChanged()
+        refreshViewState()
+    }
+
+    private fun refreshViewState()
+    {
         toolbar.title = getString(R.string.persons_screen_toolbar_with_count_title, peopleAdapter.itemCount)
+        if (peopleAdapter.itemCount > 0)
+        {
+            contentState()
+        }
+        else
+        {
+            emptyState()
+        }
     }
 }

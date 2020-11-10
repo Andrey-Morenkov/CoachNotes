@@ -38,7 +38,7 @@ class PeoplePresenterImpl: MvpPresenter<PeopleView>(), PeoplePresenter, KoinComp
 
         GlobalScope.launch(Dispatchers.Main)
         {
-            viewState.setPeopleList(peopleList.await(), groupNames.await())
+            viewState.setPeopleList(peopleList.await().sorted(), groupNames.await())
             subscribeOnPeopleChanges()
             subscribeOnGroupChanges()
         }
