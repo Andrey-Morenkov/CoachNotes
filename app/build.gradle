@@ -114,6 +114,9 @@ dependencies
     // Masked edit text
     implementation "ru.tinkoff.decoro:decoro:$masked_edit_text_version"
 
+    // Custom states view
+    //implementation 'com.github.Kennyc1012:MultiStateView:2.1.2'
+
     // Permissions
     implementation "com.nabinbhandari.android:permissions:$permissions_version"
 

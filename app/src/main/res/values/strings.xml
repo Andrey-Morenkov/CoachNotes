@@ -46,6 +46,7 @@
     <string name="available_soon">Еще не готово</string>
     <string name="no_data">Нет данных</string>
     <string name="today">Сегодня</string>
+    <string name="not_found">Не найдено</string>
 
     <string name="name">Имя</string>
     <string name="surname">Фамилия</string>

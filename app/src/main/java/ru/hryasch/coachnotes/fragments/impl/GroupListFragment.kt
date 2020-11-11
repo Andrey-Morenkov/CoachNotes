@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.visible
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -44,7 +46,9 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
     // UI
     private lateinit var groupsView: RecyclerView
     private lateinit var groupsLoading: ProgressBar
-    private lateinit var noGroupsLabel: TextView
+    private lateinit var noGroupsView: View
+    private lateinit var noGroupsText: TextView
+    private lateinit var noGroupsAddGroup: Button
 
     // Adapters
     private lateinit var groupsAdapter: GroupsAdapter
@@ -72,8 +76,14 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
             groupsView.layoutManager = LinearLayoutManager(context)
         }
         groupsLoading = layout.findViewById(R.id.groupsProgressBarLoading)
-        noGroupsLabel = layout.findViewById(R.id.groupsTextViewNoData)
-        noGroupsLabel.visibility = View.INVISIBLE
+        noGroupsView = layout.findViewById(R.id.groupsNoData)
+        noGroupsText = layout.findViewById(R.id.groupsTextViewNoData)
+        noGroupsAddGroup = layout.findViewById(R.id.groupsButtonAddGroup)
+        noGroupsAddGroup.setOnClickListener {
+            navigateToCreateGroup()
+        }
+
+        loadingState()
 
         initToolbar(layout)
 
@@ -123,21 +133,32 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
     {
         groupsView.visibility = View.INVISIBLE
         groupsLoading.visibility = View.VISIBLE
-        noGroupsLabel.visibility = View.INVISIBLE
+        noGroupsView.visibility = View.INVISIBLE
     }
 
     private fun emptyState()
     {
         groupsView.visibility = View.INVISIBLE
         groupsLoading.visibility = View.INVISIBLE
-        noGroupsLabel.visibility = View.VISIBLE
+        noGroupsView.visibility = View.VISIBLE
+        noGroupsText.text = getString(R.string.groups_screen_no_data)
+        noGroupsAddGroup.visible = true
+    }
+
+    private fun noSearchState()
+    {
+        groupsView.visibility = View.INVISIBLE
+        groupsLoading.visibility = View.INVISIBLE
+        noGroupsView.visibility = View.VISIBLE
+        noGroupsText.text = getString(R.string.not_found)
+        noGroupsAddGroup.visible = false
     }
 
     private fun contentState()
     {
         groupsView.visibility = View.VISIBLE
         groupsLoading.visibility = View.INVISIBLE
-        noGroupsLabel.visibility = View.INVISIBLE
+        noGroupsView.visibility = View.INVISIBLE
     }
 
     private fun initToolbar(view: View)
@@ -152,7 +173,7 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
             when (it.itemId)
             {
                 R.id.groups_create_group_item -> {
-                    (requireActivity() as MainActivity).navigateToGroupEditFragment(null)
+                    navigateToCreateGroup()
                     return@setOnMenuItemClickListener true
                 }
             }
@@ -171,7 +192,7 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
 
                                               override fun onQueryTextChange(newText: String?): Boolean
                                               {
-                                                  if (newText != null)
+                                                  if (!newText.isNullOrBlank())
                                                   {
                                                       val filteredGroup = currentFullGroups
                                                           .parallelStream()
@@ -179,14 +200,15 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
                                                           .collect(Collectors.toList())
                                                       currentGroups.clear()
                                                       currentGroups.addAll(filteredGroup)
+                                                      groupDataChanged(true)
                                                   }
                                                   else
                                                   {
                                                       currentGroups.clear()
                                                       currentGroups.addAll(currentFullGroups)
+                                                      groupDataChanged()
                                                   }
 
-                                                  groupDataChanged()
                                                   return true
                                               }
                                           })
@@ -198,13 +220,18 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
         searchClearIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorText))
     }
 
-    private fun groupDataChanged()
+    private fun navigateToCreateGroup()
     {
-        groupsAdapter.notifyDataSetChanged()
-        refreshViewState()
+        (requireActivity() as MainActivity).navigateToGroupEditFragment(null)
     }
 
-    private fun refreshViewState()
+    private fun groupDataChanged(searchState: Boolean = false)
+    {
+        groupsAdapter.notifyDataSetChanged()
+        refreshViewState(searchState)
+    }
+
+    private fun refreshViewState(searchState: Boolean)
     {
         toolbar.title = getString(R.string.groups_screen_toolbar_with_count_title, groupsAdapter.itemCount)
         if (groupsAdapter.itemCount > 0)
@@ -213,7 +240,14 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
         }
         else
         {
-            emptyState()
+            if (searchState)
+            {
+                noSearchState()
+            }
+            else
+            {
+                emptyState()
+            }
         }
     }
 }

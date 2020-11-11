@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.pawegio.kandroid.visible
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
@@ -27,7 +29,6 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PeopleView
 import ru.hryasch.coachnotes.people.PeopleAdapter
 import ru.hryasch.coachnotes.people.presenters.impl.PeoplePresenterImpl
-import java.util.LinkedList
 import java.util.stream.Collectors
 
 class PeopleListFragment : MvpAppCompatFragment(), PeopleView
@@ -44,7 +45,9 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
     // UI
     private lateinit var peopleView: RecyclerView
     private lateinit var peopleLoading: ProgressBar
-    private lateinit var noPeopleLabel: TextView
+    private lateinit var noPeopleView: View
+    private lateinit var noPeopleText: TextView
+    private lateinit var noPeopleAddPerson: Button
 
     // Adapters
     private lateinit var peopleAdapter: PeopleAdapter
@@ -76,8 +79,14 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
             peopleView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
         peopleLoading = layout.findViewById(R.id.peopleProgressBarLoading)
-        noPeopleLabel = layout.findViewById(R.id.peopleTextViewNoData)
-        noPeopleLabel.visibility = View.INVISIBLE
+        noPeopleView = layout.findViewById(R.id.peopleNoData)
+        noPeopleText = layout.findViewById(R.id.peopleTextViewNoData)
+        noPeopleAddPerson = layout.findViewById(R.id.peopleButtonAddPerson)
+        noPeopleAddPerson.setOnClickListener {
+            navigateToCreatePerson()
+        }
+
+        loadingState()
 
         initToolbar(layout)
 
@@ -136,21 +145,32 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
     {
         peopleView.visibility = View.INVISIBLE
         peopleLoading.visibility = View.VISIBLE
-        noPeopleLabel.visibility = View.INVISIBLE
+        noPeopleView.visibility = View.INVISIBLE
     }
 
     private fun emptyState()
     {
         peopleView.visibility = View.INVISIBLE
         peopleLoading.visibility = View.INVISIBLE
-        noPeopleLabel.visibility = View.VISIBLE
+        noPeopleView.visibility = View.VISIBLE
+        noPeopleText.text = getString(R.string.persons_screen_no_data)
+        noPeopleAddPerson.visible = true
+    }
+
+    private fun noSearchState()
+    {
+        peopleView.visibility = View.INVISIBLE
+        peopleLoading.visibility = View.INVISIBLE
+        noPeopleView.visibility = View.VISIBLE
+        noPeopleText.text = getString(R.string.not_found)
+        noPeopleAddPerson.visible = false
     }
 
     private fun contentState()
     {
         peopleView.visibility = View.VISIBLE
         peopleLoading.visibility = View.INVISIBLE
-        noPeopleLabel.visibility = View.INVISIBLE
+        noPeopleView.visibility = View.INVISIBLE
     }
 
     private fun initToolbar(view: View)
@@ -165,7 +185,7 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
             when (it.itemId)
             {
                 R.id.people_create_person_item -> {
-                    (requireActivity() as MainActivity).navigateToPersonEditFragment(null)
+                    navigateToCreatePerson()
                     return@setOnMenuItemClickListener true
                 }
             }
@@ -184,7 +204,7 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
 
                                               override fun onQueryTextChange(newText: String?): Boolean
                                               {
-                                                  if (newText != null)
+                                                  if (!newText.isNullOrBlank())
                                                   {
                                                       val filteredPeople = currentFullPeople
                                                           .parallelStream()
@@ -195,14 +215,15 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
                                                           .collect(Collectors.toList())
                                                       currentPeople.clear()
                                                       currentPeople.addAll(filteredPeople)
+                                                      peopleDataChanged(true)
                                                   }
                                                   else
                                                   {
                                                       currentPeople.clear()
                                                       currentPeople.addAll(currentFullPeople)
+                                                      peopleDataChanged()
                                                   }
 
-                                                  peopleDataChanged()
                                                   return true
                                               }
                                           })
@@ -214,13 +235,18 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
         searchClearIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorText))
     }
 
-    private fun peopleDataChanged()
+    private fun navigateToCreatePerson()
     {
-        peopleAdapter.notifyDataSetChanged()
-        refreshViewState()
+        (requireActivity() as MainActivity).navigateToPersonEditFragment(null)
     }
 
-    private fun refreshViewState()
+    private fun peopleDataChanged(searchState: Boolean = false)
+    {
+        peopleAdapter.notifyDataSetChanged()
+        refreshViewState(searchState)
+    }
+
+    private fun refreshViewState(searchState: Boolean)
     {
         toolbar.title = getString(R.string.persons_screen_toolbar_with_count_title, peopleAdapter.itemCount)
         if (peopleAdapter.itemCount > 0)
@@ -229,7 +255,14 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
         }
         else
         {
-            emptyState()
+            if (searchState)
+            {
+                noSearchState()
+            }
+            else
+            {
+                emptyState()
+            }
         }
     }
 }
