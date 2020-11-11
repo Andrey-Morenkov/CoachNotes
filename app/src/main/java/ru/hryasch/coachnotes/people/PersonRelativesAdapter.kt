@@ -14,6 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import org.koin.core.KoinComponent
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.person.data.RelativeInfo
+import ru.tinkoff.decoro.Mask
+import ru.tinkoff.decoro.MaskImpl
+import ru.tinkoff.decoro.slots.PredefinedSlots
 import java.util.*
 
 
@@ -78,7 +81,10 @@ class PersonRelativePhoneViewHolder(itemView: View, private val context: Context
 
     fun bind(phoneString: String)
     {
-        phone = phoneString
+        val phoneFormatter: Mask = MaskImpl.createTerminated(PredefinedSlots.RUS_PHONE_NUMBER)
+        phoneFormatter.insertFront(phoneString.substring(2))
+
+        phone = phoneFormatter.toString()
         phoneView.text = phone
         phoneView.setOnClickListener {
             // open phone

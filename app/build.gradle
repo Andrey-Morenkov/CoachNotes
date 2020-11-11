@@ -111,6 +111,9 @@ dependencies
     //implementation 'com.fxn769:bubbletabbar:1.0.5'
     implementation "com.github.ibrahimsn98:SmoothBottomBar:$smooth_bottom_bar_version"
 
+    // Masked edit text
+    implementation "ru.tinkoff.decoro:decoro:$masked_edit_text_version"
+
     // Permissions
     implementation "com.nabinbhandari.android:permissions:$permissions_version"
 
