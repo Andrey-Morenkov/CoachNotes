@@ -106,6 +106,7 @@
                     android:layout_marginStart="@dimen/default_indent"
                     android:layout_marginEnd="@dimen/default_indent"
                     android:layout_marginBottom="@dimen/default_indent"
+                    android:padding="8dp"
                     android:text="Показать другие поля"
                     android:textColor="@color/colorAccent" />
 

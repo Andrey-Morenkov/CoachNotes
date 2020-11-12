@@ -10,10 +10,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -76,6 +73,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         private lateinit var paymentType: MaterialSpinner
         private lateinit var age1: MaterialSpinner
         private lateinit var age2: MaterialSpinner
+        private lateinit var ageSwitcher: ImageView
         private lateinit var ageType: MaterialSpinner
 
         // Adapters
@@ -83,6 +81,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         private lateinit var relativeAgesAdapter: ArrayAdapter<String>
 
         // Data
+        private var isSingleAge = true
         private val absoluteYears: List<String> by inject(named("absoluteAgesList"))
         private val relativeYears: List<String> by inject(named("relativeAgesList"))
         private val paymentTypes:  List<String> by inject(named("paymentTypes"))
@@ -118,6 +117,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         paymentType = layout.findViewById(R.id.groupEditSpinnerPaymentType)
         age1 = layout.findViewById(R.id.groupEditSpinnerAge1)
         age2 = layout.findViewById(R.id.groupEditSpinnerAge2)
+        ageSwitcher = layout.findViewById(R.id.groupEditImageButtonAddRemoveAge)
         ageType = layout.findViewById(R.id.groupEditSpinnerAgeType)
 
         scheduleDaysView = layout.findViewById(R.id.group_edit_schedule_list)
@@ -264,6 +264,18 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             age2.adapter = absoluteAgesAdapter
             ageType.adapter = ageAdapter
             ageType.selection = 0
+            singleAgeState()
+            ageSwitcher.setOnClickListener {
+                isSingleAge = !isSingleAge
+                if (isSingleAge)
+                {
+                    singleAgeState()
+                }
+                else
+                {
+                    multiAgeState()
+                }
+            }
         }
     }
 
@@ -330,6 +342,40 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
     {
         contentView.visible = true
         loadingBar.visible = false
+    }
+
+    private fun singleAgeState()
+    {
+        isSingleAge = true
+        ageSwitcher.setImageResource(R.drawable.ic_add)
+        age2.selection = Spinner.INVALID_POSITION
+        age2.isEnabled = false
+        age2.boxBackgroundColor = ContextCompat.getColor(requireContext(), R.color.colorDisabledSpinner)
+    }
+
+    private fun multiAgeState()
+    {
+        isSingleAge = false
+        ageSwitcher.setImageResource(R.drawable.ic_remove)
+        if (age1.selection != Spinner.INVALID_POSITION)
+        {
+            if (ageType.selection == 0)
+            {
+                // Absolute age selected
+                age2.selection = age1.selection - 1
+            }
+            else
+            {
+                // Relative age selected
+                age2.selection = age1.selection + 1
+            }
+        }
+        else
+        {
+            age2.selection = Spinner.INVALID_POSITION
+        }
+        age2.isEnabled = true
+        age2.boxBackgroundColor = ContextCompat.getColor(requireContext(), android.R.color.transparent)
     }
 
     private fun getDefaultTextChangedListener(): TextWatcher
@@ -488,6 +534,11 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             if (currentGroup.availableAbsoluteAgeHigh != null)
             {
                 age2.selection = absoluteYears.indexOf(currentGroup.availableAbsoluteAgeHigh.toString())
+                multiAgeState()
+            }
+            else
+            {
+                singleAgeState()
             }
 
             deleteGroup.setOnClickListener {
