@@ -26,5 +26,7 @@ Used libreries:
 - :white_check_mark: [Snack progress bar (tingyik90's)](https://github.com/tingyik90/snackprogressbar) <br/>
 - :white_check_mark: custom Apache POI based on [SUPERCILEX's ApachePOI](https://github.com/SUPERCILEX/poi-android) <br/>
 - :white_check_mark: custom Android Week View based on [thellmund's Android-Week-View](https://github.com/thellmund/Android-Week-View) <br/>
-- :x: ~~[Klock(soywiz's)](https://github.com/korlibs/klock)~~ // can't be serialized when moxy's on stop activity -> :white_check_mark: Java8 time
-- :black_square_button: [MaskedEditText (VicMikhailau's)](https://github.com/VicMikhailau/MaskedEditText)
+- :white_check_mark: Java8 time (migrated from [Klock(soywiz's)](https://github.com/korlibs/klock) (can't be serialized when moxy's on stop activity))
+- :white_check_mark: [MaskedEditText (Tinkoff's)](https://github.com/TinkoffCreditSystems/decoro)
+- :white_check_mark: [SmoothBottomBar (ibrahimsn98's)](https://github.com/ibrahimsn98/SmoothBottomBar) <br/>
+ 
