@@ -2,13 +2,17 @@ package ru.hryasch.coachnotes.fragments.impl
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.updateLayoutParams
 import androidx.core.widget.NestedScrollView
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -16,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
 import kotlinx.coroutines.*
@@ -34,7 +39,8 @@ import ru.hryasch.coachnotes.fragments.GroupView
 import ru.hryasch.coachnotes.groups.GroupMembersAdapter
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupPresenterImpl
 import ru.hryasch.coachnotes.repository.common.toRelative
-import java.util.*
+import java.util.LinkedList
+import kotlin.math.roundToInt
 
 class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 {
@@ -47,6 +53,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     private lateinit var contentView: NestedScrollView
 
     // Toolbar
+    private lateinit var toolbar: Toolbar
     private lateinit var editGroup: ImageButton
     private lateinit var groupJournalButton: ImageButton
 
@@ -61,12 +68,12 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
     // Group members action
         // UI
+        private lateinit var membersView: View
         private lateinit var membersCount: TextView
-        private lateinit var fullMembersList: MaterialButton
-        private lateinit var shortMembersList: RecyclerView
+        private lateinit var membersListView: RecyclerView
         private lateinit var membersAdapter: GroupMembersAdapter
         private lateinit var noMembersData: TextView
-        private lateinit var addMember: MaterialButton
+        private lateinit var addMember: AppCompatImageView
 
         // Dialogs
         private lateinit var addMemberVariantsDialog: AlertDialog
@@ -80,9 +87,11 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
 
     @ExperimentalCoroutinesApi
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View?
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View?
     {
         val layout =  inflater.inflate(R.layout.fragment_group_info, container, false)
 
@@ -239,7 +248,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         editGroup = layout.findViewById(R.id.groupInfoImageButtonEditPerson)
         groupJournalButton = layout.findViewById(R.id.groupInfoImageButtonJournal)
 
-        val toolbar: Toolbar = layout.findViewById(R.id.groupInfoToolbar)
+        toolbar = layout.findViewById(R.id.groupInfoToolbar)
         toolbar.setNavigationOnClickListener {
             navController.navigateUp()
         }
@@ -260,9 +269,9 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
     private fun inflateMembersSection(layout: View)
     {
+        membersView = layout.findViewById(R.id.groupInfoViewMembers)
         membersCount = layout.findViewById(R.id.groupInfoTextViewMembersCount)
-        fullMembersList = layout.findViewById(R.id.groupInfoButtonAllMembersList)
-        shortMembersList = layout.findViewById(R.id.groupInfoRecyclerViewMembers)
+        membersListView = layout.findViewById(R.id.groupInfoRecyclerViewMembers)
         noMembersData = layout.findViewById(R.id.groupInfoTextViewNoData)
         addMember = layout.findViewById(R.id.groupInfoButtonAddMember)
 
@@ -314,13 +323,17 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         {
             // set only 1 age
             absoluteAge.text = getString(R.string.group_param_ages_single, ageLow.toString())
-            relativeAge.text = getString(R.string.group_param_ages_single, ageLow.toRelative().toString())
+            relativeAge.text = getString(
+                R.string.group_param_ages_single, ageLow.toRelative()
+                    .toString())
         }
         else
         {
             // set age range
             absoluteAge.text = getString(R.string.group_param_ages_multiple, ageLow.toString(), ageHigh.toString())
-            relativeAge.text = getString(R.string.group_param_ages_multiple, ageHigh.toRelative().toString(), ageLow.toRelative().toString())
+            relativeAge.text = getString(
+                R.string.group_param_ages_multiple, ageHigh.toRelative()
+                    .toString(), ageLow.toRelative().toString())
         }
     }
 
@@ -370,14 +383,16 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
         membersAdapter = get { parametersOf(currentMembers, groupNames, listener) }
 
-        shortMembersList.adapter = membersAdapter
-        shortMembersList.layoutManager = LinearLayoutManager(context)
+        membersListView.adapter = membersAdapter
+        membersListView.layoutManager = LinearLayoutManager(context)
+        remeasureMembersListHeight()
 
         addMember.setOnClickListener {
             addMemberVariantsDialog.show()
 
             // Hack to set custom dialog width
-            addMemberVariantsDialog.window!!.setLayout(resources.getDimension(R.dimen.group_info_add_person_dialog_width).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+            addMemberVariantsDialog.window!!.setLayout(resources.getDimension(R.dimen.group_info_add_person_dialog_width).toInt(),
+                                                       ViewGroup.LayoutParams.WRAP_CONTENT)
         }
 
         if (membersAdapter.itemCount == 0)
@@ -390,11 +405,24 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         }
     }
 
+    private fun remeasureMembersListHeight()
+    {
+        membersView.updateLayoutParams {
+            height = getScreenHeight()
+        }
+    }
+
+    private fun getScreenHeight(): Int
+    {
+        val displayMetrics: DisplayMetrics = requireContext().resources.displayMetrics
+        return displayMetrics.heightPixels - toolbar.height - resources.getDimension(R.dimen.default_indent).toInt() * 3
+    }
+
     private fun noMembersState()
     {
         contentView.visible = true
         loadingBar.visible = false
-        shortMembersList.visible = false
+        membersListView.visible = false
         noMembersData.visible = true
     }
 
@@ -402,7 +430,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     {
         contentView.visible = true
         loadingBar.visible = false
-        shortMembersList.visible = true
+        membersListView.visible = true
         noMembersData.visible = false
     }
 }

@@ -110,8 +110,6 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
         {
             peopleInteractor.addOrUpdatePeople(people)
         }
-
-        viewState.showAddPeopleToGroupNotification(null)
     }
 
     override fun onDestroy()
