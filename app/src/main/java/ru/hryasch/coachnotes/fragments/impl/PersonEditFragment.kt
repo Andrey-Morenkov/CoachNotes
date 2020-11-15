@@ -612,13 +612,13 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                                  ""
                              }
 
-            if (age1 == age2)
+            if (age1 == age2 || age2 == "?")
             {
-                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_single, group.name, age1) + paidSuffix)
+                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_single, group.name, age1, group.membersList.size) + paidSuffix)
             }
             else
             {
-                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_range, group.name, age1, age2) + paidSuffix)
+                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_range, group.name, age1, age2, group.membersList.size) + paidSuffix)
             }
         }
 

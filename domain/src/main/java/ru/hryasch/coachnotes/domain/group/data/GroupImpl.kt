@@ -26,6 +26,32 @@ class GroupImpl (override val id: GroupId,
         }
     }
 
+    override fun copy(): Group
+    {
+        val copiedGroup = GroupImpl(id, name)
+        copiedGroup.deletedTimestamp = deletedTimestamp
+        copiedGroup.availableAbsoluteAgeLow = availableAbsoluteAgeLow
+        copiedGroup.availableAbsoluteAgeHigh = availableAbsoluteAgeHigh
+        copiedGroup.isPaid = isPaid
+        copiedGroup.membersList.addAll(membersList)
+        copiedGroup.scheduleDays.addAll(scheduleDays)
+
+        return copiedGroup
+    }
+
+    override fun applyData(otherGroup: Group)
+    {
+        name = otherGroup.name
+        deletedTimestamp = otherGroup.deletedTimestamp
+        availableAbsoluteAgeLow = otherGroup.availableAbsoluteAgeLow
+        availableAbsoluteAgeHigh = otherGroup.availableAbsoluteAgeHigh
+        isPaid = otherGroup.isPaid
+        membersList.clear()
+        membersList.addAll(otherGroup.membersList)
+        scheduleDays.clear()
+        scheduleDays.addAll(otherGroup.scheduleDays)
+    }
+
     override fun compareTo(other: Group): Int
     {
         if (name != other.name)

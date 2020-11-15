@@ -23,8 +23,8 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
 {
     private val groupInteractor: GroupInteractor by inject()
 
-    private var currentGroup: Group? = null
-    private lateinit var originalGroupName: String
+    private var originalGroup: Group? = null
+    private var editingGroup: Group? = null
 
     init
     {
@@ -34,7 +34,7 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
     override fun applyInitialArgumentGroupAsync(group: Group?)
     {
         // for prevent unnecessary apply group when fragment re-create
-        if (currentGroup != null)
+        if (editingGroup != null)
         {
             e("return applyGroupDataAsync")
             return
@@ -47,24 +47,24 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
     override fun applyGroupDataAsync(group: Group?)
     {
         GlobalScope.launch(Dispatchers.Default) {
-            currentGroup = group ?: GroupImpl.generateNew()
-            originalGroupName = currentGroup!!.name
+            originalGroup = group
+            editingGroup = originalGroup?.copy() ?: GroupImpl.generateNew()
 
             withContext(Dispatchers.Main)
             {
-                i("group edit presenter setGroupData: $currentGroup")
-                viewState.setGroupData(currentGroup!!)
+                i("group edit presenter setGroupData: $editingGroup")
+                viewState.setGroupData(editingGroup!!)
             }
         }
     }
 
     override fun updateOrCreateGroup()
     {
-        i("updateOrCreateGroup: $currentGroup")
+        i("updateOrCreateGroup: $editingGroup")
 
         GlobalScope.launch(Dispatchers.Default)
         {
-            if (originalGroupName == currentGroup!!.name)
+            if (editingGroup!!.name == (originalGroup?.name ?: ""))
             {
                 // Group name wasn't changed, no need to check
                 updateOrCreateGroupForced()
@@ -73,9 +73,10 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
             {
                 try
                 {
-                    groupInteractor.addOrUpdateGroup(currentGroup!!)
+                    groupInteractor.addOrUpdateGroup(editingGroup!!)
                     withContext(Dispatchers.Main)
                     {
+                        originalGroup?.applyData(editingGroup!!)
                         viewState.updateOrCreateGroupFinished()
                     }
                 }
@@ -92,13 +93,14 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
 
     override fun updateOrCreateGroupForced()
     {
-        i("updateOrCreateGroupForced: $currentGroup")
+        i("updateOrCreateGroupForced: $editingGroup")
 
         GlobalScope.launch(Dispatchers.Default)
         {
-            groupInteractor.addOrUpdateGroupForced(currentGroup!!)
+            groupInteractor.addOrUpdateGroupForced(editingGroup!!)
             withContext(Dispatchers.Main)
             {
+                originalGroup?.applyData(editingGroup!!)
                 viewState.updateOrCreateGroupFinished()
             }
         }

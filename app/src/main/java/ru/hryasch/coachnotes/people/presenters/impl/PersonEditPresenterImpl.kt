@@ -24,8 +24,8 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
     private val peopleInteractor: PersonInteractor by inject()
     private val groupInteractor: GroupInteractor by inject()
 
-    private var currentPerson: Person? = null
-    private lateinit var originalPersonSurname: String
+    private var originalPerson: Person? = null
+    private var editingPerson: Person? = null
 
     init
     {
@@ -34,7 +34,7 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
 
     override fun applyInitialArgumentPersonAsync(person: Person?, lockGroup: GroupId?)
     {
-        if (currentPerson != null)
+        if (editingPerson != null)
         {
             return
         }
@@ -46,27 +46,27 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
     {
         GlobalScope.launch(Dispatchers.Default)
         {
-            currentPerson = person ?: PersonImpl.generateNew()
-            originalPersonSurname = currentPerson!!.surname
+            originalPerson = person
+            editingPerson = originalPerson?.copy() ?: PersonImpl.generateNew()
 
             if (person == null && lockGroup != null)
             {
-                currentPerson!!.groupId = lockGroup
+                editingPerson!!.groupId = lockGroup
             }
             val groups = groupInteractor.getGroupsList()
 
             withContext(Dispatchers.Main)
             {
-                viewState.setPersonData(currentPerson!!, groups)
+                viewState.setPersonData(editingPerson!!, groups)
             }
         }
     }
 
     override fun updateOrCreatePerson()
     {
-        i("updateOrCreatePerson: $currentPerson")
+        i("updateOrCreatePerson: $editingPerson")
 
-        if (originalPersonSurname == currentPerson!!.surname)
+        if (editingPerson!!.surname == (originalPerson?.surname ?: ""))
         {
             // Surname wasn't changed, no need to check
             updateOrCreatePersonForced()
@@ -77,9 +77,10 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
             {
                 try
                 {
-                    peopleInteractor.addOrUpdatePerson(currentPerson!!)
+                    peopleInteractor.addOrUpdatePerson(editingPerson!!)
                     withContext(Dispatchers.Main)
                     {
+                        originalPerson?.applyData(editingPerson!!)
                         viewState.updateOrCreatePersonFinished()
                     }
                 }
@@ -96,13 +97,14 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
 
     override fun updateOrCreatePersonForced()
     {
-        i("updateOrCreatePersonForced: $currentPerson")
+        i("updateOrCreatePersonForced: $editingPerson")
 
         GlobalScope.launch(Dispatchers.Default)
         {
-            peopleInteractor.addOrUpdatePersonForced(currentPerson!!)
+            peopleInteractor.addOrUpdatePersonForced(editingPerson!!)
             withContext(Dispatchers.Main)
             {
+                originalPerson?.applyData(editingPerson!!)
                 viewState.updateOrCreatePersonFinished()
             }
         }

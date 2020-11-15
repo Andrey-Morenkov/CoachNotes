@@ -2,6 +2,7 @@ package ru.hryasch.coachnotes.domain.person.data
 
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
+import ru.hryasch.coachnotes.domain.group.data.Group
 import java.io.Serializable
 import java.time.LocalDate
 
@@ -21,5 +22,7 @@ interface Person: Comparable<Person>, Serializable
     var deletedTimestamp: Long? // if person deleted, this is not null
     var relativeInfos: MutableList<RelativeInfo>
 
+    fun copy(): Person
+    fun applyData(otherPerson: Person)
     override fun toString(): String
 }

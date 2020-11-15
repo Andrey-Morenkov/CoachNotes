@@ -32,6 +32,33 @@ class PersonImpl (override val id: PersonId,
         }
     }
 
+    override fun copy(): Person
+    {
+        val copiedPerson = PersonImpl(id, surname, name, birthdayYear)
+        copiedPerson.fullBirthday = fullBirthday
+        copiedPerson.patronymic = patronymic
+        copiedPerson.isPaid = isPaid
+        copiedPerson.groupId = groupId
+        copiedPerson.relativeInfos.addAll(relativeInfos)
+        copiedPerson.deletedTimestamp = deletedTimestamp
+
+        return copiedPerson
+    }
+
+    override fun applyData(otherPerson: Person)
+    {
+        surname = otherPerson.surname
+        name = otherPerson.name
+        birthdayYear = otherPerson.birthdayYear
+        fullBirthday = otherPerson.fullBirthday
+        patronymic = otherPerson.patronymic
+        isPaid = otherPerson.isPaid
+        groupId = otherPerson.groupId
+        relativeInfos.clear()
+        relativeInfos.addAll(otherPerson.relativeInfos)
+        deletedTimestamp = otherPerson.deletedTimestamp
+    }
+
     override fun compareTo(other: Person): Int
     {
         if (surname != other.surname)

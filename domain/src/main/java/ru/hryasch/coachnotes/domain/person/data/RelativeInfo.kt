@@ -53,7 +53,6 @@ class RelativeInfo: Serializable
 
     fun addPhone(phone: String)
     {
-        d("Relative($name): add phone $phone")
         phones.add(phone)
     }
 

@@ -57,6 +57,7 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
         val similarPerson = peopleRepository.getSimilarPersonIfExists(person.surname)
         if (similarPerson != null)
         {
+            w("found similar person: $similarPerson")
             throw SimilarPersonFoundException(similarPerson)
         }
 
@@ -66,6 +67,7 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
     @ExperimentalCoroutinesApi
     override suspend fun addOrUpdatePersonForced(person: Person)
     {
+        i("addOrUpdatePersonForced: $person")
         addOrUpdatePeople(listOf(person))
     }
 

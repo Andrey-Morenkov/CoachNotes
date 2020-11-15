@@ -18,5 +18,7 @@ interface Group: Comparable<Group>, Serializable
     var isPaid: Boolean
     var deletedTimestamp: Long? // if group deleted, this is not null
 
+    fun copy(): Group
+    fun applyData(otherGroup: Group)
     override fun toString(): String
 }
