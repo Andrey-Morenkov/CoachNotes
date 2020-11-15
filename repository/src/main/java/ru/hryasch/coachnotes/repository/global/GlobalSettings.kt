@@ -1,6 +1,7 @@
 package ru.hryasch.coachnotes.repository.global
 
 import android.content.Context
+import com.pawegio.kandroid.e
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
@@ -21,7 +22,6 @@ object GlobalSettings: KoinComponent
         fun getFullName(): CoachFullName?
         {
             val fullNameString = sharedPreferences.getString(FULL_NAME, null) ?: return null
-
             val fullNameComponents = fullNameString.split(" ")
             return CoachFullName(fullNameComponents.elementAt(0),
                                  fullNameComponents.elementAt(1),

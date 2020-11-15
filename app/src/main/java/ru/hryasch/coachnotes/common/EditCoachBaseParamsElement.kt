@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.textWatcher
 import com.tiper.MaterialSpinner
 import org.koin.core.KoinComponent
@@ -21,7 +22,7 @@ class EditCoachBaseParamsElement (private val context: Context,
 {
     private val roles: List<String> = get(named("coachRoles"))
     private val customRolePosition = roles.indexOf(context.getString(R.string.coach_role_custom))
-    private val checkNameRegex = Regex("[а-яА-Я0-9_]+\\s[а-яА-Я0-9_]+\\s?[а-яА-Я0-9_]*")
+    private val checkNameRegex = Regex("^[а-яА-Я]+\\s[а-яА-Я.]+\\s?[а-яА-Я.]*$")
 
     init
     {
@@ -75,7 +76,7 @@ class EditCoachBaseParamsElement (private val context: Context,
         }
         initialRole?.let {
             val spinnerSelection = roles.indexOf(it)
-            if (spinnerSelection > 0)
+            if (spinnerSelection >= 0)
             {
                 roleSpinner.selection = spinnerSelection
                 customCoachRole.visibility = View.INVISIBLE

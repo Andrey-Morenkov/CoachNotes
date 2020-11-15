@@ -39,7 +39,7 @@ val appModule = module {
     single(named("daysOfWeek_RU")) { arrayOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс") }
     single(named("daysOfWeekLong_RU")) { arrayOf("Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье") }
     single(named("relatives_RU")) { arrayOf(App.getCtx().getString(R.string.mother), App.getCtx().getString(R.string.father), App.getCtx().getString(R.string.grandMa), App.getCtx().getString(R.string.grandFa), App.getCtx().getString(R.string.aunt), App.getCtx().getString(R.string.uncle), App.getCtx().getString(R.string.sister), App.getCtx().getString(R.string.brother))}
-    single(named("coachRoles")) { listOf(App.getCtx().getString(R.string.coach_role_junior_coach), App.getCtx().getString(R.string.coach_role_common_coach), App.getCtx().getString(R.string.coach_role_senior_coach), App.getCtx().getString(R.string.coach_role_custom)) }
+    single(named("coachRoles")) { listOf(App.getCtx().getString(R.string.coach_role_common_coach), App.getCtx().getString(R.string.coach_role_choreographer_coach), App.getCtx().getString(R.string.coach_role_sport_master_coach_), App.getCtx().getString(R.string.coach_role_custom)) }
 
     single { GlobalSettings }
 

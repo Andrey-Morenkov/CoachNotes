@@ -196,7 +196,7 @@ class GroupListFragment: MvpAppCompatFragment(), GroupsView, KoinComponent
                                                   {
                                                       val filteredGroup = currentFullGroups
                                                           .parallelStream()
-                                                          .filter { group -> group.name.contains(newText, true) }
+                                                          .filter { group -> group.name.startsWith(newText, true) }
                                                           .collect(Collectors.toList())
                                                       currentGroups.clear()
                                                       currentGroups.addAll(filteredGroup)

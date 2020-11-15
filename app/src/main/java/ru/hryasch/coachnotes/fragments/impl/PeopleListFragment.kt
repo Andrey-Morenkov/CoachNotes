@@ -209,9 +209,9 @@ class PeopleListFragment : MvpAppCompatFragment(), PeopleView
                                                       val filteredPeople = currentFullPeople
                                                           .parallelStream()
                                                           .filter { person ->
-                                                              person.surname.contains(newText, true) ||
-                                                              person.name.contains(newText, true) ||
-                                                              person.patronymic?.contains(newText, true) ?: false}
+                                                              person.surname.startsWith(newText, true) ||
+                                                              person.name.startsWith(newText, true) ||
+                                                              person.patronymic?.startsWith(newText, true) ?: false}
                                                           .collect(Collectors.toList())
                                                       currentPeople.clear()
                                                       currentPeople.addAll(filteredPeople)

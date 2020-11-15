@@ -133,27 +133,29 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     override fun lockJournal(isLocked: Boolean?)
     {
-        when (isLocked)
-        {
-            true ->
+        runOnUiThread {
+            when (isLocked)
             {
-                lockUnlockButton.isVisible = true
-                lockUnlockButton.setIcon(R.drawable.ic_lock)
-                DrawableCompat.wrap(lockUnlockButton.icon)
-                              .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorText))
-            }
+                true ->
+                {
+                    lockUnlockButton.isVisible = true
+                    lockUnlockButton.setIcon(R.drawable.ic_lock)
+                    DrawableCompat.wrap(lockUnlockButton.icon)
+                        .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorText))
+                }
 
-            false ->
-            {
-                lockUnlockButton.isVisible = true
-                lockUnlockButton.setIcon(R.drawable.ic_unlock)
-                DrawableCompat.wrap(lockUnlockButton.icon)
-                              .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
-            }
+                false ->
+                {
+                    lockUnlockButton.isVisible = true
+                    lockUnlockButton.setIcon(R.drawable.ic_unlock)
+                    DrawableCompat.wrap(lockUnlockButton.icon)
+                        .setTint(ContextCompat.getColor(App.getCtx(), R.color.colorAccent))
+                }
 
-            else  ->
-            {
-                lockUnlockButton.isVisible = false
+                else  ->
+                {
+                    lockUnlockButton.isVisible = false
+                }
             }
         }
     }

@@ -43,10 +43,10 @@ class LoginActivity: AppCompatActivity(), KoinComponent
                                                         })
 
         loginButtonLogin.setOnClickListener {
-            GlobalSettings.Coach.editName(coachBaseParamEditTextFullName.text?.toString())
+            GlobalSettings.Coach.editName(coachBaseParamEditTextFullName.text?.toString()?.trim())
             if (coachBaseParamSpinnerRole.selection == coachRoles.indexOf(getString(R.string.coach_role_custom)))
             {
-                GlobalSettings.Coach.editRole(coachBaseParamEditTextCustomRole.text?.toString())
+                GlobalSettings.Coach.editRole(coachBaseParamEditTextCustomRole.text?.toString()?.trim())
             }
             else
             {

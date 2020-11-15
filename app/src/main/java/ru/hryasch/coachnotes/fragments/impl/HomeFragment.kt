@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.alamkanak.weekview.WeekView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.visible
 import com.tiper.MaterialSpinner
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -61,11 +62,9 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
 
 
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View?
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?,
+                              savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_home, container, false)
         todayScheduleDate = layout.findViewById(R.id.homeScheduleTextViewTodayDate)
@@ -138,11 +137,11 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
             .setPositiveButton("Сохранить") { dialog, _ ->
                 if (role.selection == coachRoles.indexOf(getString(R.string.coach_role_custom)))
                 {
-                    presenter.changeCoachInfo(fullName.text.toString(), customCoachRole.text.toString())
+                    presenter.changeCoachInfo(fullName.text.toString().trim(), customCoachRole.text.toString().trim())
                 }
                 else
                 {
-                    presenter.changeCoachInfo(fullName.text.toString(), role.selectedItem as String)
+                    presenter.changeCoachInfo(fullName.text.toString().trim(), role.selectedItem as String)
                 }
                 editParamsElement = null
                 dialog.cancel()

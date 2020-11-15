@@ -14,9 +14,9 @@
         <string name="brother">Брат</string>
 
         // Coach types
-        <string name="coach_role_junior_coach">Младший тренер</string>
+        <string name="coach_role_choreographer_coach">Хореограф</string>
         <string name="coach_role_common_coach">Тренер</string>
-        <string name="coach_role_senior_coach">Старший тренер</string>
+        <string name="coach_role_sport_master_coach_">Инструктор по спорту</string>
         <string name="coach_role_custom">Другое…</string>
 
     // Permissions

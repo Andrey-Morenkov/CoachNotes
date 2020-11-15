@@ -53,10 +53,24 @@ object DocExporter: DataExporter, KoinComponent
         val fullName = GlobalSettings.Coach.getFullName() ?: return ""
         val (surname, name, patronymic) = fullName
 
-        var signature = "$surname ${name[0]}."
-        if (!patronymic.isNullOrBlank())
+        var signature = surname
+        if (name.contains('.') && patronymic == null)
         {
-            signature += "${patronymic[0]}."
+            d("Short coach name detected: $surname $name")
+            signature += " $name"
+            if (!name.endsWith('.'))
+            {
+                signature += "."
+            }
+        }
+        else
+        {
+            d("Full coach name detected: $surname $name $patronymic")
+            signature += " ${name[0]}."
+            if (!patronymic.isNullOrBlank())
+            {
+                signature += "${patronymic[0]}."
+            }
         }
 
         return signature
