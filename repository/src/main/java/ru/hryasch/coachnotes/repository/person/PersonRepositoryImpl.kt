@@ -7,6 +7,7 @@ import io.realm.Realm
 import io.realm.kotlin.where
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import org.apache.poi.util.StringUtil
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.parameter.parametersOf
@@ -19,7 +20,11 @@ import ru.hryasch.coachnotes.repository.common.PeopleChannelsStorage
 import ru.hryasch.coachnotes.repository.converters.fromDAO
 import ru.hryasch.coachnotes.repository.converters.fromDao
 import ru.hryasch.coachnotes.repository.converters.toDao
+import ru.hryasch.coachnotes.repository.dao.DeletedPersonDAO
 import ru.hryasch.coachnotes.repository.dao.PersonDAO
+import java.util.Collections
+import java.util.LinkedList
+import java.util.Locale
 import java.util.concurrent.Executors
 
 @ExperimentalCoroutinesApi
@@ -38,9 +43,33 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
         }
     }
 
+    @ExperimentalStdlibApi
+    override suspend fun getSimilarPersonIfExists(personSurname: String): Person?
+    {
+        // standardize
+        val surname = personSurname.capitalize(Locale.getDefault())
+
+        var person: Person? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<PersonDAO>()
+                               .equalTo("surname", surname)
+                               .findFirst()
+
+                result?.let { res ->
+                    person = it.copyFromRealm(res).fromDao()
+                }
+            }
+        }
+
+        return person
+    }
+
     override suspend fun getPerson(personId: PersonId): Person?
     {
-        var personDao: PersonDAO? = null
+        var person: Person? = null
 
         withContext(dbContext)
         {
@@ -49,13 +78,56 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
                                .equalTo("id", personId)
                                .findFirst()
 
-                result?.let {res ->
-                    personDao = it.copyFromRealm(res)
+                result?.let { res ->
+                    person = it.copyFromRealm(res).fromDao()
+                    return@executeTransaction
+                }
+
+                val result2 = it.where<DeletedPersonDAO>()
+                                .equalTo("id", personId)
+                                .findFirst()
+
+                result2?.let { res ->
+                    person = it.copyFromRealm(res).fromDao()
                 }
             }
         }
 
-        return personDao?.fromDao()
+        return person
+    }
+
+    override suspend fun getDeletedPerson(personId: PersonId): Person?
+    {
+        var person: Person? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<DeletedPersonDAO>()
+                               .equalTo("id", personId)
+                               .findFirst()
+
+                result?.let { res ->
+                    person = it.copyFromRealm(res).fromDao()
+                }
+            }
+        }
+
+        return person
+    }
+
+    override suspend fun getPeople(peopleIds: List<PersonId>): List<Person>?
+    {
+        val people: MutableList<Person> = LinkedList()
+
+        for (personId in peopleIds)
+        {
+            getPerson(personId)?.let {
+                people.add(it)
+            }
+        }
+
+        return people
     }
 
     override suspend fun getPeopleByGroup(groupId: GroupId): List<Person>?
@@ -75,10 +147,33 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
             }
         }
 
-        return peopleDao?.fromDAO()
+        return peopleDao?.fromDAO()?.sorted()
     }
 
     override suspend fun getAllPeople(): List<Person>?
+    {
+        if (initializingJob.isActive) initializingJob.join()
+
+        val existingPeople = getAllExistingPeople()
+        val deletedPeople = getAllDeletedPeople()
+
+        val peopleList: MutableList<Person> = LinkedList()
+        existingPeople?.let {
+            peopleList.addAll(it)
+        }
+        deletedPeople?.let {
+            peopleList.addAll(it)
+        }
+
+        if (peopleList.isEmpty())
+        {
+            return null
+        }
+
+        return peopleList
+    }
+
+    override suspend fun getAllExistingPeople(): List<Person>?
     {
         if (initializingJob.isActive) initializingJob.join()
 
@@ -96,12 +191,44 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
             }
         }
 
-        return peopleList?.fromDAO()
+        return peopleList?.fromDAO()?.sorted()
     }
 
+    override suspend fun getAllDeletedPeople(): List<Person>?
+    {
+        if (initializingJob.isActive) initializingJob.join()
+
+        var peopleList: List<DeletedPersonDAO>? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<DeletedPersonDAO>()
+                               .findAll()
+
+                result?.let { res ->
+                    peopleList = it.copyFromRealm(res)
+                }
+            }
+        }
+
+        return peopleList?.fromDAO()?.sorted()
+    }
+
+    @ExperimentalStdlibApi
     @ExperimentalCoroutinesApi
     override suspend fun addOrUpdatePeople(people: List<Person>)
     {
+        // standardize fields
+        people.stream().parallel().forEach {
+            it.surname = it.surname.capitalize(Locale.getDefault())
+            it.name = it.name.capitalize(Locale.getDefault())
+            if (it.patronymic != null)
+            {
+                it.patronymic = it!!.patronymic!!.capitalize(Locale.getDefault())
+            }
+        }
+
         withContext(dbContext)
         {
             val isAddingPeople = Array<Boolean>(people.size) {false}
@@ -114,7 +241,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
                         val peopleByGroup = it.where<PersonDAO>()
                                               .equalTo("groupId", person.groupId)
                                               .findAll()
-                        if (peopleByGroup == null && person.groupId != null)
+                        if (peopleByGroup == null)
                         {
                             setSpecificGroupPeopleTrigger(person.groupId!!)
                         }
@@ -126,7 +253,8 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
 
                     isAddingPeople[i] = ( existPerson == null )
 
-                    it.copyToRealmOrUpdate(person.toDao())
+                    e("try to copyToRealmOrUpdate person: $person")
+                    it.copyToRealmOrUpdate(person.toDao()!!)
                 }
             } // transaction
 
@@ -140,23 +268,83 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
         }
     }
 
-    override suspend fun deletePerson(person: Person)
+    override suspend fun deletePerson(personId: PersonId)
     {
         withContext(Dispatchers.Main)
         {
-            PeopleChannelsStorage.personById[person.id]!!.observable?.removeAllChangeListeners()
-            PeopleChannelsStorage.personById[person.id]!!.observable == null
+            PeopleChannelsStorage.personById[personId]?.observable?.removeAllChangeListeners()
+            PeopleChannelsStorage.personById[personId]?.observable == null
         }
+
         withContext(dbContext)
         {
             db.executeTransaction {
                 val target = it.where<PersonDAO>()
-                               .equalTo("id", person.id)
+                               .equalTo("id", personId)
                                .findFirst()
 
-                target?.deleteFromRealm()
+                target?.run {
+                    val deletedPerson = it.copyFromRealm(this).delete()
+                    it.copyToRealmOrUpdate(deletedPerson)
+                    this.deleteFromRealm()
+                }
             }
         }
+    }
+
+    override suspend fun deletePersonPermanently(personId: PersonId)
+    {
+        withContext(Dispatchers.Main)
+        {
+            PeopleChannelsStorage.personById[personId]?.observable?.removeAllChangeListeners()
+            PeopleChannelsStorage.personById[personId]?.observable == null
+        }
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val targetDeleted = it.where<DeletedPersonDAO>()
+                                      .equalTo("id", personId)
+                                      .findFirst()
+
+                targetDeleted?.run {
+                    this.deleteFromRealm()
+                    return@executeTransaction
+                }
+
+                val targetAlive = it.where<PersonDAO>()
+                                    .equalTo("id", personId)
+                                    .findFirst()
+
+                targetAlive?.deleteFromRealm()
+            }
+        }
+    }
+
+    @ExperimentalStdlibApi
+    override suspend fun revivePerson(personId: PersonId): Person?
+    {
+        var revivedPerson: Person? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val target = it.where<DeletedPersonDAO>()
+                               .equalTo("id", personId)
+                               .findFirst()
+
+                target?.run {
+                    revivedPerson = it.copyFromRealm(this).revive().fromDao()
+                    this.deleteFromRealm()
+                }
+            }
+        }
+
+        revivedPerson?.let {
+            addOrUpdatePeople(Collections.singletonList(it))
+        }
+
+        return revivedPerson
     }
 
     override suspend fun closeDb()
@@ -165,7 +353,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
         {
             db.close()
         }
-        i("reopen DB")
+
         withContext(Dispatchers.Main)
         {
             PeopleChannelsStorage.allPeople.mainDbEntity?.close()
@@ -282,7 +470,7 @@ class PersonRepositoryImpl: PersonRepository, KoinComponent
                 val res = elements.fromDAO()
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    e("channel <AllPeople>: SEND")
+                    e("channel <AllPeople>: SEND $elements")
                     broadcastChannel.send(res)
                 }
             }

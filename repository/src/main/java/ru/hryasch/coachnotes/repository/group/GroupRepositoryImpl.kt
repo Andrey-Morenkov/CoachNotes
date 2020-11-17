@@ -18,8 +18,13 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.repository.common.GroupChannelsStorage
 import ru.hryasch.coachnotes.repository.converters.fromDAO
+import ru.hryasch.coachnotes.repository.converters.fromDao
 import ru.hryasch.coachnotes.repository.converters.toDao
+import ru.hryasch.coachnotes.repository.dao.DeletedGroupDAO
+import ru.hryasch.coachnotes.repository.dao.DeletedPersonDAO
 import ru.hryasch.coachnotes.repository.dao.GroupDAO
+import java.util.LinkedList
+import java.util.Locale
 import java.util.concurrent.Executors
 
 
@@ -39,9 +44,36 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
         }
     }
 
+    override suspend fun getSimilarGroupIfExists(groupName: String): Group?
+    {
+        // standardize
+        val targetGroupName = groupName.toLowerCase(Locale.getDefault())
+
+        var group: Group? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<GroupDAO>()
+                               .findAll()
+
+                result?.forEach { grp ->
+                    val existName = grp.name!!.toLowerCase(Locale.getDefault())
+                    if (existName == targetGroupName)
+                    {
+                        group = it.copyFromRealm(grp).fromDAO()
+                        return@executeTransaction
+                    }
+                }
+            }
+        }
+
+        return group
+    }
+
     override suspend fun getGroup(groupId: GroupId): Group?
     {
-        var groupDAO: GroupDAO? = null
+        var group: Group? = null
 
         withContext(dbContext)
         {
@@ -51,15 +83,81 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
                                .findFirst()
 
                 result?.let { res ->
-                    groupDAO = it.copyFromRealm(res)
+                    group = it.copyFromRealm(res).fromDAO()
+                    return@executeTransaction
+                }
+
+                val result2 = it.where<DeletedGroupDAO>()
+                                .equalTo("id", groupId)
+                                .findFirst()
+
+                result2?.let { res ->
+                    group = it.copyFromRealm(res).fromDAO()
                 }
             }
         }
 
-        return groupDAO?.fromDAO()
+        return group
+    }
+
+    override suspend fun getDeletedGroup(groupId: GroupId): Group?
+    {
+        var group: Group? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<DeletedGroupDAO>()
+                               .equalTo("id", groupId)
+                               .findFirst()
+
+                result?.let { res ->
+                    group = it.copyFromRealm(res).fromDAO()
+                }
+            }
+        }
+
+        return group
+    }
+
+    override suspend fun getGroups(groupsIds: List<GroupId>): List<Group>?
+    {
+        val groups: MutableList<Group> = LinkedList()
+
+        for (groupId in groupsIds)
+        {
+            getGroup(groupId)?.let {
+                groups.add(it)
+            }
+        }
+
+        return groups
     }
 
     override suspend fun getAllGroups(): List<Group>?
+    {
+        if (initializingJob.isActive) initializingJob.join()
+
+        val existingGroups = getAllExistingGroups()
+        val deletedGroups = getAllDeletedGroups()
+
+        val groupsList: MutableList<Group> = LinkedList()
+        existingGroups?.let {
+            groupsList.addAll(it)
+        }
+        deletedGroups?.let {
+            groupsList.addAll(it)
+        }
+
+        if (groupsList.isEmpty())
+        {
+            return null
+        }
+
+        return groupsList
+    }
+
+    override suspend fun getAllExistingGroups(): List<Group>?
     {
         if (initializingJob.isActive) initializingJob.join()
 
@@ -77,7 +175,28 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
             }
         }
 
-        return groupsList?.fromDAO()
+        return groupsList?.fromDAO()?.sorted()
+    }
+
+    override suspend fun getAllDeletedGroups(): List<Group>?
+    {
+        if (initializingJob.isActive) initializingJob.join()
+
+        var groupsList: List<DeletedGroupDAO>? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val result = it.where<DeletedGroupDAO>()
+                               .findAll()
+
+                result?.let { res ->
+                    groupsList = it.copyFromRealm(res)
+                }
+            }
+        }
+
+        return groupsList?.fromDAO()?.sorted()
     }
 
     override suspend fun getGroupsByScheduleDay(dayPosition0: Int): List<Group>?
@@ -112,11 +231,18 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
                                    .equalTo("id", group.id)
                                    .findFirst()
 
-                isAddingGroup = ( existGroup == null )
+                var removedGroup: DeletedGroupDAO? = null
+                if (existGroup == null) {
+                    removedGroup = it.where<DeletedGroupDAO>()
+                                     .equalTo("id", group.id)
+                                     .findFirst()
+                }
+
+                isAddingGroup = ( existGroup == null && removedGroup == null )
 
                 e("updating group: $group")
 
-                it.copyToRealmOrUpdate(group.toDao())
+                it.copyToRealmOrUpdate(group.toDao()!!)
             }
 
             if (isAddingGroup)
@@ -128,32 +254,135 @@ class GroupRepositoryImpl: GroupRepository, KoinComponent
 
     override suspend fun deleteGroup(group: Group)
     {
+        withContext(Dispatchers.Main)
+        {
+            GroupChannelsStorage.groupById[group.id]?.observable?.removeAllChangeListeners()
+            GroupChannelsStorage.groupById[group.id]?.observable = null
+        }
 
         withContext(dbContext)
         {
-            withContext(Dispatchers.Main)
-            {
-                GroupChannelsStorage.groupById[group.id]!!.observable?.removeAllChangeListeners()
-                GroupChannelsStorage.groupById[group.id]!!.observable = null
-            }
-
-            // FIX: because realm has strange behaviour if you next add group with same name and it will have previous members and schedule days
             db.executeTransaction {
                 val target = it.where<GroupDAO>()
                                .equalTo("id", group.id)
                                .findFirst()
-                target?.members?.clear()
-                target?.scheduleDays?.clear()
-                it.copyToRealmOrUpdate(target!!)
+
+                target?.run {
+                    val deletedGroup = it.copyFromRealm(this).delete()
+                    it.copyToRealmOrUpdate(deletedGroup)
+
+                    // FIX: because realm has strange behaviour if you next add group with same name and it will have previous members and schedule days
+                    this.members.clear()
+                    this.scheduleDays.clear()
+                    it.copyToRealmOrUpdate(this)
+                }
             }
 
             db.executeTransaction {
                 val target = it.where<GroupDAO>()
-                    .equalTo("id", group.id)
-                    .findFirst()
+                               .equalTo("id", group.id)
+                               .findFirst()
                 target?.deleteFromRealm()
             }
         }
+    }
+
+    override suspend fun deleteGroupPermanently(group: Group)
+    {
+        withContext(Dispatchers.Main)
+        {
+            GroupChannelsStorage.groupById[group.id]?.observable?.removeAllChangeListeners()
+            GroupChannelsStorage.groupById[group.id]?.observable = null
+        }
+
+        var deletedGroupFound = false
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val targetDeleted = it.where<DeletedGroupDAO>()
+                                       .equalTo("id", group.id)
+                                       .findFirst()
+
+                targetDeleted?.run {
+                    // FIX: because realm has strange behaviour if you next add group with same name and it will have previous members and schedule days
+                    this.members.clear()
+                    this.scheduleDays.clear()
+                    it.copyToRealmOrUpdate(this)
+                    deletedGroupFound = true
+                }
+            }
+
+            if (deletedGroupFound)
+            {
+                db.executeTransaction {
+                    val target = it.where<DeletedGroupDAO>()
+                        .equalTo("id", group.id)
+                        .findFirst()
+                    target?.deleteFromRealm()
+                }
+                return@withContext
+            }
+
+            db.executeTransaction {
+                val targetAlive = it.where<GroupDAO>()
+                                    .equalTo("id", group.id)
+                                    .findFirst()
+                targetAlive?.run {
+                    // FIX: because realm has strange behaviour if you next add group with same name and it will have previous members and schedule days
+                    this.members.clear()
+                    this.scheduleDays.clear()
+                    it.copyToRealmOrUpdate(this)
+                }
+            }
+
+            db.executeTransaction {
+                val targetAlive = it.where<GroupDAO>()
+                                    .equalTo("id", group.id)
+                                    .findFirst()
+
+                targetAlive?.deleteFromRealm()
+            }
+        }
+    }
+
+    override suspend fun reviveGroup(groupId: GroupId): Group?
+    {
+        var revivedGroup: Group? = null
+
+        withContext(dbContext)
+        {
+            db.executeTransaction {
+                val target = it.where<DeletedGroupDAO>()
+                               .equalTo("id", groupId)
+                               .findFirst()
+
+                target?.run {
+                    revivedGroup = it.copyFromRealm(this).revive().fromDAO()
+
+                    // FIX: because realm has strange behaviour if you next add group with same name and it will have previous members and schedule days
+                    this.members.clear()
+                    this.scheduleDays.clear()
+                    it.copyToRealmOrUpdate(this)
+                }
+            }
+
+            if (revivedGroup != null)
+            {
+                db.executeTransaction {
+                    val target = it.where<DeletedGroupDAO>()
+                                   .equalTo("id", groupId)
+                                   .findFirst()
+
+                    target?.deleteFromRealm()
+                }
+            }
+        }
+
+        revivedGroup?.let {
+            addOrUpdateGroup(it)
+        }
+
+        return revivedGroup
     }
 
     override suspend fun updatePeopleGroupAffiliation(people: List<Person>)

@@ -16,6 +16,9 @@ import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.person.data.ParentType
 import ru.hryasch.coachnotes.domain.person.data.RelativeInfo
+import ru.tinkoff.decoro.Mask
+import ru.tinkoff.decoro.MaskImpl
+import ru.tinkoff.decoro.slots.PredefinedSlots
 import kotlin.collections.ArrayList
 
 internal class RelativeInfoHolder(val context: Context, val layout: View, private var holderPosition: Int): KoinComponent
@@ -88,7 +91,8 @@ internal class RelativeInfoHolder(val context: Context, val layout: View, privat
         {
             if (!phoneHolder.phone.text.isNullOrBlank())
             {
-                relativeInfo.addPhone(phoneHolder.phone.text.toString())
+                val rawPhone = MaskImpl.createTerminated(PredefinedSlots.RUS_PHONE_NUMBER).apply { insertFront(phoneHolder.phone.text) }
+                relativeInfo.addPhone(rawPhone.toUnformattedString())
             }
         }
 

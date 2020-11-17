@@ -2,6 +2,23 @@
     // Application
     <string name="app_name">Coach Notes</string>
 
+    // Constant data
+        // Relatives
+        <string name="mother">Мама</string>
+        <string name="father">Отец</string>
+        <string name="grandMa">Бабушка</string>
+        <string name="grandFa">Дедушка</string>
+        <string name="aunt">Тётя</string>
+        <string name="uncle">Дядя</string>
+        <string name="sister">Сестра</string>
+        <string name="brother">Брат</string>
+
+        // Coach types
+        <string name="coach_role_choreographer_coach">Хореограф</string>
+        <string name="coach_role_common_coach">Тренер</string>
+        <string name="coach_role_sport_master_coach_">Инструктор по спорту</string>
+        <string name="coach_role_custom">Другое…</string>
+
     // Permissions
     <string name="permission_external_storage_rationale">Чтобы иметь возможность генерировать файлы, нужно разрешение</string>
     <string name="permission_external_storage_rationale_dialog_title">RationaleTitle</string>
@@ -29,6 +46,7 @@
     <string name="available_soon">Еще не готово</string>
     <string name="no_data">Нет данных</string>
     <string name="today">Сегодня</string>
+    <string name="not_found">Не найдено</string>
 
     <string name="name">Имя</string>
     <string name="surname">Фамилия</string>
@@ -39,15 +57,7 @@
     <string name="full_name">ФИО</string>
     <string name="tags">Особенности</string>
     
-    // Relatives
-    <string name="mother">Мама</string>
-    <string name="father">Отец</string>
-    <string name="grandMa">Бабушка</string>
-    <string name="grandFa">Дедушка</string>
-    <string name="aunt">Тётя</string>
-    <string name="uncle">Дядя</string>
-    <string name="sister">Сестра</string>
-    <string name="brother">Брат</string>
+
 
     // Bottom nav menu
     <string name="main_bottom_nav">Главная</string>
@@ -108,11 +118,16 @@
     <string name="person_info_screen_toolbar_title">Профиль ученика</string>
 
     // Person edit screen
+    <string name="person_edit_screen_no_group">Нет группы</string>
     <string name="person_edit_screen_toolbar_title">Редактор ученика</string>
     <string name="person_edit_screen_toolbar_new_title">Новый ученик</string>
     <string name="person_edit_screen_delete_person">Удалить ученика</string>
-    <string name="person_edit_screen_group_pattern_range">%1$s (%2$s - %3$s г.р)</string>
-    <string name="person_edit_screen_group_pattern_single">%1$s (%2$s г.р)</string>
+    <string name="person_edit_birthday_title_short">год рождения</string>
+    <string name="person_edit_birthday_year_full">год</string>
+    <string name="person_edit_birthday_month_full">месяц</string>
+    <string name="person_edit_birthday_day_full">день</string>
+    <string name="person_edit_screen_group_pattern_range">%1$s (%2$s - %3$s г.р) | %4$d чел.</string>
+    <string name="person_edit_screen_group_pattern_single">%1$s (%2$s г.р) | %3$d чел.</string>
     <string name="person_edit_screen_relative_age_pattern">%1$s лет</string>
 
     // Items
@@ -159,6 +174,7 @@
             // Person header element
             <string name="person_info_header_name_surname_pattern">%1$s %2$s</string>
             <string name="person_info_header_age_pattern">%1$s (%2$d лет)</string>
+            <string name="person_info_header_age_only_year_pattern">%1$d г.р</string>
                 // Samples
                 <string name="person_header_name_surname_sample">Иван Иванович</string>
                 <string name="person_header_patronymic_sample">Иванов</string>

@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:padding="4dp"
-            android:tint="@color/colorJournalAbsenceGeneral"
+            app:tint="@color/colorJournalAbsenceGeneral"
             app:srcCompat="@drawable/ic_no_exist" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -46,10 +46,11 @@
                 style="@style/CustomInputTypeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/full_name" />
+                android:hint="@string/full_name"
+                android:inputType="textPersonName|textCapWords" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.tiper.MaterialSpinner
+        <ru.hryasch.coachnotes.common.view.HideKeyboardSpinner
             android:id='@+id/personEditParentType'
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"

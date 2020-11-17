@@ -2,6 +2,7 @@ package ru.hryasch.coachnotes.domain.person.interactors.impl
 
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.w
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -10,6 +11,7 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
+import ru.hryasch.coachnotes.domain.person.interactors.SimilarPersonFoundException
 import ru.hryasch.coachnotes.domain.repository.GroupRepository
 import ru.hryasch.coachnotes.domain.repository.PersonRepository
 import java.util.*
@@ -22,12 +24,12 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
 
     override suspend fun getPeopleList(): List<Person>
     {
-        return peopleRepository.getAllPeople() ?: LinkedList()
+        return peopleRepository.getAllExistingPeople() ?: LinkedList()
     }
 
     override suspend fun getGroupNames(): Map<GroupId, String>
     {
-        val groupsList = groupRepository.getAllGroups()
+        val groupsList = groupRepository.getAllExistingGroups()
         val res: MutableMap<GroupId, String> = HashMap()
         groupsList?.forEach {
             res[it.id] = it.name
@@ -37,13 +39,7 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
 
     override suspend fun getPeopleWithoutGroup(): List<Person>?
     {
-        return peopleRepository.getAllPeople()?.filter { person -> person.groupId == null }
-    }
-
-    override suspend fun getMaxPersonId(): PersonId
-    {
-        val maxId = peopleRepository.getAllPeople()?.map { it.id }?.max()
-        return maxId ?: 0
+        return peopleRepository.getAllExistingPeople()?.filter { person -> person.groupId == null }
     }
 
 
@@ -58,12 +54,46 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
     @ExperimentalCoroutinesApi
     override suspend fun addOrUpdatePerson(person: Person)
     {
+        val similarPerson = peopleRepository.getSimilarPersonIfExists(person.surname)
+        if (similarPerson != null)
+        {
+            w("found similar person: $similarPerson")
+            throw SimilarPersonFoundException(similarPerson)
+        }
+
+        addOrUpdatePersonForced(person)
+    }
+
+    @ExperimentalCoroutinesApi
+    override suspend fun addOrUpdatePersonForced(person: Person)
+    {
+        i("addOrUpdatePersonForced: $person")
         addOrUpdatePeople(listOf(person))
     }
 
 
 
     override suspend fun deletePerson(person: Person)
+    {
+        if (person.deletedTimestamp != null)
+        {
+            w("Try delete person ${person.id}, but it already deleted, skip")
+            return
+        }
+
+        person.groupId?.let {
+            val group = groupRepository.getGroup(it)
+            if (group != null)
+            {
+                group.membersList.remove(person.id)
+                i("membersList size after remove = ${group.membersList.size}")
+                groupRepository.addOrUpdateGroup(group)
+            }
+        }
+        peopleRepository.deletePerson(person.id)
+    }
+
+    override suspend fun deletePersonPermanently(person: Person)
     {
         person.groupId?.let {
             val group = groupRepository.getGroup(it)
@@ -74,7 +104,7 @@ class PersonInteractorImpl: PersonInteractor, KoinComponent
                 groupRepository.addOrUpdateGroup(group)
             }
         }
-        peopleRepository.deletePerson(person)
+        peopleRepository.deletePersonPermanently(person.id)
     }
 
     @ExperimentalCoroutinesApi

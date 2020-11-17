@@ -2,17 +2,17 @@ package ru.hryasch.coachnotes.fragments.impl
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.updateLayoutParams
 import androidx.core.widget.NestedScrollView
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -20,9 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.pawegio.kandroid.e
 import com.pawegio.kandroid.i
 import com.pawegio.kandroid.visible
-import com.pawegio.kandroid.w
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import moxy.MvpAppCompatFragment
@@ -31,29 +31,29 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.parameter.parametersOf
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.GroupView
 import ru.hryasch.coachnotes.groups.GroupMembersAdapter
-import ru.hryasch.coachnotes.groups.isSingle
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupPresenterImpl
 import ru.hryasch.coachnotes.repository.common.toRelative
-import java.util.*
+import java.util.LinkedList
+import kotlin.math.roundToInt
 
 class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: GroupPresenterImpl
-
     private lateinit var navController: NavController
 
+    // Common UI
     private lateinit var loadingBar: ProgressBar
     private lateinit var contentView: NestedScrollView
 
     // Toolbar
+    private lateinit var toolbar: Toolbar
     private lateinit var editGroup: ImageButton
     private lateinit var groupJournalButton: ImageButton
 
@@ -67,27 +67,33 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     private lateinit var isPaid: ImageView
 
     // Group members action
-    private lateinit var membersCount: TextView
-    private lateinit var fullMembersList: MaterialButton
-    private lateinit var shortMembersList: RecyclerView
-    private lateinit var membersAdapter: GroupMembersAdapter
-    private lateinit var noMembersData: TextView
-    private lateinit var addMember: MaterialButton
+        // UI
+        private lateinit var membersView: View
+        private lateinit var membersCount: TextView
+        private lateinit var membersListView: RecyclerView
+        private lateinit var membersAdapter: GroupMembersAdapter
+        private lateinit var noMembersData: TextView
+        private lateinit var addMember: AppCompatImageView
+
+        // Dialogs
+        private lateinit var addMemberVariantsDialog: AlertDialog
 
 
+    // Data
     private lateinit var currentGroup: Group
     private lateinit var currentMembers: MutableList<Person>
     private var isFirstSetData = true
 
 
+
     @ExperimentalCoroutinesApi
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View?
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View?
     {
         val layout =  inflater.inflate(R.layout.fragment_group_info, container, false)
-
-        (activity as MainActivity).hideBottomNavigation()
 
         inflateToolbarElements(layout)
         inflateBaseSection(layout)
@@ -98,7 +104,6 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         loadingBar = layout.findViewById(R.id.groupInfoProgressBarLoading)
 
         navController = container!!.findNavController()
-
         presenter.applyInitialArgumentGroupAsync(GroupInfoFragmentArgs.fromBundle(requireArguments()).groupData)
 
         return layout
@@ -106,7 +111,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
     override fun setGroupData(group: Group, members: List<Person>, groupNames: Map<GroupId, String>)
     {
-        i("set new group data: $group")
+        i("set group data: $group")
         currentGroup = group
         currentMembers = members.toMutableList()
 
@@ -127,33 +132,19 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         noMembersData.visible = false
     }
 
-    override fun showDeletePersonFromGroupNotification(person: Person?)
-    {
-        if (person == null)
-        {
-            return
-        }
-
-        val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Удалене ученика из группы")
-            .setMessage("Вы уверены что хотите удалить ${person.surname} ${person.name} из группы ${currentGroup.name} ?")
-            .setPositiveButton("Удалить") { dialog, _ ->
-                presenter.deletePersonFromCurrentGroup(person.id)
-                dialog.cancel()
-            }
-            .setNegativeButton("Отмена") { dialog, _ ->
-                dialog.cancel()
-            }
-            .create()
-
-        dialog.show()
-    }
-
     @ExperimentalCoroutinesApi
     override fun showAddPeopleToGroupNotification(people: List<Person>?)
     {
-        if (people == null)
+        if (people == null || people.isEmpty())
         {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Добавить учеников в группу")
+                .setMessage("Нет свободных учеников")
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+                .show()
             return
         }
 
@@ -246,6 +237,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
             }
         }
 
+        addMemberVariantsDialog.dismiss()
         dialog.show()
     }
 
@@ -256,7 +248,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         editGroup = layout.findViewById(R.id.groupInfoImageButtonEditPerson)
         groupJournalButton = layout.findViewById(R.id.groupInfoImageButtonJournal)
 
-        val toolbar: Toolbar = layout.findViewById(R.id.groupInfoToolbar)
+        toolbar = layout.findViewById(R.id.groupInfoToolbar)
         toolbar.setNavigationOnClickListener {
             navController.navigateUp()
         }
@@ -277,11 +269,27 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
 
     private fun inflateMembersSection(layout: View)
     {
+        membersView = layout.findViewById(R.id.groupInfoViewMembers)
         membersCount = layout.findViewById(R.id.groupInfoTextViewMembersCount)
-        fullMembersList = layout.findViewById(R.id.groupInfoButtonAllMembersList)
-        shortMembersList = layout.findViewById(R.id.groupInfoRecyclerViewMembers)
+        membersListView = layout.findViewById(R.id.groupInfoRecyclerViewMembers)
         noMembersData = layout.findViewById(R.id.groupInfoTextViewNoData)
         addMember = layout.findViewById(R.id.groupInfoButtonAddMember)
+
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_person_to_group, null)
+        addMemberVariantsDialog = MaterialAlertDialogBuilder(requireContext())
+                                    .setView(dialogView)
+                                    .create()
+
+        dialogView.findViewById<LinearLayout>(R.id.addPersonNewPerson).setOnClickListener {
+            addMemberVariantsDialog.cancel()
+            val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToPersonEditFragment(lockGroup = currentGroup.id)
+            navController.navigate(action)
+        }
+
+        dialogView.findViewById<LinearLayout>(R.id.addPersonFindPerson).setOnClickListener {
+            addMemberVariantsDialog.cancel()
+            presenter.onAddPeopleToGroupClicked()
+        }
     }
 
     private fun setToolbarActions()
@@ -292,31 +300,17 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         }
 
         groupJournalButton.setOnClickListener {
-            if (currentGroup.membersList.isEmpty())
-            {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Невозможно отобразить журнал")
-                    .setMessage("В группе нет учеников")
-                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .create()
-                    .show()
-            }
-            else
-            {
-                val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToJournalGroupFragment(currentGroup)
-                navController.navigate(action)
-            }
+            val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToJournalGroupFragment(currentGroup)
+            navController.navigate(action)
         }
     }
 
     private fun setAges()
     {
-        val age1 = currentGroup.availableAbsoluteAge?.first ?: -1
-        val age2 = currentGroup.availableAbsoluteAge?.last ?: -1
+        val ageLow  = currentGroup.availableAbsoluteAgeLow
+        val ageHigh = currentGroup.availableAbsoluteAgeHigh
 
-        if (age1 == -1)
+        if (ageLow == null)
         {
             // age not set
             absoluteAge.text = getString(R.string.group_param_ages_multiple, "?", "?")
@@ -325,17 +319,21 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         }
 
         // age set
-        if (currentGroup.availableAbsoluteAge!!.isSingle())
+        if (ageHigh == null)
         {
             // set only 1 age
-            absoluteAge.text = getString(R.string.group_param_ages_single, age1.toString())
-            relativeAge.text = getString(R.string.group_param_ages_single, age1.toRelative().toString())
+            absoluteAge.text = getString(R.string.group_param_ages_single, ageLow.toString())
+            relativeAge.text = getString(
+                R.string.group_param_ages_single, ageLow.toRelative()
+                    .toString())
         }
         else
         {
             // set age range
-            absoluteAge.text = getString(R.string.group_param_ages_multiple, age1.toString(), age2.toString())
-            relativeAge.text = getString(R.string.group_param_ages_multiple, age2.toRelative().toString(), age1.toRelative().toString())
+            absoluteAge.text = getString(R.string.group_param_ages_multiple, ageLow.toString(), ageHigh.toString())
+            relativeAge.text = getString(
+                R.string.group_param_ages_multiple, ageHigh.toRelative()
+                    .toString(), ageLow.toRelative().toString())
         }
     }
 
@@ -359,20 +357,42 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     {
         membersCount.text = currentGroup.membersList.size.toString()
 
-        val listener =  object: GroupMembersAdapter.RemovePersonListener {
+        val listener =  object: GroupMembersAdapter.PersonActionListener {
             override fun onPersonRemoveFromGroup(person: Person)
             {
-                presenter.onDeletePersonFromCurrentGroupClicked(person)
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Удалене ученика из группы")
+                    .setMessage("Вы уверены что хотите удалить ${person.surname} ${person.name} из группы ${currentGroup.name} ?")
+                    .setPositiveButton("Удалить") { dialog, _ ->
+                        presenter.deletePersonFromCurrentGroup(person.id)
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Отмена") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .create()
+                    .show()
+            }
+
+            override fun onPersonClicked(person: Person)
+            {
+                val action = GroupInfoFragmentDirections.actionGroupInfoFragmentToPersonInfoFragment(person)
+                navController.navigate(action)
             }
         }
 
         membersAdapter = get { parametersOf(currentMembers, groupNames, listener) }
 
-        shortMembersList.adapter = membersAdapter
-        shortMembersList.layoutManager = LinearLayoutManager(context)
+        membersListView.adapter = membersAdapter
+        membersListView.layoutManager = LinearLayoutManager(context)
+        remeasureMembersListHeight()
 
         addMember.setOnClickListener {
-            presenter.onAddPeopleToGroupClicked()
+            addMemberVariantsDialog.show()
+
+            // Hack to set custom dialog width
+            addMemberVariantsDialog.window!!.setLayout(resources.getDimension(R.dimen.group_info_add_person_dialog_width).toInt(),
+                                                       ViewGroup.LayoutParams.WRAP_CONTENT)
         }
 
         if (membersAdapter.itemCount == 0)
@@ -385,11 +405,24 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
         }
     }
 
+    private fun remeasureMembersListHeight()
+    {
+        membersView.updateLayoutParams {
+            height = getScreenHeight()
+        }
+    }
+
+    private fun getScreenHeight(): Int
+    {
+        val displayMetrics: DisplayMetrics = requireContext().resources.displayMetrics
+        return displayMetrics.heightPixels - toolbar.height - resources.getDimension(R.dimen.default_indent).toInt() * 3
+    }
+
     private fun noMembersState()
     {
         contentView.visible = true
         loadingBar.visible = false
-        shortMembersList.visible = false
+        membersListView.visible = false
         noMembersData.visible = true
     }
 
@@ -397,7 +430,7 @@ class GroupInfoFragment : MvpAppCompatFragment(), GroupView, KoinComponent
     {
         contentView.visible = true
         loadingBar.visible = false
-        shortMembersList.visible = true
+        membersListView.visible = true
         noMembersData.visible = false
     }
 }

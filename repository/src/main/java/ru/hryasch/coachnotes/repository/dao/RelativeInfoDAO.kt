@@ -9,8 +9,6 @@ import io.realm.annotations.Required
 open class RelativeInfoDAO(): RealmObject()
 {
     @Required
-    @Index
-    @PrimaryKey
     var name: String? = null
 
     @Required

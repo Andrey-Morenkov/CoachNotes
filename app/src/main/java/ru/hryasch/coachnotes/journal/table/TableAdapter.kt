@@ -10,17 +10,22 @@ import com.pawegio.kandroid.inflateLayout
 import org.koin.core.KoinComponent
 
 import ru.hryasch.coachnotes.R
+import ru.hryasch.coachnotes.journal.table.data.CellModel
+import ru.hryasch.coachnotes.journal.table.data.ColumnHeaderModel
+import ru.hryasch.coachnotes.journal.table.data.RowHeaderModel
+import ru.hryasch.coachnotes.journal.table.data.TableModel
 import ru.hryasch.coachnotes.journal.table.viewholders.*
 
 
 class TableAdapter(private val context: Context,
-                   val tableContent: TableModel) : AbstractTableAdapter<ColumnHeaderModel, RowHeaderModel, CellModel>(), KoinComponent
+                   val tableContent: TableModel
+) : AbstractTableAdapter<ColumnHeaderModel, RowHeaderModel, CellModel>(), KoinComponent
 {
     fun renderTable()
     {
         setAllItems(tableContent.columnHeaderContent,
                     tableContent.rowHeaderContent,
-                    tableContent.cellContent)
+                    tableContent.cellsContent)
     }
 
     override fun onCreateColumnHeaderViewHolder(parent: ViewGroup,

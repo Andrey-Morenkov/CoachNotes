@@ -9,10 +9,12 @@ import moxy.InjectViewState
 import moxy.MvpPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.data.PersonImpl
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
+import ru.hryasch.coachnotes.domain.person.interactors.SimilarPersonFoundException
 import ru.hryasch.coachnotes.fragments.PersonEditView
 import ru.hryasch.coachnotes.people.presenters.PersonEditPresenter
 
@@ -22,62 +24,97 @@ class PersonEditPresenterImpl: MvpPresenter<PersonEditView>(), PersonEditPresent
     private val peopleInteractor: PersonInteractor by inject()
     private val groupInteractor: GroupInteractor by inject()
 
-    private var currentPerson: Person? = null
+    private var originalPerson: Person? = null
+    private var editingPerson: Person? = null
 
     init
     {
         viewState.loadingState()
     }
 
-    override fun applyInitialArgumentPersonAsync(person: Person?)
+    override fun applyInitialArgumentPersonAsync(person: Person?, lockGroup: GroupId?)
     {
-        if (currentPerson != null)
+        if (editingPerson != null)
         {
             return
         }
 
-        applyPersonDataAsync(person)
+        applyPersonDataAsync(person, lockGroup)
     }
 
-    override fun applyPersonDataAsync(person: Person?)
+    override fun applyPersonDataAsync(person: Person?, lockGroup: GroupId?)
     {
         GlobalScope.launch(Dispatchers.Default)
         {
-            currentPerson = person ?: PersonImpl("", "", id = peopleInteractor.getMaxPersonId() + 1)
+            originalPerson = person
+            editingPerson = originalPerson?.copy() ?: PersonImpl.generateNew()
+
+            if (person == null && lockGroup != null)
+            {
+                editingPerson!!.groupId = lockGroup
+            }
             val groups = groupInteractor.getGroupsList()
 
             withContext(Dispatchers.Main)
             {
-                viewState.setPersonData(currentPerson!!, groups)
+                viewState.setPersonData(editingPerson!!, groups)
             }
         }
     }
 
     override fun updateOrCreatePerson()
     {
-        i("updateOrCreatePerson: $currentPerson")
+        i("updateOrCreatePerson: $editingPerson")
 
-        GlobalScope.launch(Dispatchers.Main)
+        if (editingPerson!!.surname == (originalPerson?.surname ?: ""))
         {
-            peopleInteractor.addOrUpdatePeople(listOf(currentPerson!!))
-
-            withContext(Dispatchers.Main)
+            // Surname wasn't changed, no need to check
+            updateOrCreatePersonForced()
+        }
+        else
+        {
+            GlobalScope.launch(Dispatchers.Default)
             {
-                viewState.updateOrCreatePersonFinished()
+                try
+                {
+                    peopleInteractor.addOrUpdatePerson(editingPerson!!)
+                    withContext(Dispatchers.Main)
+                    {
+                        originalPerson?.applyData(editingPerson!!)
+                        viewState.updateOrCreatePersonFinished()
+                    }
+                }
+                catch (e: SimilarPersonFoundException)
+                {
+                    withContext(Dispatchers.Main)
+                    {
+                        viewState.similarPersonFound(e.existPerson)
+                    }
+                }
             }
         }
     }
 
-    override fun onDeletePersonClicked()
+    override fun updateOrCreatePersonForced()
     {
-        viewState.showDeletePersonNotification(currentPerson)
+        i("updateOrCreatePersonForced: $editingPerson")
+
+        GlobalScope.launch(Dispatchers.Default)
+        {
+            peopleInteractor.addOrUpdatePersonForced(editingPerson!!)
+            withContext(Dispatchers.Main)
+            {
+                originalPerson?.applyData(editingPerson!!)
+                viewState.updateOrCreatePersonFinished()
+            }
+        }
     }
 
     override fun deletePerson(person: Person)
     {
         viewState.loadingState()
 
-        GlobalScope.launch(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Default)
         {
             peopleInteractor.deletePerson(person)
 

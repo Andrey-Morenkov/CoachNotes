@@ -16,13 +16,13 @@ class HomeInteractorImpl: HomeInteractor, KoinComponent
     override suspend fun getPeopleCount(): Int
     {
         var count = 0
-        val groups = personRepository.getAllPeople()
+        val groups = personRepository.getAllExistingPeople()
         groups?.let { count = it.size }
         return count
     }
 
     override suspend fun getAllGroups(): List<Group>?
     {
-        return groupRepository.getAllGroups()
+        return groupRepository.getAllExistingGroups()
     }
 }

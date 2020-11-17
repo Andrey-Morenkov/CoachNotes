@@ -9,6 +9,7 @@ import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.application.App
+import ru.hryasch.coachnotes.journal.table.data.ColumnHeaderModel
 import java.time.LocalDate
 
 class ColumnHeaderViewHolder(columnHeaderItem: View) : AbstractViewHolder(columnHeaderItem), KoinComponent
@@ -18,19 +19,24 @@ class ColumnHeaderViewHolder(columnHeaderItem: View) : AbstractViewHolder(column
     private val dayNumber: TextView = columnHeaderItem.findViewById(R.id.journalColumnHeaderDayNumber)
     private val dayOfWeek: TextView = columnHeaderItem.findViewById(R.id.journalColumnHeaderDayOfWeek)
 
+    private var internalId: Int = 0
+
     fun setModel(model: ColumnHeaderModel)
     {
-        dayNumber.text = model.data.timestamp.dayOfMonth.toString()
+        internalId = model.getId()
+        dayNumber.text = model.date.dayOfMonth.toString()
 
-        val dayIndex = model.data.timestamp.dayOfWeek.value - 1
+        val dayIndex = model.date.dayOfWeek.value - 1
         dayOfWeek.text = daysOfWeek[dayIndex]
 
         dayNumber.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorText))
         dayOfWeek.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorPrimaryLight))
 
         colorizeWeekend(dayIndex)
-        colorizeToday(model.data.timestamp)
+        colorizeToday(model.date)
     }
+
+    fun getInternalId(): Int = internalId
 
     private fun colorizeWeekend(dayIndex: Int)
     {

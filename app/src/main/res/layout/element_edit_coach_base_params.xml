@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/coachBaseParamEditTextFullName"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:background="@drawable/fake_outlined"
+        android:ems="10"
+        android:hint="Ваше ФИО"
+        android:imeOptions="actionNext"
+        android:inputType="textPersonName|textCapWords"
+        android:paddingStart="11dp"
+        android:paddingEnd="15dp" />
+
+    <ru.hryasch.coachnotes.common.view.HideKeyboardSpinner
+        android:id='@+id/coachBaseParamSpinnerRole'
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Ваша должность"
+        app:boxBackgroundMode="outline"
+        app:hintTextColor="@color/colorAccent"
+        app:spinnerMode="dropdown" />
+
+    <EditText
+        android:id="@+id/coachBaseParamEditTextCustomRole"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/fake_outlined"
+        android:ems="10"
+        android:hint="Введите должность"
+        android:inputType="textPersonName"
+        android:paddingStart="11dp"
+        android:paddingEnd="15dp" />
+</LinearLayout>

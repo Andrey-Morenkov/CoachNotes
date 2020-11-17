@@ -11,7 +11,6 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android
 {
-
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig
@@ -19,16 +18,17 @@ android
         applicationId "ru.hryasch.coachnotes"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1.0-openBeta"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        project.ext.set("archivesBaseName", "CoachNotes-" + defaultConfig.versionName)
     }
 
     buildTypes
     {
         release
         {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -55,8 +55,6 @@ dependencies
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Tests stuff
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$junitImpl_version"
@@ -107,10 +105,18 @@ dependencies
     implementation "com.github.skydoves:powerspinner:$spinner_version"
 
     // TableView
-    implementation "com.evrencoskun.library:tableview:$tableview_version"
+    //implementation "com.evrencoskun.library:tableview:$tableview_version"
+    implementation "com.github.Andrey-Morenkov:tableview:0.8.9.fix-SNAPSHOT"
 
     // Custom bottom navigation
+    //implementation 'com.fxn769:bubbletabbar:1.0.5'
     implementation "com.github.ibrahimsn98:SmoothBottomBar:$smooth_bottom_bar_version"
+
+    // Masked edit text
+    implementation "ru.tinkoff.decoro:decoro:$masked_edit_text_version"
+
+    // Custom states view
+    //implementation 'com.github.Kennyc1012:MultiStateView:2.1.2'
 
     // Permissions
     implementation "com.nabinbhandari.android:permissions:$permissions_version"

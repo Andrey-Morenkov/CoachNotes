@@ -12,25 +12,26 @@ buildscript
     {
         // General
         kotlin_version = '1.3.72'
-        ktxcore_version = '1.3.0'
-        gradle_varsion = '4.0.0'
+        ktxcore_version = '1.3.2'
+        gradle_varsion = '4.1.1'
         gradle_plugin_version = '1.3.72'
-        nav_version = "2.3.0"
+        nav_version = "2.3.1"
         coroutines_version = '1.3.3'
 
         // Test stuff
         junit_version = '4.13'
-        junitImpl_version = '1.1.1'
-        espresso_version = '3.2.0'
+        junitImpl_version = '1.1.2'
+        espresso_version = '3.3.0'
 
         // UI
-        appcompat_version = '1.1.0'
-        constraintlayout_version = '1.1.3'
+        appcompat_version = '1.2.0'
+        constraintlayout_version = '2.0.4'
         circularimageview_version = '4.2.0'
         material_version = '1.2.0-alpha02'
         material_spinner_version = '1.4.1'
         spinner_version = '1.0.4'
         week_view_version = '4.1.6'
+        masked_edit_text_version = '1.1.1'
 
         // Components
         viewpager2_version = '1.0.0'
@@ -42,7 +43,7 @@ buildscript
         koin_version = '2.1.5'
 
         // Fake data
-        faker_version = "1.0.2"
+        //faker_version = "1.0.2"
 
         // Permissions
         easypermission_version = '3.8'
@@ -52,7 +53,7 @@ buildscript
         moxy_version = '2.1.1'
 
         // Realm (DB)
-        realm_version = '7.0.0'
+        realm_version = '7.0.5'
         realm_ext_version = "2.5.0"
 
         // POI (Microsoft office exporter)
@@ -60,7 +61,7 @@ buildscript
         poiType = "extended"
 
         // Java8 support
-        java8_support_version = '1.0.5'
+        java8_support_version = '1.0.10'
 
         // Others
         kandroid_version = '0.8.7@aar'

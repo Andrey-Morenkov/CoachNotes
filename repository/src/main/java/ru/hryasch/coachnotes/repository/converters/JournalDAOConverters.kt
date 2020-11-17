@@ -1,8 +1,9 @@
 package ru.hryasch.coachnotes.repository.converters
 
+import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.repository.dao.*
-import java.util.*
+import java.util.LinkedList
 
 const val daoDateFormat = "dd.MM.yyyy"
 
@@ -40,7 +41,7 @@ fun List<JournalChunkDAO>.fromDAO(): List<JournalChunk>
 
         it.data.forEach { personDataDAO ->
             val mark = JournalMarkDAO.deserialize(personDataDAO.mark)!!.fromDAO()
-            chunk.content[ChunkPersonName(personDataDAO.surname, personDataDAO.name)] = mark
+            chunk.content[ChunkPersonName(personDataDAO.personId as PersonId, personDataDAO.surname, personDataDAO.name)] = mark
         }
 
         chunkList.add(chunk)

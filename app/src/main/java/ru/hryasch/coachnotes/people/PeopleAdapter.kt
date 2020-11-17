@@ -8,16 +8,19 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.pawegio.kandroid.i
 import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.person.data.Person
 
-class PeopleAdapter(peopleList: List<Person>,
-                    private val groupNames: Map<GroupId, String>,
+class PeopleAdapter(private val sortedPeopleList: List<Person>,
+                    private var groupNames: Map<GroupId, String>,
                     private val listener: PersonClickListener): RecyclerView.Adapter<PersonViewHolder>()
 {
-    private val peopleList: List<Person> = peopleList.sorted().toMutableList()
+    fun updateGroups(groupNames: Map<GroupId, String>)
+    {
+        this.groupNames = groupNames
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder
     {
@@ -35,12 +38,11 @@ class PeopleAdapter(peopleList: List<Person>,
         return PersonViewHolder(view, listener)
     }
 
-    override fun getItemCount(): Int = peopleList.size
+    override fun getItemCount(): Int = sortedPeopleList.size
 
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int)
     {
-        i("bing people: groupId: ${peopleList[position].groupId}")
-        holder.bind(peopleList[position], groupNames[peopleList[position].groupId])
+        holder.bind(sortedPeopleList[position], groupNames[sortedPeopleList[position].groupId])
     }
 
     interface PersonClickListener

@@ -1,18 +1,20 @@
 package ru.hryasch.coachnotes.domain.journal.data
 
 import ru.hryasch.coachnotes.domain.common.GroupId
+import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import java.time.LocalDate
-import java.util.*
+import java.util.SortedMap
+import java.util.TreeMap
 
-data class ChunkPersonName(val surname: String, val name: String): Comparable<ChunkPersonName>
+data class ChunkPersonName (val personId: PersonId, val surname: String, val name: String): Comparable<ChunkPersonName>
 {
     override fun compareTo(other: ChunkPersonName): Int
     {
-        return "$surname $name".compareTo("${other.surname} ${other.name}")
+        return "$surname $name $personId".compareTo("${other.surname} ${other.name} ${other.personId}")
     }
 
-    constructor(person: Person): this(person.surname!!, person.name!!)
+    constructor(person: Person): this(person.id, person.surname, person.name)
 }
 
 data class JournalChunk(val date: LocalDate,

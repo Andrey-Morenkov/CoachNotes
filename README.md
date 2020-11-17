@@ -22,8 +22,8 @@ Used libreries:
 - :white_check_mark: [Realm](https://realm.io/) <br/>
 - :white_check_mark: [Circle image view (mikhaellopez's )](https://github.com/lopspower/CircularImageView) <br/>
 - :white_check_mark: [Material spinner (tiper's)](https://github.com/tiper/MaterialSpinner) <br/>
-- :white_check_mark: [Table View (evrencoskun's)](https://github.com/evrencoskun/TableView) <br/>
 - :white_check_mark: [Snack progress bar (tingyik90's)](https://github.com/tingyik90/snackprogressbar) <br/>
+- :white_check_mark: custom Table View based on [evrencoskun's Table View](https://github.com/evrencoskun/TableView) <br/>
 - :white_check_mark: custom Apache POI based on [SUPERCILEX's ApachePOI](https://github.com/SUPERCILEX/poi-android) <br/>
 - :white_check_mark: custom Android Week View based on [thellmund's Android-Week-View](https://github.com/thellmund/Android-Week-View) <br/>
 - :white_check_mark: Java8 time (migrated from [Klock(soywiz's)](https://github.com/korlibs/klock) (can't be serialized when moxy's on stop activity))

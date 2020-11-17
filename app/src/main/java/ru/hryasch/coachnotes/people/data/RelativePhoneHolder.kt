@@ -5,6 +5,9 @@ import android.widget.ImageView
 import com.google.android.material.textfield.TextInputEditText
 import com.pawegio.kandroid.visible
 import ru.hryasch.coachnotes.R
+import ru.tinkoff.decoro.MaskImpl
+import ru.tinkoff.decoro.slots.PredefinedSlots
+import ru.tinkoff.decoro.watchers.MaskFormatWatcher
 
 internal class RelativePhoneHolder(layout: View, private var position: Int)
 {
@@ -14,6 +17,7 @@ internal class RelativePhoneHolder(layout: View, private var position: Int)
 
     init
     {
+        MaskFormatWatcher(MaskImpl.createTerminated(PredefinedSlots.RUS_PHONE_NUMBER)).installOn(phone)
         if (position == 0)
         {
             deletePhone.visible = false

@@ -4,24 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="16dp"
     android:orientation="vertical"
     tools:context=".activity.MainActivity">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/home_screen_account_info_height">
+        android:layout_height="@dimen/home_screen_account_info_height"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp">
 
         <com.mikhaellopez.circularimageview.CircularImageView
-            android:id="@+id/imgHomeScreenCoachAvatar"
+            android:id="@+id/homeScreenImageViewAvatar"
             android:layout_width="@dimen/home_screen_account_avatar_size"
             android:layout_height="@dimen/home_screen_account_avatar_size"
-            app:civ_border="false"
-            app:civ_border_color="#3f51b5"
-            app:civ_border_width="0dp"
-            app:civ_shadow="true"
-            app:civ_shadow_color="#3f51b5"
+            app:civ_border="true"
+            app:civ_border_color="@android:color/white"
+            app:civ_border_width="1dp"
+            app:civ_shadow="false"
+            app:civ_shadow_color="@android:color/white"
             app:civ_shadow_radius="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -33,37 +34,39 @@
             tools:srcCompat="@drawable/sample_avatar" />
 
         <TextView
-            android:id="@+id/txtHomeScreenCoachName"
+            android:id="@+id/homeScreenTextViewCoachName"
+            style="@style/ViewWithRipple"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="10dp"
-            android:fontFamily="@font/montserrat"
             android:text="@string/home_screen_sample_name"
             android:textColor="@color/colorText"
             android:textSize="@dimen/home_screen_account_name_text_size"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imgHomeScreenCoachAvatar"
+            app:layout_constraintStart_toEndOf="@+id/homeScreenImageViewAvatar"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.272" />
 
         <TextView
-            android:id="@+id/txtHomeScreenCoachGrade"
+            android:id="@+id/homeScreenTextViewCoachRole"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat"
             android:text="@string/home_screen_sample_position"
             android:textColor="@color/colorPrimaryLight"
             android:textSize="@dimen/home_screen_submenu_explanation_text_size"
-            app:layout_constraintStart_toStartOf="@+id/txtHomeScreenCoachName"
-            app:layout_constraintTop_toBottomOf="@+id/txtHomeScreenCoachName" />
+            app:layout_constraintStart_toStartOf="@+id/homeScreenTextViewCoachName"
+            app:layout_constraintTop_toBottomOf="@+id/homeScreenTextViewCoachName" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include
         layout="@layout/element_home_today_schedule"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp" />
 
 </LinearLayout>

@@ -8,14 +8,12 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import android.view.WindowManager
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -24,6 +22,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.textWatcher
 import com.pawegio.kandroid.visible
 import com.tiper.MaterialSpinner
 import moxy.MvpAppCompatFragment
@@ -51,13 +50,15 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: PersonEditPresenterImpl
-
     private lateinit var navController: NavController
 
-    private lateinit var contentView: NestedScrollView
+    // Common UI
+    private lateinit var contentView: View
     private lateinit var loadingBar: ProgressBar
+    private val additionalViews: MutableList<View> = LinkedList()
 
     // Toolbar
+    private lateinit var toolbar: Toolbar
     private lateinit var saveOrCreatePerson: MaterialButton
 
     // Base section
@@ -66,31 +67,51 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     // General section
     private lateinit var surname: TextInputEditText
     private lateinit var name: TextInputEditText
+    private lateinit var patronymicContainer: View // Additional View
     private lateinit var patronymic: TextInputEditText
 
     // Birthday section
-    private lateinit var birthdayDay: MaterialSpinner
-    private lateinit var birthdayMonth: MaterialSpinner
-    private lateinit var birthdayYear: MaterialSpinner
-    private lateinit var relativeYears: TextView
-    private lateinit var daysOfMonthList: List<String>
-    private lateinit var monthsList: List<String>
-    private lateinit var yearsList: List<String>
-    private var selectedDay: Int = -1
-    private var selectedMonth: Int = -1
-    private var selectedYear: Int = -1
+        // UI
+        private lateinit var birthdayTitle: View // Additional view
+        private lateinit var birthdayDay: MaterialSpinner // Additional view
+        private lateinit var birthdayMonth: MaterialSpinner // Additional view
+        private lateinit var birthdayYear: MaterialSpinner
+        private lateinit var relativeYears: TextView
+
+        // Data
+        private lateinit var daysOfMonthList: List<String>
+        private lateinit var monthsList: List<String>
+        private lateinit var yearsList: List<String>
+        private var selectedDay: Int = -1
+        private var selectedMonth: Int = -1
+        private var selectedYear: Int = -1
 
     // Group section
-    private lateinit var groupChooser: MaterialSpinner
-    private val groupIdByPosition: MutableMap<Int, Pair<GroupId?, Boolean>> = HashMap()
-    private val groupPositionById: MutableMap<GroupId?, Int> = HashMap()
+        // UI
+        private lateinit var noGroupText: TextView
+        private lateinit var groupChooser: MaterialSpinner
+        private lateinit var clearGroup: ImageView
+
+        // Data
+        private val allGroups: MutableMap<GroupId, Group> = HashMap()
+        private val groupIdByPosition: MutableMap<Int, Pair<GroupId?, Boolean>> = HashMap()
+        private val groupPositionById: MutableMap<GroupId?, Int> = HashMap()
+
+    // Show more fields section
+    private lateinit var showMoreButton: TextView
 
     // Relatives section
-    private lateinit var addNewRelativeButton: MaterialButton
-    private lateinit var relativesInfoContainer: LinearLayout
-    private val relativesInfoList: MutableList<RelativeInfoHolder> = ArrayList()
-    private lateinit var deleteRelativeInfoHolder: OnDeleteRelativeInfoHolder
+        // UI
+        private lateinit var relativesSection: View // Additional view
+        private lateinit var addNewRelativeButton: MaterialButton
+        private lateinit var relativesInfoContainer: LinearLayout
 
+        // Data
+        private val relativesInfoList: MutableList<RelativeInfoHolder> = ArrayList()
+        private lateinit var deleteRelativeInfoHolder: OnDeleteRelativeInfoHolder
+
+
+    // Data
     private lateinit var currentPerson: Person
 
 
@@ -101,13 +122,12 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     {
         val layout = inflater.inflate(R.layout.fragment_edit_person, container, false)
 
-        (activity as MainActivity).hideBottomNavigation()
-
         inflateToolbarElements(layout)
         inflateBaseSection(layout)
         inflateGeneralSection(layout)
         inflateBirthdaySection(layout)
         inflateGroupSection(layout)
+        inflateShowMoreSection(layout)
         inflateRelativesSection(layout)
 
         contentView = layout.findViewById(R.id.personEditContent)
@@ -115,9 +135,11 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         navController = container!!.findNavController()
 
-        presenter.applyInitialArgumentPersonAsync(PersonEditFragmentArgs.fromBundle(requireArguments()).personData)
-
         setSaveOrCreateButtonDisabled()
+        hideAdditionalViews()
+
+        presenter.applyInitialArgumentPersonAsync(PersonEditFragmentArgs.fromBundle(requireArguments()).personData,
+                                                  PersonEditFragmentArgs.fromBundle(requireArguments()).lockGroup)
 
         return layout
     }
@@ -134,7 +156,9 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         showingState(!isExistPerson)
 
-        groupChooser.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, getGroupNamesSpinnerData(groups))
+        val groupNames = getGroupNamesSpinnerData(groups)
+        groupChooser.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, groupNames)
+
         groupChooser.onItemSelectedListener = object : MaterialSpinner.OnItemSelectedListener
         {
             override fun onItemSelected(parent: MaterialSpinner,
@@ -142,31 +166,52 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                                         position: Int,
                                         id: Long)
             {
+                noGroupText.visible = false
                 currentPerson.groupId = groupIdByPosition[position]?.first
+                clearGroup.visible = true
             }
 
             override fun onNothingSelected(parent: MaterialSpinner)
             {
+                noGroupText.visible = true
+                clearGroup.visible = false
             }
         }
+        groupChooser.selection = groupPositionById[person.groupId] ?: MaterialSpinner.INVALID_POSITION
 
-        i("selected person.groupId = ${person.groupId}")
-
-        groupChooser.selection = groupPositionById[person.groupId]!!
+        if (groupNames.isEmpty() || currentPerson.isEmptyAndHasLockedGroup())
+        {
+            clearGroup.visible = false
+            groupChooser.isEnabled = false
+            groupChooser.boxBackgroundColor = ContextCompat.getColor(App.getCtx(), R.color.colorDisabledSpinner)
+            groupChooser.editText?.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorDisabledText))
+            noGroupText.setTextColor(ContextCompat.getColor(App.getCtx(), R.color.colorDisabledText))
+        }
 
         saveOrCreatePerson.setOnClickListener {
-            currentPerson.surname = surname.text.toString()
-            currentPerson.name = name.text.toString()
-            currentPerson.patronymic = patronymic.text?.toString()
+            currentPerson.surname = surname.text.toString().trim()
+            currentPerson.name = name.text.toString().trim()
 
-            if (selectedDay > 0 && selectedMonth > 0 && selectedYear > 0)
+            if (patronymicContainer.isVisible)
             {
-                currentPerson.birthday = LocalDate.of(selectedYear, selectedMonth, selectedDay)
+                currentPerson.patronymic = patronymic.text?.toString()?.trim()
             }
             else
             {
-                currentPerson.birthday = null
+                currentPerson.patronymic = null
             }
+
+
+            if (selectedDay > 0 && selectedMonth > 0 && selectedYear > 0)
+            {
+                currentPerson.fullBirthday = LocalDate.of(selectedYear, selectedMonth, selectedDay)
+            }
+            else
+            {
+                currentPerson.fullBirthday = null
+            }
+            currentPerson.birthdayYear = selectedYear
+
 
             if (groupChooser.selection == MaterialSpinner.INVALID_POSITION)
             {
@@ -178,6 +223,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
                 currentPerson.groupId = groupIdByPosition[groupChooser.selection]!!.first
                 currentPerson.isPaid = groupIdByPosition[groupChooser.selection]!!.second
             }
+
 
             currentPerson.relativeInfos.clear()
             for (relativeHolder in relativesInfoList)
@@ -194,15 +240,9 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         }
     }
 
-    override fun loadingState()
-    {
-        contentView.visible = false
-        loadingBar.visible = true
-        saveOrCreatePerson.visible = false
-    }
-
     override fun deletePersonFinished()
     {
+        // Jump to people list, not to person info
         navController.popBackStack()
         navController.navigateUp()
     }
@@ -212,24 +252,52 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         navController.navigateUp()
     }
 
-    override fun showDeletePersonNotification(person: Person?)
+    override fun similarPersonFound(existedPerson: Person)
     {
-        if (person == null)
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_found_similar_person, null)
+        val labelPaid: View = dialogView.findViewById(R.id.label_paid)
+        val fullName: TextView = dialogView.findViewById(R.id.personTextViewFullName)
+        val group: TextView = dialogView.findViewById(R.id.personTextViewGroupName)
+
+        if (existedPerson.isPaid)
         {
-            return
+            labelPaid.visibility = View.VISIBLE
+        }
+        else
+        {
+            labelPaid.visibility = View.INVISIBLE
         }
 
-        val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setMessage("Удалить ученика?")
-            .setPositiveButton("Удалить") { dialog, _ ->
-                dialog.cancel()
-                presenter.deletePerson(currentPerson)
-            }
-            .setNegativeButton("Отмена") { dialog, _ -> dialog.cancel() }
-            .create()
+        fullName.text = requireContext().getString(R.string.person_full_name_pattern, existedPerson.surname, existedPerson.name)
+        group.text = if (existedPerson.groupId == null)
+                     {
+                         "Нет группы"
+                     }
+                     else
+                     {
+                         allGroups[existedPerson.groupId!!]?.name ?: "ОШИБКА"
+                     }
 
-        dialog.show()
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setPositiveButton("Отмена") { dialog, _ ->
+                dialog.cancel()
+            }
+            .setNegativeButton("Всё равно сохранить") { dialog, _ ->
+                presenter.updateOrCreatePersonForced()
+                dialog.cancel()
+            }
+            .create()
+            .show()
     }
+
+    override fun loadingState()
+    {
+        contentView.visible = false
+        loadingBar.visible = true
+        saveOrCreatePerson.visible = false
+    }
+
 
 
     private fun showingState(isNewPerson: Boolean)
@@ -244,7 +312,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
     {
         saveOrCreatePerson = layout.findViewById(R.id.personEditButtonCreateOrSave)
 
-        val toolbar: Toolbar = layout.findViewById(R.id.personEditToolbar)
+        toolbar = layout.findViewById(R.id.personEditToolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
 
@@ -263,64 +331,33 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         surname = layout.findViewById(R.id.editPersonEditTextSurname)
         name = layout.findViewById(R.id.editPersonEditTextName)
         patronymic = layout.findViewById(R.id.editPersonEditTextPatronymic)
+        patronymicContainer = layout.findViewById(R.id.editPersonTextContainerPatronymic)
+        additionalViews.add(patronymicContainer)
 
-        surname.addTextChangedListener(object: TextWatcher
-                                       {
-                                           override fun afterTextChanged(s: Editable?)
-                                           {
-                                               checkRequiredFields()
-                                           }
+        surname.textWatcher {
+            afterTextChanged {
+                checkRequiredFields()
+            }
+        }
 
-                                           override fun beforeTextChanged(
-                                               s: CharSequence?,
-                                               start: Int,
-                                               count: Int,
-                                               after: Int
-                                           )
-                                           {
-                                           }
-
-                                           override fun onTextChanged(
-                                               s: CharSequence?,
-                                               start: Int,
-                                               before: Int,
-                                               count: Int
-                                           )
-                                           {
-                                           }
-                                       })
-
-        name.addTextChangedListener(object: TextWatcher
-                                    {
-                                        override fun afterTextChanged(s: Editable?)
-                                        {
-                                            checkRequiredFields()
-                                        }
-
-                                        override fun beforeTextChanged(
-                                            s: CharSequence?,
-                                            start: Int,
-                                            count: Int,
-                                            after: Int
-                                        )
-                                        {
-                                        }
-
-                                        override fun onTextChanged(
-                                            s: CharSequence?,
-                                            start: Int,
-                                            before: Int,
-                                            count: Int
-                                        )
-                                        {
-                                        }
-                                    })
+        name.textWatcher {
+            afterTextChanged {
+                checkRequiredFields()
+            }
+        }
     }
 
     private fun inflateBirthdaySection(layout: View)
     {
+        birthdayTitle = layout.findViewById(R.id.personEditBirthdayTitle)
+        additionalViews.add(birthdayTitle)
+
         birthdayDay = layout.findViewById(R.id.personEditBirthdaySpinnerDay)
+        additionalViews.add(birthdayDay)
+
         birthdayMonth = layout.findViewById(R.id.personEditBirthdaySpinnerMonth)
+        additionalViews.add(birthdayMonth)
+
         birthdayYear = layout.findViewById(R.id.personEditBirthdaySpinnerYear)
         relativeYears = layout.findViewById(R.id.personEditRelativeAges)
 
@@ -388,11 +425,59 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     private fun inflateGroupSection(layout: View)
     {
+        noGroupText = layout.findViewById(R.id.personEditTextViewNoGroup)
         groupChooser = layout.findViewById(R.id.personEditSpinnerGroup)
+        clearGroup = layout.findViewById(R.id.personEditImageViewClearGroup)
+        clearGroup.visible = false
+        clearGroup.setOnClickListener {
+            groupChooser.selection = MaterialSpinner.INVALID_POSITION
+        }
+    }
+
+    private fun inflateShowMoreSection(layout: View)
+    {
+        showMoreButton = layout.findViewById(R.id.personEditTextViewShowMoreFields)
+        showMoreButton.setOnClickListener {
+            showAdditionalViews()
+        }
+    }
+
+
+
+    private fun checkIfAllAdditionalViewsVisibleHideShowMore()
+    {
+        for (view in additionalViews)
+        {
+            if (!view.isVisible)
+            {
+                return
+            }
+        }
+
+        showMoreButton.visible = false
+    }
+
+    private fun showAdditionalViews()
+    {
+        additionalViews.forEach { v -> v.visible = true }
+        showMoreButton.visible = false
+
+        birthdayYear.hint = getString(R.string.person_edit_birthday_year_full)
+    }
+
+    private fun hideAdditionalViews()
+    {
+        additionalViews.forEach { v -> v.visible = false }
+        showMoreButton.visible = true
+
+        birthdayYear.hint = getString(R.string.person_edit_birthday_title_short)
     }
 
     private fun inflateRelativesSection(layout: View)
     {
+        relativesSection = layout.findViewById(R.id.editPersonRelativesSection)
+        additionalViews.add(relativesSection)
+
         addNewRelativeButton = layout.findViewById(R.id.editPersonRelativeInfoAddRelative)
         relativesInfoContainer = layout.findViewById(R.id.editPersonRelativeInfoContainer)
 
@@ -436,7 +521,8 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     private fun setExistPersonData()
     {
-        (activity as AppCompatActivity).supportActionBar!!.setTitle(R.string.person_edit_screen_toolbar_title)
+        toolbar.setTitle(R.string.person_edit_screen_toolbar_title)
+        
         saveOrCreatePerson.text = getString(R.string.save)
 
         surname.text = SpannableStringBuilder(currentPerson.surname)
@@ -444,9 +530,13 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
         currentPerson.patronymic?.let {
             patronymic.text = SpannableStringBuilder(it)
+            patronymicContainer.visible = true
         }
 
-        currentPerson.birthday?.let {
+        selectedYear = currentPerson.birthdayYear
+        birthdayYear.selection = yearsList.indexOf(selectedYear.toString())
+
+        currentPerson.fullBirthday?.let {
             selectedDay = it.dayOfMonth
             selectedMonth = it.month.value
             selectedYear = it.year
@@ -454,10 +544,23 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             birthdayDay.selection = daysOfMonthList.indexOf(selectedDay.toString())
             birthdayMonth.selection = selectedMonth - 1
             birthdayYear.selection = yearsList.indexOf(selectedYear.toString())
+
+            birthdayTitle.visible = true
+            birthdayDay.visible = true
+            birthdayMonth.visible = true
         }
 
         deletePerson.setOnClickListener {
-            presenter.onDeletePersonClicked()
+            val dialog = MaterialAlertDialogBuilder(requireContext())
+                .setMessage("Удалить ученика?")
+                .setPositiveButton("Удалить") { dialog, _ ->
+                    dialog.cancel()
+                    presenter.deletePerson(currentPerson)
+                }
+                .setNegativeButton("Отмена") { dialog, _ -> dialog.cancel() }
+                .create()
+
+            dialog.show()
         }
 
         for (i in 1 until currentPerson.relativeInfos.size)
@@ -471,50 +574,51 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
             {
                 relativeHolder.applyExistData(currentPerson.relativeInfos[i])
             }
+            relativesSection.visible = true
         }
 
+        checkIfAllAdditionalViewsVisibleHideShowMore()
         checkRequiredFields()
     }
 
     private fun getGroupNamesSpinnerData(groups: List<Group>): List<String>
     {
         val groupsListItems = LinkedList<String>()
-        groupsListItems.add("Нет группы")
-        groupIdByPosition[0] = Pair(null, false)
-        groupPositionById[null] = 0
 
         val groupListSorted = groups.sorted()
         for ((i, group) in groupListSorted.withIndex())
         {
-            groupIdByPosition[i + 1] = Pair(group.id, group.isPaid)
-            groupPositionById[group.id] = i + 1
+            allGroups[group.id] = group
+            groupIdByPosition[i] = Pair(group.id, group.isPaid)
+            groupPositionById[group.id] = i
 
             var age1 = "?"
             var age2 = "?"
 
-            if (group.availableAbsoluteAge != null)
-            {
-                age1 = group.availableAbsoluteAge!!.first.toString()
-                age2 = group.availableAbsoluteAge!!.last.toString()
+            group.availableAbsoluteAgeLow?.let {
+                age1 = it.toString()
             }
 
-            val paidSuffix =
-                if (group.isPaid)
-                {
-                    " $"
-                }
-                else
-                {
-                    ""
-                }
+            group.availableAbsoluteAgeHigh?.let {
+                age2 = it.toString()
+            }
 
-            if (age1 == age2)
+            val paidSuffix = if (group.isPaid)
+                             {
+                                 " $"
+                             }
+                             else
+                             {
+                                 ""
+                             }
+
+            if (age1 == age2 || age2 == "?")
             {
-                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_single, group.name, age1) + paidSuffix)
+                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_single, group.name, age1, group.membersList.size) + paidSuffix)
             }
             else
             {
-                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_range, group.name, age1, age2) + paidSuffix)
+                groupsListItems.add(getString(R.string.person_edit_screen_group_pattern_range, group.name, age1, age2, group.membersList.size) + paidSuffix)
             }
         }
 
@@ -538,7 +642,7 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
 
     private fun checkRequiredFields()
     {
-        if (!surname.text.isNullOrBlank() && !name.text.isNullOrBlank() && isBirthdaySet())
+        if (!surname.text.isNullOrBlank() && !name.text.isNullOrBlank() && birthdayYear.selectedItem != null)
         {
             setSaveOrCreateButtonEnabled()
         }
@@ -561,11 +665,9 @@ class PersonEditFragment : MvpAppCompatFragment(), PersonEditView, KoinComponent
         saveOrCreatePerson.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorAccentDisabled))
         saveOrCreatePerson.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorDisabledText))
     }
+}
 
-    private fun isBirthdaySet(): Boolean
-    {
-        return (birthdayDay.selectedItem != null) &&
-               (birthdayMonth.selectedItem != null) &&
-               (birthdayYear.selectedItem != null)
-    }
+private fun Person.isEmptyAndHasLockedGroup(): Boolean
+{
+    return surname.isBlank() && groupId != null
 }

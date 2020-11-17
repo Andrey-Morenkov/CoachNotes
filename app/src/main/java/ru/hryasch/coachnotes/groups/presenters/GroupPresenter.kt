@@ -10,8 +10,6 @@ interface GroupPresenter
 
     fun applyGroupDataAsync(group: Group?)
 
-    fun onDeletePersonFromCurrentGroupClicked(person: Person)
-
     fun deletePersonFromCurrentGroup(personId: PersonId)
 
     fun onAddPeopleToGroupClicked()

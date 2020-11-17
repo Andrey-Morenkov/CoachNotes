@@ -14,6 +14,7 @@ import org.koin.core.inject
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.group.data.GroupImpl
 import ru.hryasch.coachnotes.domain.group.interactors.GroupInteractor
+import ru.hryasch.coachnotes.domain.group.interactors.SimilarGroupFoundException
 import ru.hryasch.coachnotes.fragments.GroupEditView
 import ru.hryasch.coachnotes.groups.presenters.GroupEditPresenter
 
@@ -22,7 +23,8 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
 {
     private val groupInteractor: GroupInteractor by inject()
 
-    private var currentGroup: Group? = null
+    private var originalGroup: Group? = null
+    private var editingGroup: Group? = null
 
     init
     {
@@ -32,7 +34,7 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
     override fun applyInitialArgumentGroupAsync(group: Group?)
     {
         // for prevent unnecessary apply group when fragment re-create
-        if (currentGroup != null)
+        if (editingGroup != null)
         {
             e("return applyGroupDataAsync")
             return
@@ -45,48 +47,89 @@ class GroupEditPresenterImpl: MvpPresenter<GroupEditView>(), GroupEditPresenter,
     override fun applyGroupDataAsync(group: Group?)
     {
         GlobalScope.launch(Dispatchers.Default) {
-            currentGroup = group ?: GroupImpl(groupInteractor.getMaxGroupId() + 1, "")
+            originalGroup = group
+            editingGroup = originalGroup?.copy() ?: GroupImpl.generateNew()
 
             withContext(Dispatchers.Main)
             {
-                i("group edit presenter setGroupData: $currentGroup")
-                viewState.setGroupData(currentGroup!!)
+                i("group edit presenter setGroupData: $editingGroup")
+                viewState.setGroupData(editingGroup!!)
             }
         }
     }
 
     override fun updateOrCreateGroup()
     {
-        i("updateOrCreateGroup: $currentGroup")
+        i("updateOrCreateGroup: $editingGroup")
 
-        GlobalScope.launch(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Default)
         {
-            groupInteractor.addOrUpdateGroup(currentGroup!!)
+            if (editingGroup!!.name == (originalGroup?.name ?: ""))
+            {
+                // Group name wasn't changed, no need to check
+                updateOrCreateGroupForced()
+            }
+            else
+            {
+                try
+                {
+                    groupInteractor.addOrUpdateGroup(editingGroup!!)
+                    withContext(Dispatchers.Main)
+                    {
+                        originalGroup?.applyData(editingGroup!!)
+                        viewState.updateOrCreateGroupFinished()
+                    }
+                }
+                catch (e: SimilarGroupFoundException)
+                {
+                    withContext(Dispatchers.Main)
+                    {
+                        viewState.similarGroupFound(e.existGroup)
+                    }
+                }
+            }
+        }
+    }
 
+    override fun updateOrCreateGroupForced()
+    {
+        i("updateOrCreateGroupForced: $editingGroup")
+
+        GlobalScope.launch(Dispatchers.Default)
+        {
+            groupInteractor.addOrUpdateGroupForced(editingGroup!!)
             withContext(Dispatchers.Main)
             {
+                originalGroup?.applyData(editingGroup!!)
                 viewState.updateOrCreateGroupFinished()
             }
         }
     }
 
-    override fun onDeleteGroupClicked()
-    {
-        viewState.showDeleteGroupNotification(currentGroup)
-    }
-
-    override fun deleteGroup(group: Group)
+    override fun deleteGroupAndRemoveAllPeopleFromThisGroup(group: Group)
     {
         viewState.loadingState()
 
-        GlobalScope.launch(Dispatchers.Main)
+        GlobalScope.launch(Dispatchers.Default)
         {
-            groupInteractor.deleteGroup(group)
+            groupInteractor.deleteGroupAndRemoveAllPeopleFromThisGroup(group)
 
             withContext(Dispatchers.Main)
             {
                 viewState.deleteGroupFinished()
             }
         }
+    }
+
+    override fun deleteGroupAndMoveAllPeopleToAnotherGroup(group: Group, targetGroup: Group)
+    {
+        // TODO
+        //viewState.loadingState()
+    }
+
+    override fun deleteGroupAnDeleteAllPeople(group: Group)
+    {
+        // TODO
+        //viewState.loadingState()
     }
 }

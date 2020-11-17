@@ -39,7 +39,7 @@ class GroupsPresenterImpl: MvpPresenter<GroupsView>(), GroupsPresenter, KoinComp
 
             withContext(Dispatchers.Main)
             {
-                viewState.setGroupsList(groupsList)
+                viewState.setGroupsList(groupsList.sorted())
                 subscribeOnGroupsChanges()
             }
         }
@@ -70,7 +70,7 @@ class GroupsPresenterImpl: MvpPresenter<GroupsView>(), GroupsPresenter, KoinComp
 
                 withContext(Dispatchers.Main)
                 {
-                    viewState.setGroupsList(newData)
+                    viewState.setGroupsList(newData.sorted())
                 }
             }
         }

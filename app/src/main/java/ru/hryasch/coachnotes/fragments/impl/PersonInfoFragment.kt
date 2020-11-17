@@ -17,7 +17,6 @@ import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.fragments.PersonView
@@ -31,31 +30,38 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: PersonPresenterImpl
-
     private lateinit var navController: NavController
 
+    // Common UI
+    private lateinit var contentView: NestedScrollView
+    private lateinit var loadingBar: ProgressBar
+
+    // Toolbar
     private lateinit var editPerson: ImageButton
 
+    // Header section
     private lateinit var surnameName: TextView
     private lateinit var patronymic: TextView
     private lateinit var isPaid: AppCompatImageView
     private lateinit var age: TextView
     private lateinit var groupName: TextView
+
+    // Tags section
     private lateinit var tagsLayout: LinearLayout
+
+    // Params section
     private lateinit var viewPager: ViewPager2
 
+    // Data
     private lateinit var currentPerson: Person
 
-    private lateinit var contentView: NestedScrollView
-    private lateinit var loadingBar: ProgressBar
+
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
         val layout = inflater.inflate(R.layout.fragment_person_info, container, false)
-
-        (activity as MainActivity).hideBottomNavigation()
 
         editPerson = layout.findViewById(R.id.personInfoImageButtonEditPerson)
 
@@ -115,11 +121,19 @@ class PersonInfoFragment : MvpAppCompatFragment(), PersonView, KoinComponent
             isPaid.visibility = View.INVISIBLE
         }
 
-        val birthdayDate = LocalDate.of(person.birthday!!.year, person.birthday!!.month.value, person.birthday!!.dayOfMonth)
-        val nowDate = LocalDate.now()
-        val diffYears = ChronoUnit.YEARS.between(birthdayDate, nowDate)
+        if (person.fullBirthday == null)
+        {
+            age.text = getString(R.string.person_info_header_age_only_year_pattern, person.birthdayYear)
+        }
+        else
+        {
+            val birthdayDate = LocalDate.of(person.fullBirthday!!.year, person.fullBirthday!!.month.value, person.fullBirthday!!.dayOfMonth)
+            val nowDate = LocalDate.now()
+            val diffYears = ChronoUnit.YEARS.between(birthdayDate, nowDate)
 
-        age.text = getString(R.string.person_info_header_age_pattern, person.birthday!!.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), diffYears)
+            age.text = getString(R.string.person_info_header_age_pattern, person.fullBirthday!!.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), diffYears)
+        }
+
         groupName.text = groupNames[person.groupId] ?: "Нет группы"
 
         editPerson.setOnClickListener {

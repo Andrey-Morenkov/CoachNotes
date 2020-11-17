@@ -3,33 +3,43 @@ package ru.hryasch.coachnotes.repository.converters
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.group.data.GroupImpl
 import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
+import ru.hryasch.coachnotes.repository.dao.DeletedGroupDAO
 import ru.hryasch.coachnotes.repository.dao.GroupDAO
 import ru.hryasch.coachnotes.repository.dao.ScheduleDayDAO
 import java.time.LocalTime
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.LinkedList
 
 @JvmName("DAOGroupListConverter")
 fun List<GroupDAO>.fromDAO(): List<Group>
 {
     val groupList: MutableList<Group> = LinkedList()
-
     this.forEach { groupList.add(it.fromDAO()) }
 
     return groupList
 }
 
+@JvmName("DeletedDAOGroupListConverter")
+fun List<DeletedGroupDAO>.fromDAO(): List<Group>
+{
+    val groupList: MutableList<Group> = LinkedList()
+    this.forEach { groupList.add(it.fromDAO()) }
+
+    return groupList
+}
+
+
+
 fun GroupDAO.fromDAO(): Group
 {
-    val lowAge = this.availableAgeLow
-    val highAge = this.availableAgeHigh
-
-    val group = GroupImpl(this.id!!, this.name!!, isPaid = this.isPaid)
-    if (lowAge != null)
-    {
-        val ageRange = IntRange(lowAge, highAge ?: lowAge)
-        group.availableAbsoluteAge = ageRange
+    val group = GroupImpl(this.id!!, this.name!!).apply {
+        isPaid = this@fromDAO.isPaid
+        deletedTimestamp = null
     }
 
+    group.availableAbsoluteAgeLow  = this.availableAgeLow
+    group.availableAbsoluteAgeHigh = this.availableAgeHigh
 
     this.members.forEach {
         group.membersList.add(it)
@@ -42,16 +52,37 @@ fun GroupDAO.fromDAO(): Group
     return group
 }
 
-fun Group.toDao(): GroupDAO
+fun DeletedGroupDAO.fromDAO(): Group
 {
-    val dao = GroupDAO(this.id, this.name, availableAgeLow = this.availableAbsoluteAge!!.first)
-
-    dao.isPaid = isPaid
-
-    if (this.availableAbsoluteAge!!.first != this.availableAbsoluteAge!!.last)
-    {
-        dao.availableAgeHigh = this.availableAbsoluteAge!!.last
+    val group = GroupImpl(this.id!!, this.name!!).apply {
+        isPaid = this@fromDAO.isPaid
+        deletedTimestamp = this@fromDAO.deleteTimestamp
     }
+
+    group.availableAbsoluteAgeLow = this.availableAgeLow
+    group.availableAbsoluteAgeHigh = this.availableAgeHigh
+
+    this.members.forEach {
+        group.membersList.add(it)
+    }
+
+    this.scheduleDays.forEach {
+        group.scheduleDays.add(it.fromDAO())
+    }
+
+    return group
+}
+
+
+
+fun Group.toDao(): GroupDAO?
+{
+    if (this.deletedTimestamp != null)
+    {
+        return null
+    }
+
+    val dao = GroupDAO(this.id, this.name, this.isPaid, this.availableAbsoluteAgeLow, this.availableAbsoluteAgeHigh)
 
     this.membersList.forEach {
         dao.members.add(it)
@@ -65,19 +96,26 @@ fun Group.toDao(): GroupDAO
     return dao
 }
 
+fun Group.toDeletedDao(): DeletedGroupDAO?
+{
+    if (this.deletedTimestamp == null)
+    {
+        return null
+    }
+
+    return DeletedGroupDAO(this.toDao()!!, this.deletedTimestamp!!)
+}
+
+
+
 fun ScheduleDayDAO.fromDAO(): ScheduleDay
 {
-    val startTimeCal = Calendar.getInstance().apply {
-        timeInMillis = ScheduleDay.format.parse(startTime!!)!!.time
-    }
-
-    val endTimeCal = Calendar.getInstance().apply {
-        timeInMillis = ScheduleDay.format.parse(finishTime!!)!!.time
-    }
+    val startHHmmTime = startTime!!.split(":")
+    val endHHmmTime = finishTime!!.split(":")
 
     return ScheduleDay(this.name!!, this.position0!!).apply {
-        startTime = LocalTime.of(startTimeCal.get(Calendar.HOUR_OF_DAY), startTimeCal.get(Calendar.MINUTE))
-        endTime = LocalTime.of(endTimeCal.get(Calendar.HOUR_OF_DAY), endTimeCal.get(Calendar.MINUTE))
+        startTime = LocalTime.of(startHHmmTime[0].toInt(), startHHmmTime[1].toInt())
+        endTime = LocalTime.of(endHHmmTime[0].toInt(), endHHmmTime[1].toInt())
     }
 }
 

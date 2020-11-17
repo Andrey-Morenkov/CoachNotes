@@ -3,6 +3,7 @@ package ru.hryasch.coachnotes.repository.tools
 import android.content.Context
 import com.pawegio.kandroid.d
 import com.pawegio.kandroid.i
+import com.pawegio.kandroid.w
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -15,6 +16,9 @@ import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.*
 import ru.hryasch.coachnotes.domain.tools.DataExporter
 import ru.hryasch.coachnotes.repository.R
+import ru.hryasch.coachnotes.repository.common.toAbsolute
+import ru.hryasch.coachnotes.repository.common.toRelative
+import ru.hryasch.coachnotes.repository.global.GlobalSettings
 import ru.hryasch.coachnotes.repository.tools.DocExporter.fileExtension
 import ru.hryasch.coachnotes.repository.tools.DocExporter.saveDirectory
 import java.io.File
@@ -39,9 +43,37 @@ object DocExporter: DataExporter, KoinComponent
         System.setProperty("org.apache.poi.javax.xml.stream.XMLEventFactory", "com.fasterxml.aalto.stax.EventFactoryImpl")
     }
 
-    override suspend fun export(chunks: List<JournalChunk>, group: Group, period: YearMonth, coachName: String?)
+    override suspend fun export(chunks: List<JournalChunk>, group: Group, period: YearMonth)
     {
-        JournalDocument.generate(chunks, group, period, coachName).save()
+        JournalDocument.generate(chunks, group, period, generateCoachSignature()).save()
+    }
+
+    private fun generateCoachSignature(): String
+    {
+        val fullName = GlobalSettings.Coach.getFullName() ?: return ""
+        val (surname, name, patronymic) = fullName
+
+        var signature = surname
+        if (name.contains('.') && patronymic == null)
+        {
+            d("Short coach name detected: $surname $name")
+            signature += " $name"
+            if (!name.endsWith('.'))
+            {
+                signature += "."
+            }
+        }
+        else
+        {
+            d("Full coach name detected: $surname $name $patronymic")
+            signature += " ${name[0]}."
+            if (!patronymic.isNullOrBlank())
+            {
+                signature += "${patronymic[0]}."
+            }
+        }
+
+        return signature
     }
 }
 
@@ -59,9 +91,9 @@ private class JournalDocument(val period: YearMonth,
         suspend fun generate(chunks: List<JournalChunk>,
                              group: Group,
                              period: YearMonth,
-                             coachName: String?): JournalDocument
+                             coachName: String): JournalDocument
         {
-            return JournalDocument(period, group, coachName ?: "Кондратьев А.А")
+            return JournalDocument(period, group, coachName)
                             .apply { document = generateDocument(chunks) }
         }
     }
@@ -83,7 +115,7 @@ private class JournalDocument(val period: YearMonth,
 
     private suspend fun generateDocument(chunks: List<JournalChunk>): XWPFDocument
     {
-        return XWPFDocument().also { XWPFHelper.createHeader(it, period, 6, coachName) }
+        return XWPFDocument().also { XWPFHelper.createHeader(it, period, group, coachName) }
                              .also { XWPFHelper.createTable(it, chunks) }
                              .also { XWPFHelper.createFooter(it, coachName) }
     }
@@ -93,10 +125,32 @@ private class JournalDocument(val period: YearMonth,
         val monthNames: Array<String> by inject(named("months_RU"))
 
         val periodInfo = "${monthNames[period.month.value - 1].toLowerCase(Locale("ru"))} ${period.year}"
-        val groupInfo = "${group.availableAbsoluteAge} лет"
 
-        // "Кондратьев Январь 2020 6 лет.docx"
-        val outputFile = File(saveDirectory, "$coachName $periodInfo $groupInfo.$fileExtension")
+        val ageLow = group.availableAbsoluteAgeLow
+        val ageHigh = group.availableAbsoluteAgeHigh
+
+        var groupInfo = "(  г.р)"
+        if (ageLow == null && ageHigh == null)
+        {
+            w("no group age, use default name \"?\"")
+            groupInfo = groupInfo.replaceFirst(" ", "?")
+        }
+        else if (ageLow == null && ageHigh != null)
+        {
+            w("no age low, has age high: $ageHigh")
+            groupInfo = groupInfo.replaceFirst(" ", "$ageHigh")
+        } else if (ageLow != null && ageHigh == null)
+        {
+            w("only has age low: $ageLow")
+            groupInfo = groupInfo.replaceFirst(" ", "$ageLow")
+        }
+        else
+        {
+            groupInfo = groupInfo.replaceFirst(" ", "$ageLow - $ageHigh")
+        }
+
+        // "Кондратьев Январь 2020 ОФП(2014 г.р).doc"
+        val outputFile = File(saveDirectory, "$coachName $periodInfo ${group.name}$groupInfo.$fileExtension")
         if (outputFile.exists())
         {
             outputFile.delete()
@@ -116,7 +170,7 @@ private object XWPFHelper: KoinComponent
     private val context: Context by inject(named("global"))
     private val monthNames: Array<String> by inject(named("months_RU"))
 
-    fun createHeader(document: XWPFDocument, period: YearMonth, groupAge: Int, coachName: String)
+    fun createHeader(document: XWPFDocument, period: YearMonth, group: Group, coachName: String)
     {
         val headerParagraph = document.createParagraph().also { it.applyHeaderStyle() }
 
@@ -137,11 +191,35 @@ private object XWPFHelper: KoinComponent
                 addCarriageReturn()
             }
 
+        val lowAge  = group.availableAbsoluteAgeLow?.toRelative()
+        val highAge = group.availableAbsoluteAgeHigh?.toRelative()
+
+        var ageString = "?"
+        if (lowAge != null)
+        {
+            ageString = if (highAge == null)
+                        {
+                            "$lowAge"
+                        }
+                        else
+                        {
+                            "$highAge - $lowAge"
+                        }
+        }
+        else
+        {
+            if (highAge != null)
+            {
+                ageString = "$highAge"
+            }
+        }
+
+
         headerParagraph
             .createRun()
             .also { it.applyTableStyle() }
             .apply {
-                setText("$coachName   |  $groupAge лет   |   ${monthNames[period.month.value - 1]} ${period.year}")
+                setText("$coachName   |  ${group.name} ($ageString лет)   |   ${monthNames[period.month.value - 1]} ${period.year}")
                 addCarriageReturn()
             }
     }
@@ -245,7 +323,7 @@ private object XWPFHelper: KoinComponent
             table.getRow(i).getCell(1).ctTc.tcPr.vMerge = CTVMerge.Factory.newInstance().apply { `val` =  STMerge.CONTINUE}
         }
 
-        // Date
+        // № Execution
         val tableWidthCells = table.getRow(0).tableCells.size
         table.getRow(0).getCell(2).ctTc.tcPr.hMerge = CTHMerge.Factory.newInstance().apply { `val` =  STMerge.RESTART}
         for (i in 3 until tableWidthCells)
@@ -253,7 +331,7 @@ private object XWPFHelper: KoinComponent
             table.getRow(0).getCell(i).ctTc.tcPr.hMerge = CTHMerge.Factory.newInstance().apply { `val` =  STMerge.CONTINUE}
         }
 
-        // № Execution
+        // Date
         table.getRow(2).getCell(2).ctTc.tcPr.hMerge = CTHMerge.Factory.newInstance().apply { `val` =  STMerge.RESTART}
         for (i in 3 until tableWidthCells)
         {
@@ -265,8 +343,10 @@ private object XWPFHelper: KoinComponent
     {
         table.getRow(0).getCell(0).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("№") }
         table.getRow(0).getCell(1).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("Ф.И") }
-        table.getRow(0).getCell(2).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("Дата") }
-        table.getRow(2).getCell(2).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("Номер занятия") }
+        table.getRow(0).getCell(2).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("Номер занятия") }
+        table.getRow(2).getCell(2).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("Дата") }
+
+        // Generate people numbers
         for (i in 4 until table.rows.size)
         {
             table.getRow(i).getCell(0).paragraphs[0].createRun().also { it.applyTableStyle() }.apply { setText("${i - 3}") }
@@ -300,15 +380,17 @@ private object XWPFHelper: KoinComponent
 
         for ((i, chunk) in chunksSorted.withIndex())
         {
+            // Fill execute number
             table.getRow(1).getCell(dateStartColumn + i).paragraphs[0]
                 .createRun()
                 .also { it.applyTableStyle() }
-                .apply { setText(chunk.date.format(DateTimeFormatter.ofPattern("dd.MM"))) }
+                .apply { setText("${i + 1}") }
 
+            // Fill data
             table.getRow(3).getCell(executionNumStart + i).paragraphs[0]
                 .createRun()
                 .also { it.applyTableStyle() }
-                .apply { setText("${i + 1}") }
+                .apply { setText(chunk.date.format(DateTimeFormatter.ofPattern("dd.MM"))) }
 
             for ((j, person) in allPeopleSortedList.withIndex())
             {

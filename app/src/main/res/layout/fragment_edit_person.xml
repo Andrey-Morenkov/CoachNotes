@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.appbar.AppBarLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -39,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center" />
 
-        <androidx.core.widget.NestedScrollView
+        <ScrollView
             android:id="@+id/personEditContent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -98,6 +99,17 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/default_indent" />
 
+                <TextView
+                    android:id="@+id/personEditTextViewShowMoreFields"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/default_indent"
+                    android:layout_marginEnd="@dimen/default_indent"
+                    android:layout_marginBottom="@dimen/default_indent"
+                    android:padding="8dp"
+                    android:text="Показать другие поля"
+                    android:textColor="@color/colorAccent" />
+
                 <include
                     layout="@layout/element_person_edit_parents"
                     android:layout_width="match_parent"
@@ -107,7 +119,7 @@
                     android:layout_marginBottom="@dimen/default_indent" />
 
             </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
+        </ScrollView>
     </FrameLayout>
 
 </com.google.android.material.appbar.AppBarLayout>

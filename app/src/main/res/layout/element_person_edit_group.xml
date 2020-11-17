@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -11,18 +12,54 @@
         android:text="@string/group"
         android:textSize="@dimen/default_subtitle_text_size" />
 
-    <com.tiper.MaterialSpinner
-        android:id='@+id/personEditSpinnerGroup'
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_indent"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="@dimen/default_indent"
-        android:layout_marginBottom="@dimen/default_indent"
-        android:hint="@string/group"
-        app:boxBackgroundMode="outline"
-        app:hintTextColor="@color/colorAccent"
-        app:spinnerMode="dropdown" />
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/personEditTextViewNoGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:text="@string/person_edit_screen_no_group"
+            app:layout_constraintBottom_toBottomOf="@+id/personEditSpinnerGroup"
+            app:layout_constraintStart_toStartOf="@+id/personEditSpinnerGroup"
+            app:layout_constraintTop_toTopOf="@+id/personEditSpinnerGroup" />
+
+        <ru.hryasch.coachnotes.common.view.HideKeyboardSpinner
+            android:id='@+id/personEditSpinnerGroup'
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/default_indent"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/default_indent"
+            android:layout_marginBottom="@dimen/default_indent"
+            android:layout_weight="1"
+            app:boxBackgroundMode="outline"
+            app:hintEnabled="false"
+            app:hintTextColor="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/personEditImageViewClearGroup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:spinnerMode="dropdown">
+
+        </ru.hryasch.coachnotes.common.view.HideKeyboardSpinner>
+
+        <ImageView
+            android:id="@+id/personEditImageViewClearGroup"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_weight="1"
+            android:padding="4dp"
+            app:layout_constraintBottom_toBottomOf="@+id/personEditSpinnerGroup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/personEditSpinnerGroup"
+            app:srcCompat="@drawable/ic_no_exist"
+            app:tint="@color/colorError" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

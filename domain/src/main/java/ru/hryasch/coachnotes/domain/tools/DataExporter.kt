@@ -8,6 +8,5 @@ interface DataExporter
 {
     suspend fun export(chunks: List<JournalChunk>,
                        group: Group,
-                       period: YearMonth,
-                       coachName: String? = null)
+                       period: YearMonth)
 }

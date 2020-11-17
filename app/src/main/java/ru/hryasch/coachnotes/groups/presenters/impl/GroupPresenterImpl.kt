@@ -21,6 +21,7 @@ import ru.hryasch.coachnotes.domain.person.data.Person
 import ru.hryasch.coachnotes.domain.person.interactors.PersonInteractor
 import ru.hryasch.coachnotes.fragments.GroupView
 import ru.hryasch.coachnotes.groups.presenters.GroupPresenter
+import java.util.Collections
 
 @InjectViewState
 class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinComponent
@@ -78,19 +79,12 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
         }
     }
 
-    override fun onDeletePersonFromCurrentGroupClicked(person: Person)
-    {
-        viewState.showDeletePersonFromGroupNotification(person)
-    }
-
     override fun deletePersonFromCurrentGroup(personId: PersonId)
     {
         GlobalScope.launch(Dispatchers.Default)
         {
             peopleInteractor.deletePersonFromGroup(personId, currentGroup!!.id)
         }
-
-        viewState.showDeletePersonFromGroupNotification(null)
     }
 
     override fun onAddPeopleToGroupClicked()
@@ -116,8 +110,6 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
         {
             peopleInteractor.addOrUpdatePeople(people)
         }
-
-        viewState.showAddPeopleToGroupNotification(null)
     }
 
     override fun onDestroy()
@@ -138,6 +130,7 @@ class GroupPresenterImpl : MvpPresenter<GroupView>(), GroupPresenter, KoinCompon
                 val newData = specificGroupChannel.receive()
                 d("GroupPresenterImpl <Group[${currentGroup!!.id}]>: RECEIVED $newData")
 
+                newData.membersList.sort()
                 withContext(Dispatchers.Main)
                 {
                     w("call applyGroupDataAsync CHANNEL")

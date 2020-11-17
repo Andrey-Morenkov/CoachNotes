@@ -7,8 +7,11 @@
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/personEditBirthdayTitle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/textView10"
@@ -36,11 +39,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/default_indent"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="@dimen/default_indent"
         android:orientation="horizontal">
 
-        <com.tiper.MaterialSpinner
+        <ru.hryasch.coachnotes.common.view.HideKeyboardSpinner
             android:id="@+id/personEditBirthdaySpinnerDay"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
@@ -51,7 +53,7 @@
             app:hintTextColor="@color/colorAccent"
             app:spinnerMode="dropdown" />
 
-        <com.tiper.MaterialSpinner
+        <ru.hryasch.coachnotes.common.view.HideKeyboardSpinner
             android:id="@+id/personEditBirthdaySpinnerMonth"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
@@ -62,13 +64,13 @@
             app:hintTextColor="@color/colorAccent"
             app:spinnerMode="dropdown" />
 
-        <com.tiper.MaterialSpinner
+        <ru.hryasch.coachnotes.common.view.HideKeyboardSpinner
             android:id="@+id/personEditBirthdaySpinnerYear"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="год"
+            android:hint="@string/person_edit_birthday_year_full"
             app:boxBackgroundMode="outline"
             app:hintTextColor="@color/colorAccent"
             app:spinnerMode="dropdown" />

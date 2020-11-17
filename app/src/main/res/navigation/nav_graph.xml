@@ -4,49 +4,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragmentImpl">
+    app:startDestination="@id/mainFragment">
     <fragment
-        android:id="@+id/homeFragmentImpl"
-        android:name="ru.hryasch.coachnotes.fragments.impl.HomeFragment"
-        android:label="HomeFragmentImpl"
-        tools:layout="@layout/fragment_home">
+        android:id="@+id/mainFragment"
+        android:name="ru.hryasch.coachnotes.fragments.impl.MainFragment"
+        android:label="MainFragment"
+        tools:layout="@layout/fragment_main">
         <action
-            android:id="@+id/action_homeFragmentImpl_to_personListFragment"
-            app:destination="@id/peopleListFragment"
-            app:enterAnim="@anim/slide_in_right_custom"
-            app:exitAnim="@anim/slide_out_left_custom"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right"/>
-        <action
-            android:id="@+id/action_homeFragmentImpl_to_journalGroupFragment"
+            android:id="@+id/action_mainFragment_to_journalGroupFragment"
             app:destination="@id/journalGroupFragment"
             app:enterAnim="@anim/slide_in_right_custom"
             app:exitAnim="@anim/slide_out_left_custom"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right"/>
         <action
-            android:id="@+id/action_homeFragmentImpl_to_groupListFragment"
-            app:destination="@id/groupListFragment"
-            app:enterAnim="@anim/slide_in_right_custom"
-            app:exitAnim="@anim/slide_out_left_custom"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
-    </fragment>
-    <fragment
-        android:id="@+id/groupListFragment"
-        android:name="ru.hryasch.coachnotes.fragments.impl.GroupListFragment"
-        android:label="GroupListFragment"
-        tools:layout="@layout/fragment_groups">
-        <action
-            android:id="@+id/action_groupListFragment_to_groupInfoFragment"
+            android:id="@+id/action_mainFragment_to_groupInfoFragment"
             app:destination="@id/groupInfoFragment"
             app:enterAnim="@anim/slide_in_right_custom"
             app:exitAnim="@anim/slide_out_left_custom"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right"/>
         <action
-            android:id="@+id/action_groupListFragment_to_groupEditFragment"
+            android:id="@+id/action_mainFragment_to_groupEditFragment"
             app:destination="@id/groupEditFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
+        <action
+            android:id="@+id/action_mainFragment_to_personInfoFragment"
+            app:destination="@id/personInfoFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
+        <action
+            android:id="@+id/action_mainFragment_to_personEditFragment"
+            app:destination="@id/personEditFragment"
             app:enterAnim="@anim/slide_in_right_custom"
             app:exitAnim="@anim/slide_out_left_custom"
             app:popEnterAnim="@android:anim/slide_in_left"
@@ -81,6 +75,13 @@
             app:exitAnim="@anim/slide_out_left_custom"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_groupInfoFragment_to_personEditFragment"
+            app:destination="@id/personEditFragment"
+            app:enterAnim="@anim/slide_in_right_custom"
+            app:exitAnim="@anim/slide_out_left_custom"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"/>
     </fragment>
     <fragment
         android:id="@+id/groupEditFragment"
@@ -102,27 +103,13 @@
             android:name="personData"
             app:argType="ru.hryasch.coachnotes.domain.person.data.Person"
             app:nullable="true"
+            android:defaultValue="@null"/>
+        <argument
+            android:name="lockGroup"
+            app:argType="string"
+            app:nullable="true"
             android:defaultValue="@null" />
-    </fragment>
-    <fragment
-        android:id="@+id/peopleListFragment"
-        android:name="ru.hryasch.coachnotes.fragments.impl.PeopleListFragment"
-        android:label="PeopleListFragment"
-        tools:layout="@layout/fragment_persons">
-        <action
-            android:id="@+id/action_personListFragment_to_personEditFragment"
-            app:destination="@id/personEditFragment"
-            app:enterAnim="@anim/slide_in_right_custom"
-            app:exitAnim="@anim/slide_out_left_custom"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right"/>
-        <action
-            android:id="@+id/action_peopleListFragment_to_personInfoFragment"
-            app:destination="@id/personInfoFragment"
-            app:enterAnim="@anim/slide_in_right_custom"
-            app:exitAnim="@anim/slide_out_left_custom"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right"/>
+
     </fragment>
     <fragment
         android:id="@+id/personInfoFragment"

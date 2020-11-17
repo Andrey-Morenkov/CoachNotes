@@ -10,22 +10,20 @@ import ru.hryasch.coachnotes.R
 import ru.hryasch.coachnotes.domain.group.data.Group
 import java.time.ZonedDateTime
 
-class GroupsAdapter(groupsList: List<Group>,
+class GroupsAdapter(private val sortedGroupsList: List<Group>,
                     private val listener: GroupClickListener): RecyclerView.Adapter<GroupViewHolder>()
 {
-    private val groupsList: List<Group> = groupsList.sorted()
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupViewHolder
     {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.preview_group, parent, false)
         return GroupViewHolder(view, listener)
     }
 
-    override fun getItemCount(): Int = groupsList.size
+    override fun getItemCount(): Int = sortedGroupsList.size
 
     override fun onBindViewHolder(holder: GroupViewHolder, position: Int)
     {
-        holder.bind(groupsList[position])
+        holder.bind(sortedGroupsList[position])
     }
 
     interface GroupClickListener
@@ -56,8 +54,10 @@ class GroupViewHolder(itemView: View, private val listener: GroupsAdapter.GroupC
         name.text = group.name
         peopleCount.text = group.membersList.size.toString()
 
-        val groupAge = group.availableAbsoluteAge
-        if (groupAge == null)
+        val ageLow = group.availableAbsoluteAgeLow
+        val ageHigh = group.availableAbsoluteAgeHigh
+
+        if (ageLow == null && ageHigh == null)
         {
             peopleAbsoluteAge.text = itemView.context.getString(R.string.group_absolute_age_single_pattern, "?")
             peopleRelativeAge.text = itemView.context.getString(R.string.group_relative_age_single_pattern, "?")
@@ -65,15 +65,15 @@ class GroupViewHolder(itemView: View, private val listener: GroupsAdapter.GroupC
         else
         {
             val now = ZonedDateTime.now()
-            if (groupAge.isSingle())
+            if (ageHigh == null)
             {
-                peopleAbsoluteAge.text = itemView.context.getString(R.string.group_absolute_age_single_pattern, groupAge.first.toString())
-                peopleRelativeAge.text = itemView.context.getString(R.string.group_relative_age_single_pattern, (now.year - groupAge.first).toString())
+                peopleAbsoluteAge.text = itemView.context.getString(R.string.group_absolute_age_single_pattern, ageLow!!.toString())
+                peopleRelativeAge.text = itemView.context.getString(R.string.group_relative_age_single_pattern, (now.year - ageLow).toString())
             }
             else
             {
-                peopleAbsoluteAge.text = itemView.context.getString(R.string.group_absolute_age_range_pattern, groupAge.first.toString(), groupAge.last.toString())
-                peopleRelativeAge.text = itemView.context.getString(R.string.group_relative_age_range_pattern, (now.year - groupAge.last).toString(), (now.year - groupAge.first).toString())
+                peopleAbsoluteAge.text = itemView.context.getString(R.string.group_absolute_age_range_pattern, ageLow!!.toString(), ageHigh.toString())
+                peopleRelativeAge.text = itemView.context.getString(R.string.group_relative_age_range_pattern, (now.year - ageHigh).toString(), (now.year - ageLow).toString())
             }
         }
 
@@ -92,5 +92,3 @@ class GroupViewHolder(itemView: View, private val listener: GroupsAdapter.GroupC
         listener.onGroupClick(currentGroup)
     }
 }
-
-fun IntRange.isSingle(): Boolean = start == endInclusive

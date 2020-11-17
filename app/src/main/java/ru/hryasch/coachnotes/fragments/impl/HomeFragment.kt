@@ -1,56 +1,64 @@
 package ru.hryasch.coachnotes.fragments.impl
 
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import com.alamkanak.weekview.WeekView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.visible
-import kotlinx.coroutines.*
+import com.tiper.MaterialSpinner
+import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.application.App
+import ru.hryasch.coachnotes.activity.LoginActivity
+import ru.hryasch.coachnotes.activity.MainActivity
+import ru.hryasch.coachnotes.common.EditCoachBaseParamsElement
+import ru.hryasch.coachnotes.common.FieldsCorrectListener
 import ru.hryasch.coachnotes.domain.group.data.Group
+import ru.hryasch.coachnotes.fragments.CoachData
 import ru.hryasch.coachnotes.fragments.HomeView
 import ru.hryasch.coachnotes.home.data.HomeScheduleCell
 import ru.hryasch.coachnotes.home.impl.HomePresenterImpl
+import ru.hryasch.coachnotes.repository.global.GlobalSettings
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 import java.util.Calendar
-import java.util.LinkedList
 import java.util.Locale
 
 
 @ExperimentalCoroutinesApi
-class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
+class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: HomePresenterImpl
 
-    private lateinit var navController: NavController
+    // UI
+    private lateinit var todayScheduleDate: TextView
+    private lateinit var scheduleLoading: ProgressBar
+    private lateinit var scheduleView: WeekView<HomeScheduleCell>
 
-    // Schedule section
-        // UI
-            private lateinit var todayScheduleDate: TextView
-            private lateinit var scheduleLoading: ProgressBar
-            private lateinit var scheduleView: WeekView<HomeScheduleCell>
-        // Dialogs
-            private lateinit var groupHasNoMembersDialog: AlertDialog
-        // Classes
-            private lateinit var scheduleGeneratingJob: Job
+    // Dialogs
+    private lateinit var groupHasNoMembersDialog: AlertDialog
+
+    // Data
+    private lateinit var coachFullName: GlobalSettings.Coach.CoachFullName
+    private lateinit var coachRole: String
+    private var editParamsElement: EditCoachBaseParamsElement? = null
+    private val coachRoles: List<String> = get(named("coachRoles"))
 
 
 
@@ -58,8 +66,6 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View?
     {
-        navController = container!!.findNavController()
-
         val layout = inflater.inflate(R.layout.fragment_home, container, false)
         todayScheduleDate = layout.findViewById(R.id.homeScheduleTextViewTodayDate)
         scheduleLoading = layout.findViewById(R.id.homeScheduleLoading)
@@ -72,15 +78,31 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
         return layout
     }
 
-    override fun setGroups(groups: List<Group>?)
+    override fun setCoachData(coachData: CoachData)
     {
-        if (groups == null)
+        val (fullName, role) = coachData
+        coachFullName = fullName
+        coachRole = role
+
+        val coachShowName = "${coachFullName.surname} ${coachFullName.name}"
+        homeScreenTextViewCoachName.text = coachShowName
+        homeScreenTextViewCoachRole.text = coachRole
+
+        homeScreenTextViewCoachName.setOnLongClickListener {
+            showEditCoachBaseParamsDialog()
+            true
+        }
+    }
+
+    override fun setScheduleCells(scheduleCells: List<HomeScheduleCell>?)
+    {
+        if (scheduleCells == null)
         {
             loadingState()
         }
         else
         {
-            showingState(groups)
+            showingState(scheduleCells)
         }
     }
 
@@ -102,163 +124,78 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
             .create()
     }
 
-    private fun showingState(groups: List<Group>)
+    private fun showEditCoachBaseParamsDialog()
     {
-        loadingState()
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_coach_base_params, null)
+        val fullName: EditText = dialogView.findViewById(R.id.coachBaseParamEditTextFullName)
+        val role: MaterialSpinner = dialogView.findViewById(R.id.coachBaseParamSpinnerRole)
+        val customCoachRole: EditText = dialogView.findViewById(R.id.coachBaseParamEditTextCustomRole)
 
-        if (::scheduleGeneratingJob.isInitialized && scheduleGeneratingJob.isActive)
-        {
-            scheduleGeneratingJob.cancel()
-        }
-
-        scheduleGeneratingJob =
-            GlobalScope.launch(Dispatchers.Unconfined)
-            {
-                val scheduleCells = prepareScheduleCells(groups)
-                withContext(Dispatchers.Main)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Редактор тренера")
+            .setView(dialogView)
+            .setPositiveButton("Сохранить") { dialog, _ ->
+                if (role.selection == coachRoles.indexOf(getString(R.string.coach_role_custom)))
                 {
-                    scheduleView.submit(scheduleCells)
-                    scheduleLoading.visible = false
-                    scheduleView.visible = true
+                    presenter.changeCoachInfo(fullName.text.toString().trim(), customCoachRole.text.toString().trim())
                 }
+                else
+                {
+                    presenter.changeCoachInfo(fullName.text.toString().trim(), role.selectedItem as String)
+                }
+                editParamsElement = null
+                dialog.cancel()
             }
+            .setNegativeButton("Выход") { dialog, _ ->
+                editParamsElement = null
+                GlobalSettings.Coach.clearLoginData()
+                dialog.cancel()
+                startActivity(Intent(activity, LoginActivity::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                requireActivity().finish()
+            }
+            .create()
+        dialog.show()
+
+        editParamsElement = EditCoachBaseParamsElement(
+                                requireContext(),
+                                fullName,
+                                role,
+                                customCoachRole,
+                                object : FieldsCorrectListener
+                                {
+                                    override fun onFieldsCorrect(isCorrect: Boolean)
+                                    {
+                                        if (isCorrect)
+                                        {
+                                            with(dialog.getButton(DialogInterface.BUTTON_POSITIVE))
+                                            {
+                                                setTextColor(ContextCompat.getColor(requireContext(), R.color.colorAccent))
+                                                isEnabled = true
+                                            }
+                                        }
+                                        else
+                                        {
+                                            with(dialog.getButton(DialogInterface.BUTTON_POSITIVE))
+                                            {
+                                                setTextColor(ContextCompat.getColor(requireContext(), R.color.colorDisabledText))
+                                                isEnabled = false
+                                            }
+                                        }
+                                    }
+                                },
+                                coachRole,
+                                coachFullName.toString())
+
+        dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.colorError))
     }
 
-    private suspend fun prepareScheduleCells(groups: List<Group>): List<HomeScheduleCell>
+    private fun showingState(scheduleCells: List<HomeScheduleCell>)
     {
-        if (groups.isEmpty())
-        {
-            return LinkedList()
-        }
-
-        e("prepareScheduleCells of groups: $groups")
-
-        val groupDataByDays: MutableMap<Int, MutableList<ScheduleDayInfo>> = HashMap() // <DayOfWeek0, List<scheduleInfos>>
-        for (i in 0 until 7)
-        {
-            groupDataByDays[i] = LinkedList()
-        }
-
-        for (group in groups)
-        {
-            for (scheduleDay in group.scheduleDays)
-            {
-                val startTimeCal = Calendar.getInstance()
-                with(startTimeCal)
-                {
-                    set(Calendar.HOUR_OF_DAY, scheduleDay.startTime!!.hour)
-                    set(Calendar.MINUTE, scheduleDay.startTime!!.minute)
-                }
-
-                val endTimeCal = Calendar.getInstance()
-                with(endTimeCal)
-                {
-                    set(Calendar.HOUR_OF_DAY, scheduleDay.endTime!!.hour)
-                    set(Calendar.MINUTE, scheduleDay.endTime!!.minute)
-                }
-
-                groupDataByDays[scheduleDay.dayPosition0]!!.add(ScheduleDayInfo(group, startTimeCal, endTimeCal))
-            }
-        }
-
-        groupDataByDays.forEach {
-            e("day = ${it.key}, data = ${it.value}")
-        }
-
-        val result: MutableList<HomeScheduleCell> = LinkedList()
-        var id: Long = 1
-        val currentMonth = Calendar.getInstance()
-        for (day in 1 .. currentMonth.getActualMaximum(Calendar.DAY_OF_MONTH))
-        {
-            currentMonth.set(Calendar.DAY_OF_MONTH, day)
-            when(currentMonth.get(Calendar.DAY_OF_WEEK))
-            {
-                Calendar.MONDAY ->
-                {
-                    groupDataByDays[0]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.TUESDAY ->
-                {
-                    groupDataByDays[1]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.WEDNESDAY ->
-                {
-                    groupDataByDays[2]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.THURSDAY ->
-                {
-                    groupDataByDays[3]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.FRIDAY ->
-                {
-                    groupDataByDays[4]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.SATURDAY ->
-                {
-                    groupDataByDays[5]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-
-                Calendar.SUNDAY ->
-                {
-                    groupDataByDays[6]!!.forEach {
-                        it.startTime.set(Calendar.DAY_OF_MONTH, day)
-                        it.endTime.set(Calendar.DAY_OF_MONTH, day)
-                        result.add(HomeScheduleCell(id, it.group, it.startTime.clone() as Calendar, it.endTime.clone() as Calendar, getScheduleDayColor(it.group.isPaid)))
-                        id++
-                    }
-                }
-            }
-        }
-
-        return result
-    }
-
-    @ColorInt
-    private fun getScheduleDayColor(isPaidGroup: Boolean): Int
-    {
-        return if (isPaidGroup)
-               {
-                   ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCellPaidGroup)
-               }
-               else
-               {
-                   ContextCompat.getColor(App.getCtx(), R.color.colorScheduleCellFreeGroup)
-               }
+        scheduleView.submit(scheduleCells)
+        scheduleLoading.visible = false
+        scheduleView.visible = true
     }
 
     private fun tuneScheduleView()
@@ -272,15 +209,7 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
         scheduleView.minDate = min
         scheduleView.maxDate = max
         scheduleView.setOnEventClickListener { data, _ ->
-            if (data.group.membersList.isEmpty())
-            {
-                groupHasNoMembersDialog.show()
-            }
-            else
-            {
-                val action = HomeFragmentDirections.actionHomeFragmentImplToJournalGroupFragment(data.group)
-                navController.navigate(action)
-            }
+            (requireActivity() as MainActivity).navigateToJournalFragment(data.group)
         }
     }
 
@@ -296,14 +225,16 @@ class HomeFragment : MvpAppCompatFragment(), HomeView, KoinComponent
             scheduleView.goToCurrentTime()
         }
     }
+}
 
-    private data class ScheduleDayInfo(val group: Group,
-                                       val startTime: Calendar,
-                                       val endTime: Calendar)
+data class ScheduleDayInfo(
+    val group: Group,
+    val startTime: Calendar,
+    val endTime: Calendar
+)
+{
+    override fun toString(): String
     {
-        override fun toString(): String
-        {
-            return "Group ${group.name} (${group.id}), start = ${startTime.get(Calendar.HOUR_OF_DAY)}:${startTime.get(Calendar.MINUTE)}, end = ${endTime.get(Calendar.HOUR_OF_DAY)}:${endTime.get(Calendar.MINUTE)}"
-        }
+        return "Group ${group.name} (${group.id}), start = ${startTime.get(Calendar.HOUR_OF_DAY)}:${startTime.get(Calendar.MINUTE)}, end = ${endTime.get(Calendar.HOUR_OF_DAY)}:${endTime.get(Calendar.MINUTE)}"
     }
 }

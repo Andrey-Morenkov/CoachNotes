@@ -39,7 +39,7 @@ class PersonPresenterImpl: MvpPresenter<PersonView>(), PersonPresenter, KoinComp
     {
         GlobalScope.launch(Dispatchers.Default)
         {
-            currentPerson = person ?: PersonImpl("", "", id = peopleInteractor.getMaxPersonId() + 1)
+            currentPerson = person ?: PersonImpl.generateNew()
             val groups = peopleInteractor.getGroupNames()
 
             withContext(Dispatchers.Main)

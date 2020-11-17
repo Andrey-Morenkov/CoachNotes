@@ -1,5 +1,7 @@
 package ru.hryasch.coachnotes.domain.person.data
 
+import android.util.Log.d
+import com.pawegio.kandroid.d
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.parameter.parametersOf

@@ -1,6 +1,7 @@
 package ru.hryasch.coachnotes.fragments.impl
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
@@ -9,8 +10,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.ProgressBar
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.pawegio.kandroid.toast
 import com.pawegio.kandroid.visible
 import com.tiper.MaterialSpinner
 import kotlinx.coroutines.*
@@ -32,7 +33,7 @@ import org.koin.core.get
 import org.koin.core.inject
 import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.activity.MainActivity
+import ru.hryasch.coachnotes.activity.LoginActivity
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
 import ru.hryasch.coachnotes.fragments.GroupEditView
@@ -40,14 +41,14 @@ import ru.hryasch.coachnotes.groups.data.ScheduleDayAdapter
 import ru.hryasch.coachnotes.groups.presenters.impl.GroupEditPresenterImpl
 import ru.hryasch.coachnotes.repository.common.toAbsolute
 import ru.hryasch.coachnotes.repository.common.toRelative
+import ru.hryasch.coachnotes.repository.global.GlobalSettings
+import java.time.ZonedDateTime
 import java.util.*
 
 class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 {
     @InjectPresenter
     lateinit var presenter: GroupEditPresenterImpl
-    private lateinit var navController: NavController
-    private lateinit var currentGroup: Group
 
     // Toolbar
         // UI
@@ -63,30 +64,40 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         private lateinit var contentView: NestedScrollView
         private lateinit var loadingBar: ProgressBar
 
+        // Dialogs
+        private lateinit var deleteGroupVariantsDialog: AlertDialog
+
     // General section
         // UI
         private lateinit var name: TextInputEditText
         private lateinit var paymentType: MaterialSpinner
         private lateinit var age1: MaterialSpinner
         private lateinit var age2: MaterialSpinner
+        private lateinit var ageSwitcher: ImageView
         private lateinit var ageType: MaterialSpinner
 
-        // Utility
+        // Adapters
+        private lateinit var absoluteAgesAdapter: ArrayAdapter<String>
+        private lateinit var relativeAgesAdapter: ArrayAdapter<String>
+
+        // Data
+        private var isSingleAge = true
         private val absoluteYears: List<String> by inject(named("absoluteAgesList"))
         private val relativeYears: List<String> by inject(named("relativeAgesList"))
         private val paymentTypes:  List<String> by inject(named("paymentTypes"))
         private val ageTypes:      List<String> by inject(named("ageTypes"))
-        private lateinit var absoluteAgesAdapter: ArrayAdapter<String>
-        private lateinit var relativeAgesAdapter: ArrayAdapter<String>
 
     // Schedule section
         // UI
         private lateinit var scheduleDaysView: RecyclerView
 
-        // Utility
+        // Data
         private val scheduleDaysList: MutableList<ScheduleDay> = LinkedList()
         private lateinit var scheduleDaysAdapter: ScheduleDayAdapter
 
+    // Data
+    private lateinit var navController: NavController
+    private lateinit var currentGroup: Group
     private lateinit var setGroupDataJob: Job
 
 
@@ -97,8 +108,6 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
     {
         val layout = inflater.inflate(R.layout.fragment_edit_group, container, false)
 
-        (activity as MainActivity).hideBottomNavigation()
-
         saveOrCreateGroup = layout.findViewById(R.id.groupEditButtonCreateOrSave)
         setSaveOrCreateButtonDisabled()
         deleteGroup = layout.findViewById(R.id.groupEditButtonRemoveGroup)
@@ -108,6 +117,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         paymentType = layout.findViewById(R.id.groupEditSpinnerPaymentType)
         age1 = layout.findViewById(R.id.groupEditSpinnerAge1)
         age2 = layout.findViewById(R.id.groupEditSpinnerAge2)
+        ageSwitcher = layout.findViewById(R.id.groupEditImageButtonAddRemoveAge)
         ageType = layout.findViewById(R.id.groupEditSpinnerAgeType)
 
         scheduleDaysView = layout.findViewById(R.id.group_edit_schedule_list)
@@ -144,11 +154,12 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         currentGroup = group
 
         setGroupDataJob =
-            GlobalScope.launch(Dispatchers.Unconfined)
+            GlobalScope.launch(Dispatchers.Main)
             {
                 delay(500) //hotfix for animation
                 setAgesAdapters()
                 createSaveOrCreateGroupWithoutScheduleWarningDialog(group.name.isBlank())
+                createDeleteGroupVariantsDialog()
                 if (group.name.isNotBlank())
                 {
                     setExistGroupData()
@@ -172,6 +183,7 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
     override fun deleteGroupFinished()
     {
+        // Jump to group list, not to group info
         navController.popBackStack()
         navController.navigateUp()
     }
@@ -181,27 +193,61 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
         navController.navigateUp()
     }
 
-    override fun showDeleteGroupNotification(group: Group?)
+    override fun similarGroupFound(existedGroup: Group)
     {
-        if (group == null)
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_found_similar_group, null)
+        val labelPaid: View = dialogView.findViewById(R.id.label_paid)
+        val groupName: TextView = dialogView.findViewById(R.id.groupTextViewName)
+        val peopleCount: TextView = dialogView.findViewById(R.id.groupTextViewPeopleCount)
+        val absAge: TextView = dialogView.findViewById(R.id.groupTextViewAbsoluteAge)
+        val relAge: TextView = dialogView.findViewById(R.id.groupTextViewRelativeAge)
+
+        if (existedGroup.isPaid)
         {
-            return
+            labelPaid.visibility = View.VISIBLE
+        }
+        else
+        {
+            labelPaid.visibility = View.INVISIBLE
+        }
+        groupName.text = existedGroup.name
+        peopleCount.text = existedGroup.membersList.size.toString()
+
+        val ageLow = existedGroup.availableAbsoluteAgeLow
+        val ageHigh = existedGroup.availableAbsoluteAgeHigh
+
+        if (ageLow == null && ageHigh == null)
+        {
+            absAge.text = getString(R.string.group_absolute_age_single_pattern, "?")
+            relAge.text = getString(R.string.group_relative_age_single_pattern, "?")
+        }
+        else
+        {
+            val now = ZonedDateTime.now()
+            if (ageHigh == null)
+            {
+                absAge.text = requireContext().getString(R.string.group_absolute_age_single_pattern, ageLow!!.toString())
+                relAge.text = requireContext().getString(R.string.group_relative_age_single_pattern, (now.year - ageLow).toString())
+            }
+            else
+            {
+                absAge.text = requireContext().getString(R.string.group_absolute_age_range_pattern, ageLow!!.toString(), ageHigh.toString())
+                relAge.text = requireContext().getString(R.string.group_relative_age_range_pattern, (now.year - ageHigh).toString(), (now.year - ageLow).toString())
+            }
         }
 
-        val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setMessage("Удалить группу и все связанные с ней журналы?")
-            .setPositiveButton("Удалить") { dialog, _ ->
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setPositiveButton("Отмена") { dialog, _ ->
                 dialog.cancel()
-                presenter.deleteGroup(currentGroup)
             }
-            .setNegativeButton("Отмена") { dialog, _ ->
+            .setNegativeButton("Всё равно сохранить") { dialog, _ ->
+                presenter.updateOrCreateGroupForced()
                 dialog.cancel()
             }
             .create()
-
-        dialog.show()
+            .show()
     }
-
 
 
     private suspend fun setAgesAdapters()
@@ -218,6 +264,18 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             age2.adapter = absoluteAgesAdapter
             ageType.adapter = ageAdapter
             ageType.selection = 0
+            singleAgeState()
+            ageSwitcher.setOnClickListener {
+                isSingleAge = !isSingleAge
+                if (isSingleAge)
+                {
+                    singleAgeState()
+                }
+                else
+                {
+                    multiAgeState()
+                }
+            }
         }
     }
 
@@ -284,6 +342,40 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
     {
         contentView.visible = true
         loadingBar.visible = false
+    }
+
+    private fun singleAgeState()
+    {
+        isSingleAge = true
+        ageSwitcher.setImageResource(R.drawable.ic_add)
+        age2.selection = Spinner.INVALID_POSITION
+        age2.isEnabled = false
+        age2.boxBackgroundColor = ContextCompat.getColor(requireContext(), R.color.colorDisabledSpinner)
+    }
+
+    private fun multiAgeState()
+    {
+        isSingleAge = false
+        ageSwitcher.setImageResource(R.drawable.ic_remove)
+        if (age1.selection != Spinner.INVALID_POSITION)
+        {
+            if (ageType.selection == 0)
+            {
+                // Absolute age selected
+                age2.selection = age1.selection - 1
+            }
+            else
+            {
+                // Relative age selected
+                age2.selection = age1.selection + 1
+            }
+        }
+        else
+        {
+            age2.selection = Spinner.INVALID_POSITION
+        }
+        age2.isEnabled = true
+        age2.boxBackgroundColor = ContextCompat.getColor(requireContext(), android.R.color.transparent)
     }
 
     private fun getDefaultTextChangedListener(): TextWatcher
@@ -434,18 +526,58 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
             name.text = SpannableStringBuilder(currentGroup.name)
             paymentType.selection = currentGroup.isPaid.toInt()
 
-            currentGroup.availableAbsoluteAge?.let {
-                age1.selection = absoluteYears.indexOf(it.first.toString())
-                age2.selection = absoluteYears.indexOf(it.last.toString())
+            if (currentGroup.availableAbsoluteAgeLow != null)
+            {
+                age1.selection = absoluteYears.indexOf(currentGroup.availableAbsoluteAgeLow.toString())
+            }
+
+            if (currentGroup.availableAbsoluteAgeHigh != null)
+            {
+                age2.selection = absoluteYears.indexOf(currentGroup.availableAbsoluteAgeHigh.toString())
+                multiAgeState()
+            }
+            else
+            {
+                singleAgeState()
             }
 
             deleteGroup.setOnClickListener {
-                presenter.onDeleteGroupClicked()
+                deleteGroupVariantsDialog.show()
+
+                // Hack to set custom dialog width
+                deleteGroupVariantsDialog.window!!.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, resources.getDimension(R.dimen.group_edit_delete_group_dialog_height).toInt())
             }
         }
     }
 
 
+    private fun createDeleteGroupVariantsDialog()
+    {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_delete_group, null)
+        deleteGroupVariantsDialog = MaterialAlertDialogBuilder(requireContext())
+                                       .setView(dialogView)
+                                       .setTitle("Удалить группу, а так же ...")
+                                       .create()
+
+        dialogView.findViewById<LinearLayout>(R.id.deleteGroupRemoveAllPeopleFromGroup).setOnClickListener {
+            presenter.deleteGroupAndRemoveAllPeopleFromThisGroup(currentGroup)
+            deleteGroupVariantsDialog.dismiss()
+        }
+
+        dialogView.findViewById<LinearLayout>(R.id.deleteGroupMoveAllPeopleToAnotherGroup).setOnClickListener {
+            // TODO
+            //presenter.deleteGroupAndMoveAllPeopleToAnotherGroup(currentGroup, currentGroup)
+            toast("Еще не реализовано")
+            deleteGroupVariantsDialog.dismiss()
+        }
+
+        dialogView.findViewById<LinearLayout>(R.id.deleteGroupDeleteAllPeople).setOnClickListener {
+            // TODO
+            //presenter.deleteGroupAnDeleteAllPeople(currentGroup)
+            toast("Еще не реализовано")
+            deleteGroupVariantsDialog.dismiss()
+        }
+    }
 
     private suspend fun createSaveOrCreateGroupWithoutScheduleWarningDialog(isCreatingNewGroup: Boolean)
     {
@@ -476,28 +608,15 @@ class GroupEditFragment : MvpAppCompatFragment(), GroupEditView, KoinComponent
 
     private fun createOrUpdateGroupAction()
     {
-        currentGroup.name = name.text.toString()
+        currentGroup.name = name.text.toString().trim()
         currentGroup.isPaid = paymentType.selection.toBoolean()
 
         ageType.selection = 0
         val ageStart = age1.selectedItem?.toString()?.toInt()
         val ageFinish = age2.selectedItem?.toString()?.toInt()
 
-        if (ageStart != null)
-        {
-            if (ageFinish != null)
-            {
-                currentGroup.availableAbsoluteAge = ageStart .. ageFinish
-            }
-            else
-            {
-                currentGroup.availableAbsoluteAge = ageStart .. ageStart
-            }
-        }
-        else
-        {
-            currentGroup.availableAbsoluteAge = null
-        }
+        currentGroup.availableAbsoluteAgeLow = ageStart
+        currentGroup.availableAbsoluteAgeHigh = ageFinish
 
         currentGroup.scheduleDays.clear()
         for (scheduleDay in scheduleDaysList)

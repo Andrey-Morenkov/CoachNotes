@@ -1,8 +1,5 @@
 package ru.hryasch.coachnotes.domain.journal.data
 
-import ru.hryasch.coachnotes.domain.person.data.Person
-import java.time.LocalDate
-
 sealed class CellData(val mark: String? = null)
 {
     override fun toString(): String
@@ -26,7 +23,7 @@ sealed class CellData(val mark: String? = null)
     }
 }
 
-class PresenceData() : CellData()
+class PresenceData: CellData()
 {
     override fun toString(): String
     {
@@ -42,7 +39,7 @@ class AbsenceData(mark: String? = null) : CellData(mark)
     }
 }
 
-class UnknownData(): CellData()
+class UnknownData: CellData()
 {
     override fun toString(): String
     {
@@ -50,15 +47,12 @@ class UnknownData(): CellData()
     }
 }
 
-class NoExistData(): CellData()
+class NoExistData: CellData()
 {
     override fun toString(): String
     {
         return "<noexist_data>"
     }
 }
-
-data class ColumnHeaderData(var timestamp: LocalDate)
-data class RowHeaderData(val person: Person, val number: Int)
 
 
