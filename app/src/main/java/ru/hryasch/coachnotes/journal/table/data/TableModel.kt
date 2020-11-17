@@ -7,6 +7,7 @@ import ru.hryasch.coachnotes.domain.common.GroupId
 import ru.hryasch.coachnotes.domain.common.PersonId
 import ru.hryasch.coachnotes.domain.group.data.ScheduleDay
 import ru.hryasch.coachnotes.domain.journal.data.CellData
+import ru.hryasch.coachnotes.domain.journal.data.NoExistData
 import ru.hryasch.coachnotes.domain.journal.data.RawTableData
 import ru.hryasch.coachnotes.domain.person.data.Person
 import java.time.LocalDate
@@ -139,9 +140,9 @@ class TableModel(rawTableData: RawTableData?)
             .forEach { col ->
                 for (row in rawCellsData.indices)
                 {
-                    if (rawCellsData[row][col] != null)
+                    if (rawCellsData[row][col] != null && rawCellsData[row][col] !is NoExistData)
                     {
-                        i("column [$col] has data")
+                        i("column [$col] has data: ${rawCellsData[row][col]}")
                         columnHasData[col] = true
                         break
                     }
