@@ -62,7 +62,7 @@
             <ru.hryasch.coachnotes.common.view.HideKeyboardSpinner
                 android:id='@+id/groupEditSpinnerAge1'
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="110dp"
+                android:layout_width="117dp"
                 android:layout_height="wrap_content"
                 app:boxBackgroundMode="outline"
                 app:helperText="@string/required_helper"
@@ -79,8 +79,6 @@
                 android:layout_width="40dp"
                 android:layout_height="0dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="7dp"
-                android:layout_marginBottom="17dp"
                 android:padding="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/groupEditSpinnerAge1"

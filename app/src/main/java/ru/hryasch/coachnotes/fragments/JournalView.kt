@@ -45,4 +45,7 @@ interface JournalView: MvpView
 
     @StateStrategyType(SkipStrategy::class)
     fun showDeleteColumnNotification(date: LocalDate, col: Int)
+
+    @StateStrategyType(SkipStrategy::class)
+    fun allowExit()
 }

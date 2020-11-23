@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.core.KoinComponent
 import ru.hryasch.coachnotes.R
@@ -16,12 +19,15 @@ import ru.hryasch.coachnotes.fragments.impl.MainFragmentDirections
 
 class MainActivity: AppCompatActivity(), KoinComponent
 {
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         App.onActivityCreate()
+
+        firebaseAnalytics = Firebase.analytics
 
         setContentView(R.layout.activity_main)
 

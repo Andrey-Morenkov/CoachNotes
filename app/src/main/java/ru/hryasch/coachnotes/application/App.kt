@@ -29,6 +29,7 @@ class App : Application()
         private lateinit var peopleRepository: PersonRepository
         private lateinit var journalRepository: JournalRepository
         private lateinit var destroyRealmJob: Job
+
         @ExperimentalCoroutinesApi
         fun onActivityDestroy()
         {
