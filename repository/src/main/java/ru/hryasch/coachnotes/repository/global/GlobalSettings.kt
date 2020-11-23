@@ -5,10 +5,39 @@ import com.pawegio.kandroid.e
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.qualifier.named
+import java.util.UUID
 
 object GlobalSettings: KoinComponent
 {
     private val appContext: Context = get(named("global"))
+
+    object General
+    {
+        private const val PREFERENCE_FILE_NAME = "GENERAL"
+        private const val USER_ID = "userId"
+
+        private val sharedPreferences = appContext.getSharedPreferences(PREFERENCE_FILE_NAME, Context.MODE_PRIVATE)
+        private val sharedPreferencesEditor = sharedPreferences.edit()
+
+        fun isFirstLaunch(): Boolean
+        {
+            sharedPreferences.getString(USER_ID, null) ?: return true
+            return true
+        }
+
+        fun generateAnalyticUserId(): String
+        {
+            val userId = UUID.randomUUID().toString()
+
+            with(sharedPreferencesEditor)
+            {
+                putString(USER_ID, userId)
+                apply()
+            }
+
+            return userId
+        }
+    }
 
     object Coach
     {

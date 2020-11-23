@@ -13,9 +13,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.alamkanak.weekview.WeekView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 import com.pawegio.kandroid.e
 import com.pawegio.kandroid.visible
 import com.tiper.MaterialSpinner
+import kotlinx.android.synthetic.main.element_edit_coach_base_params.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import moxy.MvpAppCompatFragment
@@ -34,6 +36,7 @@ import ru.hryasch.coachnotes.fragments.HomeView
 import ru.hryasch.coachnotes.home.data.HomeScheduleCell
 import ru.hryasch.coachnotes.home.impl.HomePresenterImpl
 import ru.hryasch.coachnotes.repository.global.GlobalSettings
+import java.lang.RuntimeException
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 import java.util.Calendar
@@ -127,7 +130,9 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
     private fun showEditCoachBaseParamsDialog()
     {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_coach_base_params, null)
-        val fullName: EditText = dialogView.findViewById(R.id.coachBaseParamEditTextFullName)
+        val surnameView: TextInputEditText = dialogView.findViewById(R.id.coachBaseParamEditTextSurname)
+        val nameView: TextInputEditText = dialogView.findViewById(R.id.coachBaseParamEditTextName)
+        val patronymicView: TextInputEditText = dialogView.findViewById(R.id.coachBaseParamEditTextPatronymic)
         val role: MaterialSpinner = dialogView.findViewById(R.id.coachBaseParamSpinnerRole)
         val customCoachRole: EditText = dialogView.findViewById(R.id.coachBaseParamEditTextCustomRole)
 
@@ -135,13 +140,14 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
             .setTitle("Редактор тренера")
             .setView(dialogView)
             .setPositiveButton("Сохранить") { dialog, _ ->
+                val fullName = "${surnameView.text.toString().trim()} ${nameView.text.toString().trim()} ${patronymicView.text.toString().trim()}"
                 if (role.selection == coachRoles.indexOf(getString(R.string.coach_role_custom)))
                 {
-                    presenter.changeCoachInfo(fullName.text.toString().trim(), customCoachRole.text.toString().trim())
+                    presenter.changeCoachInfo(fullName, customCoachRole.text.toString().trim())
                 }
                 else
                 {
-                    presenter.changeCoachInfo(fullName.text.toString().trim(), role.selectedItem as String)
+                    presenter.changeCoachInfo(fullName, role.selectedItem as String)
                 }
                 editParamsElement = null
                 dialog.cancel()
@@ -160,7 +166,9 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
 
         editParamsElement = EditCoachBaseParamsElement(
                                 requireContext(),
-                                fullName,
+                                surnameView,
+                                nameView,
+                                patronymicView,
                                 role,
                                 customCoachRole,
                                 object : FieldsCorrectListener
@@ -186,7 +194,9 @@ class HomeFragment: MvpAppCompatFragment(), HomeView, KoinComponent
                                     }
                                 },
                                 coachRole,
-                                coachFullName.toString())
+                                coachFullName.surname,
+                                coachFullName.name,
+                                coachFullName.patronymic)
 
         dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.colorError))
     }

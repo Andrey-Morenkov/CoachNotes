@@ -8,7 +8,8 @@ import android.os.Bundle
 import android.view.*
 import android.widget.NumberPicker
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.Toolbar
@@ -20,6 +21,7 @@ import androidx.navigation.findNavController
 import com.evrencoskun.tableview.TableView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.nabinbhandari.android.permissions.PermissionHandler
 import com.nabinbhandari.android.permissions.Permissions
 import com.pawegio.kandroid.*
@@ -36,7 +38,6 @@ import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 
 import ru.hryasch.coachnotes.R
-import ru.hryasch.coachnotes.activity.MainActivity
 import ru.hryasch.coachnotes.application.App
 import ru.hryasch.coachnotes.domain.group.data.Group
 import ru.hryasch.coachnotes.domain.journal.data.NoExistData
@@ -46,6 +47,7 @@ import ru.hryasch.coachnotes.journal.table.TableAdapter
 import ru.hryasch.coachnotes.journal.table.data.TableModel
 import ru.hryasch.coachnotes.journal.presenters.impl.JournalPresenterImpl
 import java.io.File
+import java.lang.Exception
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZonedDateTime
@@ -106,6 +108,14 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true)
+        {
+            override fun handleOnBackPressed()
+            {
+                onBackPressed()
+            }
+        })
+
         val layout = inflater.inflate(R.layout.fragment_journal, container, false)
         navController = container!!.findNavController()
 
@@ -273,10 +283,24 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
                     {
                         override fun onActionClick()
                         {
-                            val savingDir: File = get(named("journalDirectory"))
-                            val intent = Intent(Intent.ACTION_VIEW).setDataAndType(Uri.parse(savingDir.absolutePath), "resource/folder")
-                            startActivity(intent)
                             snackProgressBarManager.dismissAll()
+
+                            try {
+                                val savingDir: File = get(named("journalDirectory"))
+                                val intent = Intent(Intent.ACTION_VIEW).setDataAndType(Uri.parse(savingDir.absolutePath), "resource/folder")
+                                startActivity(intent)
+                            }
+                            catch (e: Exception)
+                            {
+                                FirebaseCrashlytics.getInstance().recordException(e)
+                                e("Open journal dir error: $e")
+                                e.printStackTrace()
+
+                                runOnUiThread {
+                                    Toast.makeText(activity, "Что-то пошло не так, пожалуйста откройте папку 'Documents/Тренерские Журналы' вручную через файловый менеджер вашего телефона", Toast.LENGTH_LONG)
+                                        .show()
+                                }
+                            }
                         }
                     })
 
@@ -366,6 +390,20 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             .show()
     }
 
+    override fun allowExit()
+    {
+        runOnUiThread {
+            navController.navigateUp()
+        }
+    }
+
+
+    private fun onBackPressed()
+    {
+        presenter.exitRequest()
+        //loadingState()
+        navController.navigateUp()
+    }
 
     private fun hasUnknownData(): Boolean
     {
@@ -475,7 +513,7 @@ class JournalGroupFragment : MvpAppCompatFragment(), JournalView, KoinComponent
             with(toolbar)
             {
                 title = currentGroup.name
-                setNavigationOnClickListener { navController.navigateUp() }
+                setNavigationOnClickListener { onBackPressed() }
                 inflateMenu(R.menu.journal_menu)
                 lockUnlockButton = menu.findItem(R.id.journal_lock_item)
                 showAllDaysButton = menu.findItem(R.id.journal_visibility_all_days_item)

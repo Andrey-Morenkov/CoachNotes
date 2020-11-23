@@ -65,6 +65,8 @@ buildscript
 
         // Others
         kandroid_version = '0.8.7@aar'
+        google_services_version = '4.3.4'
+        firebase_version = '26.1.0'
     }
 
     dependencies
@@ -74,6 +76,8 @@ buildscript
         classpath "io.realm:realm-gradle-plugin:$realm_version"
         classpath "org.koin:koin-gradle-plugin:$koin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
+        classpath "com.google.gms:google-services:$google_services_version"
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
     }
 }
 

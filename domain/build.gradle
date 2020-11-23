@@ -59,10 +59,6 @@ dependencies
     // Kotlin Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
-    // AndroidX
-    implementation "androidx.appcompat:appcompat:$appcompat_version"
-    implementation "androidx.core:core-ktx:$ktxcore_version"
-
     // KAndroid
     implementation "com.pawegio.kandroid:kandroid:$kandroid_version"
 

@@ -201,6 +201,16 @@ class JournalPresenterImpl: MvpPresenter<JournalView>(), JournalPresenter, KoinC
         viewState.refreshData()
     }
 
+    override fun exitRequest()
+    {
+        GlobalScope.launch(Dispatchers.Default)
+        {
+            i("wait for saving...")
+            journalTableProxy.saveAllChunksImmediatelyAndWait()
+            //viewState.allowExit() // Unlock this for "wait before exit journal"
+        }
+    }
+
     override fun applyGroupData(group: Group)
     {
         if (::currentGroup.isInitialized && (currentGroup === group || currentGroup.id == group.id))

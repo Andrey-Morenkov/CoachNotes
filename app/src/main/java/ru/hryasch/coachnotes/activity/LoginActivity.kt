@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.element_edit_coach_base_params.*
 import org.koin.core.KoinComponent
@@ -32,7 +33,9 @@ class LoginActivity: AppCompatActivity(), KoinComponent
         initialUiState()
 
         editParamsElement = EditCoachBaseParamsElement(this,
-                                                       coachBaseParamEditTextFullName,
+                                                       coachBaseParamEditTextSurname,
+                                                       coachBaseParamEditTextName,
+                                                       coachBaseParamEditTextPatronymic,
                                                        coachBaseParamSpinnerRole,
                                                        coachBaseParamEditTextCustomRole,
                                                        object: FieldsCorrectListener {
@@ -43,7 +46,8 @@ class LoginActivity: AppCompatActivity(), KoinComponent
                                                         })
 
         loginButtonLogin.setOnClickListener {
-            GlobalSettings.Coach.editName(coachBaseParamEditTextFullName.text?.toString()?.trim())
+            val fullName = "${coachBaseParamEditTextSurname.text.toString().trim()} ${coachBaseParamEditTextName.text.toString().trim()} ${coachBaseParamEditTextPatronymic.text.toString().trim()}"
+            GlobalSettings.Coach.editName(fullName)
             if (coachBaseParamSpinnerRole.selection == coachRoles.indexOf(getString(R.string.coach_role_custom)))
             {
                 GlobalSettings.Coach.editRole(coachBaseParamEditTextCustomRole.text?.toString()?.trim())
@@ -53,6 +57,7 @@ class LoginActivity: AppCompatActivity(), KoinComponent
                 GlobalSettings.Coach.editRole(coachBaseParamSpinnerRole.selectedItem as String?)
             }
 
+            FirebaseCrashlytics.getInstance().log(fullName)
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }

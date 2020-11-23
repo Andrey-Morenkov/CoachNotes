@@ -8,6 +8,8 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'koin'
 apply plugin: 'realm-android'
 apply plugin: "androidx.navigation.safeargs.kotlin"
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android
 {
@@ -18,10 +20,10 @@ android
         applicationId "ru.hryasch.coachnotes"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 2
-        versionName "1.1.0-openBeta"
+        versionCode 3
+        versionName "1.1.1-openBeta"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        project.ext.set("archivesBaseName", "CoachNotes-" + defaultConfig.versionName)
+        archivesBaseName = "CoachNotes-" + defaultConfig.versionName
     }
 
     buildTypes
@@ -129,6 +131,11 @@ dependencies
 
     // Java8 support
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$java8_support_version"
+
+    // Firebase
+    implementation platform("com.google.firebase:firebase-bom:$firebase_version")
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
     implementation project(path: ':domain')
     implementation project(path: ':repository')

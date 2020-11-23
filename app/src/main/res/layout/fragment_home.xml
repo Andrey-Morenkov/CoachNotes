@@ -30,8 +30,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.457"
-            app:srcCompat="@drawable/sample_avatar"
-            tools:srcCompat="@drawable/sample_avatar" />
+            app:srcCompat="@drawable/avatar_sample"
+            tools:srcCompat="@drawable/avatar_sample" />
 
         <TextView
             android:id="@+id/homeScreenTextViewCoachName"

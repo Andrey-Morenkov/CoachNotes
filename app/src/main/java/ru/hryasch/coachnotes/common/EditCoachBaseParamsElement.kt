@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
-import com.pawegio.kandroid.e
+import com.google.android.material.textfield.TextInputEditText
 import com.pawegio.kandroid.textWatcher
 import com.tiper.MaterialSpinner
 import org.koin.core.KoinComponent
@@ -13,16 +13,19 @@ import org.koin.core.qualifier.named
 import ru.hryasch.coachnotes.R
 
 class EditCoachBaseParamsElement (private val context: Context,
-                                  private val fullName: EditText,
+                                  private val surname: TextInputEditText,
+                                  private val name: TextInputEditText,
+                                  private val patronymic: TextInputEditText,
                                   private val roleSpinner: MaterialSpinner,
                                   private val customCoachRole: EditText,
                                   private val listener: FieldsCorrectListener?,
                                   private val initialRole: String? = null,
-                                  private val initialName: String? = null): KoinComponent
+                                  private val initialSurname: String? = null,
+                                  private val initialName: String? = null,
+                                  private val initialPatronymic: String? = null): KoinComponent
 {
     private val roles: List<String> = get(named("coachRoles"))
     private val customRolePosition = roles.indexOf(context.getString(R.string.coach_role_custom))
-    private val checkNameRegex = Regex("^[а-яА-Я]+\\s[а-яА-Я.]+\\s?[а-яА-Я.]*$")
 
     init
     {
@@ -58,7 +61,15 @@ class EditCoachBaseParamsElement (private val context: Context,
             }
         }
 
-        fullName.textWatcher {
+        surname.textWatcher {
+            onTextChanged { _, _, _, _ -> checkFields() }
+        }
+
+        name.textWatcher {
+            onTextChanged { _, _, _, _ -> checkFields() }
+        }
+
+        patronymic.textWatcher {
             onTextChanged { _, _, _, _ -> checkFields() }
         }
 
@@ -71,8 +82,14 @@ class EditCoachBaseParamsElement (private val context: Context,
 
     private fun setInitialData()
     {
+        initialSurname?.let {
+            surname.setText(it)
+        }
         initialName?.let {
-            fullName.setText(it)
+            name.setText(it)
+        }
+        initialPatronymic?.let {
+            patronymic.setText(it)
         }
         initialRole?.let {
             val spinnerSelection = roles.indexOf(it)
@@ -93,8 +110,9 @@ class EditCoachBaseParamsElement (private val context: Context,
 
     private fun checkFields()
     {
-        if (fullName.text.isNullOrBlank() ||
-            !fullName.text.toString().matches(checkNameRegex) ||
+        if (surname.text.isNullOrBlank() ||
+            name.text.isNullOrBlank() ||
+            patronymic.text.isNullOrBlank() ||
             roleSpinner.selection == MaterialSpinner.INVALID_POSITION ||
             (roleSpinner.selection == customRolePosition && customCoachRole.text.isNullOrBlank()))
         {
