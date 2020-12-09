@@ -30,4 +30,5 @@ Used libreries:
 - :white_check_mark: [MaskedEditText (Tinkoff's)](https://github.com/TinkoffCreditSystems/decoro)
 - :white_check_mark: [SmoothBottomBar (ibrahimsn98's)](https://github.com/ibrahimsn98/SmoothBottomBar) <br/>
 - :white_check_mark: Firebase crashlytics <br/>
+- :white_check_mark: Figma design (in progress) <br/>
  
