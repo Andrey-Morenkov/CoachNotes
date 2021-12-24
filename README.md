@@ -32,3 +32,10 @@ Used libreries:
 - :white_check_mark: Firebase crashlytics <br/>
 - :white_check_mark: Figma design (in progress) <br/>
  
+![ePJmffOZASc](https://user-images.githubusercontent.com/14893277/147359502-93e1a3bb-4204-4de2-81ef-67fccfa2dd3d.jpg)
+![5Wr0fgcZ0f0](https://user-images.githubusercontent.com/14893277/147359510-e7d16553-8f3d-4d33-910b-faba72e03cb4.jpg)
+![hHAfEl9lXxA](https://user-images.githubusercontent.com/14893277/147359515-8b341002-2ba1-43a3-911e-7c96905023f7.jpg)
+![KgKJxRDGtCc](https://user-images.githubusercontent.com/14893277/147359526-b13758bf-66d6-40d5-bab9-e89694316bbd.jpg)
+![d8G0MjKtKxU](https://user-images.githubusercontent.com/14893277/147359528-48fb01a6-888a-49df-acfb-7bc0ca01d194.jpg)
+![VN-ZVxbJSwI](https://user-images.githubusercontent.com/14893277/147359530-65b8a79e-e869-4bbb-9e17-ec4728794dfd.jpg)
+![табель](https://user-images.githubusercontent.com/14893277/147359621-6fa2688e-c07d-4b57-9eac-4369af83b511.jpg)
